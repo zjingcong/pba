@@ -53,21 +53,25 @@ namespace pba {
         {
             delete solver_list[LEAP_FROG];
             delete solver_list[SIX_ORDER];
+            delete force;
         }
 
         void Init(const std::vector<std::string>& args)
         {
             // load scene
-            if (args.size() == 2)
+            if (args.size() == 2)   // load .obj file
             {
                 std::string scene_file = args[1];
                 LoadMesh::LoadObj(scene_file, verts, face_indices);
             }
             else    // load cube
-                {LoadMesh::LoadBox(10, verts, face_indices);}
+            { LoadMesh::LoadBox(10, verts, face_indices); }
 
             // init sim
             emitParticles(num);
+
+            // add force
+            addForce();
         }
 
         void Reset()
@@ -92,8 +96,8 @@ namespace pba {
                 std::cout << "particles number: " << num << std::endl;
             }
 
-            // add force
-            addForce();
+            // update force parms
+            force->updateParms("g", g);
             // set force and ds to solver
             solver->setForce(force);
             solver->setDS(DS);

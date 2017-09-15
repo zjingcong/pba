@@ -25,7 +25,7 @@ void SolverBase::updateVel(float dt)
 }
 
 
-void LeapFrogSolver::updateDS(float dt)
+void LeapFrogSolver::_updateDS(float dt)
 {
     // S_lf(dt) = S_x(dt/2)S_v(dt)S_x(dt/2)
     LeapFrogSolver::updatePos(dt / 2);
@@ -34,7 +34,7 @@ void LeapFrogSolver::updateDS(float dt)
 }
 
 
-void SixOrderSolver::updateDS(float dt)
+void SixOrderSolver::_updateDS(float dt)
 {
     float a = float(1.0 / (4.0 - std::pow(4, 1.0/3.0)));
     float b = 1 - 4 * a;
