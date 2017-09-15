@@ -11,6 +11,7 @@
 # include "Solver.h"
 # include "Force.h"
 # include "DynamicalState.h"
+# include "Tools.h"
 
 # include <iostream>
 
@@ -27,11 +28,32 @@ namespace pba
 
         void Init(const std::vector<std::string>& args)
         {
+//            // test argvs
+//            for (auto it = args.cbegin(); it != args.cend(); ++it)
+//            {
+//                std::cout << *it << std::endl;
+//            }
+//
+//            testObj();
+            testBox();
+
             cout << "================solverTest=============" << endl;
             // testBaseSolver();
-            testSolver();
+            // testSolver();
             cout << "=============solverTestEND=============" << endl;
         }
+
+
+        void Display()
+        {
+            testDrawTriangles();
+        }
+
+
+    private:
+        std::vector<Vector> vertices;
+        std::vector<Vector> face_indices;
+        std::vector<Color> colors;
 
         void testBaseSolver()
         {
@@ -90,6 +112,40 @@ namespace pba
             solver->updateDS(float(1.0 / 24.0));
             cout << "pos.Y: " << DS->pos(0).Y();
             cout << " vel.Y: " << DS->vel(0).Y() << endl;
+        }
+
+        void testObj()
+        {
+            LoadMesh::LoadObj("/home/jingcoz/workspace/pba/hw1/models/bigsphere.obj", vertices, face_indices);
+
+            std::cout << "Verts: " << endl;
+            for (auto it = vertices.cbegin(); it != vertices.cend(); ++it)
+            {
+                Vector v = *it;
+                std::cout << v.X() << ", " << v.Y() << ", " << v.Z() << std::endl;
+            }
+
+            std::cout << "fs: " << endl;
+            for (auto it = face_indices.cbegin(); it != face_indices.cend(); ++it)
+            {
+                Vector v = *it;
+                std::cout << v.X() << ", " << v.Y() << ", " << v.Z() << std::endl;
+            }
+        }
+
+        void testBox()
+        {
+            LoadMesh::LoadBox(10, vertices, face_indices);
+        }
+
+        void testDrawTriangles()
+        {
+            for (size_t i = 0; i < face_indices.size(); ++i)
+            {
+                colors.push_back(Color(float(drand48()), float(drand48()), float(drand48()), 1.0));
+            }
+
+            Draw::DrawTriangles(vertices, face_indices, colors);
         }
     };
 

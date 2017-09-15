@@ -6,11 +6,13 @@ OFILES = base/PbaViewer.o \
          base/Matrix.o \
          base/LinearAlgebra.o \
          base/Force.o \
-         base/Solver.o
+         base/Solver.o \
+         base/Tools.o
 
 
 THINGS = things/TriangleCollision.h \
-         things/unitTest.h
+         things/unitTest.h \
+         things/RotatingCube.h
 
 
 ROOTDIR = .

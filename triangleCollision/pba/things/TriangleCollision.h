@@ -8,6 +8,7 @@
 # include "Solver.h"
 # include "Force.h"
 # include "DynamicalState.h"
+# include "Tools.h"
 
 # ifdef __APPLE__
 #include <OpenGL/gl.h>   // OpenGL itself.
@@ -56,14 +57,27 @@ namespace pba {
 
         void Init(const std::vector<std::string>& args)
         {
+            // load scene
+            if (args.size() == 2)
+            {
+                std::string scene_file = args[1];
+                LoadMesh::LoadObj(scene_file, verts, face_indices);
+            }
+            else    // load cube
+                {LoadMesh::LoadBox(10, verts, face_indices);}
+
+            // init sim
             emitParticles(num);
         }
 
         void Reset()
         {
+            // clear dynamical state
             DS.reset();
             DS = CreateDynamicalState("collisionParticles");
+            // set default values
             _init();
+            // init sim
             emitParticles(num);
         }
 
@@ -89,19 +103,22 @@ namespace pba {
 
         void Display()
         {
-            glMatrixMode(GL_MODELVIEW);
+            // draw scene
+            for (size_t i = 0; i < face_indices.size(); ++i)
+                { colors.push_back(Color(float(drand48()), float(drand48()), float(drand48()), 1.0)); } // set random colors
+            Draw::DrawTriangles(verts, face_indices, colors);
 
             // draw particles
+            glPointSize(3.6f);
+            glBegin(GL_POINTS);
             for (size_t i = 0; i < DS->nb(); ++i)
             {
-                glPointSize(3.6f);
-                glBegin(GL_POINTS);
                 Vector pos = DS->pos(i);
                 Color color = DS->ci(i);
                 glColor3f(color.red(), color.green(), color.blue());
                 glVertex3f(float(pos.X()), float(pos.Y()), float(pos.Z()));
-                glEnd();
             }
+            glEnd();
 
             glFlush();
         }
@@ -136,14 +153,8 @@ namespace pba {
                 case 'e':
                 {
                     addParticles = !addParticles;
-                    if (addParticles)
-                    {
-                        std::cout << "START EMITTING" << std::endl;
-                    }
-                    else
-                    {
-                        std::cout << "STOP EMITTING" << std::endl;
-                    }
+                    if (addParticles) { std::cout << "START EMITTING" << std::endl; }
+                    else { std::cout << "STOP EMITTING" << std::endl; }
                     break;
                 }
 
@@ -169,13 +180,15 @@ namespace pba {
         }
 
     private:
-        // solver
+        //! solvers
         int solver_id;
         std::vector<SolverPtr> solver_list;
         SolverPtr solver;
+
+        //! total force
         ForcePtr force;
 
-        // keyboard selection
+        //! keyboard selection
         float g;    // gravity constant
         float dt;   // timestep
         size_t num;  // num of particles
@@ -183,13 +196,19 @@ namespace pba {
         float Cs;   // coefficient of stickness
         bool addParticles;  // flag to decide whether emit particles
 
-        // default attributes
-        float default_mass;
+        //! default attributes
+        float mass;
 
-        DynamicalState DS;  // dynamical state for all particles
+        //! dynamical state for all particles
+        DynamicalState DS;
+
+        //! mesh
+        std::vector<Vector> verts;
+        std::vector<Vector> face_indices;
+        std::vector<Color> colors;
 
 
-        // set default value
+        //! set default value
         void _init()
         {
             g = 0.098;
@@ -197,11 +216,10 @@ namespace pba {
             num = 100;  // init particles number
             Cr = 1.0;
             Cs = 1.0;
-            default_mass = 1.0;
+            mass = 1.0;
         }
 
-
-        // emit particles and set dynamical state
+        //! emit particles and set dynamical state
         void emitParticles(size_t particle_num)
         {
             size_t nb = DS->nb();
@@ -213,20 +231,14 @@ namespace pba {
                 DS->set_pos(id, Vector(0.0, 0.0, 0.0));  // default position
                 DS->set_vel(id, Vector(drand48() - 0.5, 0.0, drand48() - 0.5));  // default velocity
                 DS->set_ci(id, Color(float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), 1.0));    // random color
-                DS->set_mass(id, default_mass);    // default mass
+                DS->set_mass(id, mass);    // default mass
             }
         }
 
-        // add force to sim
+        //! add force to sim
         void addForce()
         {
             force = new Gravity(g); // add gravity
-        }
-
-        // draw cube
-        void drawCube()
-        {
-
         }
     };
 
