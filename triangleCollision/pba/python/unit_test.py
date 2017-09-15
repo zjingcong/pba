@@ -15,10 +15,10 @@ args = pbav.StringArray()
 
 
 for s in sys.argv:
-	args.push_back(s)
+    args.push_back(s)
 
-triangle_collision = things.TriangleCollision()
-viewer.AddThing(triangle_collision)
+unit_test = things.unitTest()
+viewer.AddThing(unit_test)
 
 viewer.Init(args)
 viewer.MainLoop()

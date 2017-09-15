@@ -15,7 +15,7 @@ namespace pba
     class SolverBase
     {
     public:
-        SolverBase(): name("unknown")   {}
+        SolverBase(): name("partialSolver")   {}
         virtual ~SolverBase()   {}
 
         const std::string& Name() const { return name; }
@@ -35,11 +35,13 @@ namespace pba
         DynamicalState DS;
     };
 
+    typedef SolverBase* SolverPtr;
+
 
     class LeapFrogSolver: public SolverBase
     {
     public:
-        LeapFrogSolver(): name("LeapFrog")  {}
+        LeapFrogSolver()    {name="LeapFrog";}
         ~LeapFrogSolver()   {}
 
         void updateDS(float dt);
@@ -49,7 +51,7 @@ namespace pba
     class SixOrderSolver: public LeapFrogSolver
     {
     public:
-        SixOrderSolver(): name("SixOrder")  {}
+        SixOrderSolver()    {name="SixOrder";}
         ~SixOrderSolver()   {}
 
         void updateDS(float dt);

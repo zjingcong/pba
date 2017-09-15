@@ -145,32 +145,55 @@ class StringArray(_object):
 StringArray_swigregister = _PbaThings.StringArray_swigregister
 StringArray_swigregister(StringArray)
 
-class RotatingCubeThing(_object):
+LEAP_FROG = _PbaThings.LEAP_FROG
+SIX_ORDER = _PbaThings.SIX_ORDER
+class TriangleCollisionThing(_object):
     __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, RotatingCubeThing, name, value)
+    __setattr__ = lambda self, name, value: _swig_setattr(self, TriangleCollisionThing, name, value)
     __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, RotatingCubeThing, name)
+    __getattr__ = lambda self, name: _swig_getattr(self, TriangleCollisionThing, name)
     __repr__ = _swig_repr
-    def __init__(self, nam="RotatingCubeThing"): 
-        this = _PbaThings.new_RotatingCubeThing(nam)
+    def __init__(self, nam="TriangleCollisionThing"): 
+        this = _PbaThings.new_TriangleCollisionThing(nam)
         try: self.this.append(this)
         except: self.this = this
-    __swig_destroy__ = _PbaThings.delete_RotatingCubeThing
+    __swig_destroy__ = _PbaThings.delete_TriangleCollisionThing
     __del__ = lambda self : None;
-    def Init(self, *args): return _PbaThings.RotatingCubeThing_Init(self, *args)
-    def Display(self): return _PbaThings.RotatingCubeThing_Display(self)
-    def solve(self): return _PbaThings.RotatingCubeThing_solve(self)
-    def Reset(self): return _PbaThings.RotatingCubeThing_Reset(self)
-    def Usage(self): return _PbaThings.RotatingCubeThing_Usage(self)
-    def Vertex(self, *args): return _PbaThings.RotatingCubeThing_Vertex(self, *args)
-    def Normal(self, *args): return _PbaThings.RotatingCubeThing_Normal(self, *args)
-RotatingCubeThing_swigregister = _PbaThings.RotatingCubeThing_swigregister
-RotatingCubeThing_swigregister(RotatingCubeThing)
+    def Init(self, *args): return _PbaThings.TriangleCollisionThing_Init(self, *args)
+    def Reset(self): return _PbaThings.TriangleCollisionThing_Reset(self)
+    def solve(self): return _PbaThings.TriangleCollisionThing_solve(self)
+    def Display(self): return _PbaThings.TriangleCollisionThing_Display(self)
+    def Keyboard(self, *args): return _PbaThings.TriangleCollisionThing_Keyboard(self, *args)
+    def Usage(self): return _PbaThings.TriangleCollisionThing_Usage(self)
+TriangleCollisionThing_swigregister = _PbaThings.TriangleCollisionThing_swigregister
+TriangleCollisionThing_swigregister(TriangleCollisionThing)
 
 
-def RotatingCube():
-  return _PbaThings.RotatingCube()
-RotatingCube = _PbaThings.RotatingCube
+def TriangleCollision():
+  return _PbaThings.TriangleCollision()
+TriangleCollision = _PbaThings.TriangleCollision
+class unitTestThing(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, unitTestThing, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, unitTestThing, name)
+    __repr__ = _swig_repr
+    def __init__(self, nam="unitTest"): 
+        this = _PbaThings.new_unitTestThing(nam)
+        try: self.this.append(this)
+        except: self.this = this
+    __swig_destroy__ = _PbaThings.delete_unitTestThing
+    __del__ = lambda self : None;
+    def Init(self, *args): return _PbaThings.unitTestThing_Init(self, *args)
+    def testBaseSolver(self): return _PbaThings.unitTestThing_testBaseSolver(self)
+    def testSolver(self): return _PbaThings.unitTestThing_testSolver(self)
+unitTestThing_swigregister = _PbaThings.unitTestThing_swigregister
+unitTestThing_swigregister(unitTestThing)
+
+
+def unitTest():
+  return _PbaThings.unitTest()
+unitTest = _PbaThings.unitTest
 # This file is compatible with both classic and new-style classes.
 
 

@@ -4,12 +4,13 @@ OFILES = base/PbaViewer.o \
          base/DynamicalState.o \
          base/PbaThing.o \
          base/Matrix.o \
-         base/LinearAlgebra.o 
+         base/LinearAlgebra.o \
+         base/Force.o \
+         base/Solver.o
 
 
-
-THINGS = things/RotatingCube.h 
-
+THINGS = things/TriangleCollision.h \
+         things/unitTest.h
 
 
 ROOTDIR = .

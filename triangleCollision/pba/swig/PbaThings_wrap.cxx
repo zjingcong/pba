@@ -2942,8 +2942,8 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 #define SWIGTYPE_p_difference_type swig_types[2]
 #define SWIGTYPE_p_p_PyObject swig_types[3]
 #define SWIGTYPE_p_pba__PbaThing swig_types[4]
-#define SWIGTYPE_p_pba__RotatingCubeThing swig_types[5]
-#define SWIGTYPE_p_pba__Vector swig_types[6]
+#define SWIGTYPE_p_pba__TriangleCollisionThing swig_types[5]
+#define SWIGTYPE_p_pba__unitTestThing swig_types[6]
 #define SWIGTYPE_p_size_type swig_types[7]
 #define SWIGTYPE_p_std__allocatorT_std__string_t swig_types[8]
 #define SWIGTYPE_p_std__invalid_argument swig_types[9]
@@ -3049,7 +3049,8 @@ namespace swig {
 }
 
 
-#include "RotatingCube.h"
+#include "TriangleCollision.h"
+#include "unitTest.h"
 
 
 #include <string>
@@ -4835,6 +4836,13 @@ SWIGINTERN void std_vector_Sl_std_string_Sg__append(std::vector< std::string > *
       self->push_back(x);
     }
 
+SWIGINTERNINLINE PyObject*
+  SWIG_From_int  (int value)
+{
+  return PyInt_FromLong((long) value);
+}
+
+
 #include <limits.h>
 #if !defined(SWIG_NO_LLONG_MAX)
 # if !defined(LLONG_MAX) && defined(__GNUC__) && defined (__LONG_LONG_MAX__)
@@ -4843,6 +4851,22 @@ SWIGINTERN void std_vector_Sl_std_string_Sg__append(std::vector< std::string > *
 #   define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
 # endif
 #endif
+
+
+SWIGINTERN int
+SWIG_AsVal_unsigned_SS_char (PyObject * obj, unsigned char *val)
+{
+  unsigned long v;
+  int res = SWIG_AsVal_unsigned_SS_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v > UCHAR_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< unsigned char >(v);
+    }
+  }  
+  return res;
+}
 
 
 SWIGINTERN int
@@ -7636,44 +7660,44 @@ SWIGINTERN PyObject *StringArray_swigregister(PyObject *SWIGUNUSEDPARM(self), Py
   return SWIG_Py_Void();
 }
 
-SWIGINTERN PyObject *_wrap_new_RotatingCubeThing__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_TriangleCollisionThing__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   std::string arg1 ;
   PyObject * obj0 = 0 ;
-  pba::RotatingCubeThing *result = 0 ;
+  pba::TriangleCollisionThing *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:new_RotatingCubeThing",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:new_TriangleCollisionThing",&obj0)) SWIG_fail;
   {
     std::string *ptr = (std::string *)0;
     int res = SWIG_AsPtr_std_string(obj0, &ptr);
     if (!SWIG_IsOK(res) || !ptr) {
-      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "new_RotatingCubeThing" "', argument " "1"" of type '" "std::string const""'"); 
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "new_TriangleCollisionThing" "', argument " "1"" of type '" "std::string const""'"); 
     }
     arg1 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
   }
-  result = (pba::RotatingCubeThing *)new pba::RotatingCubeThing(arg1);
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pba__RotatingCubeThing, SWIG_POINTER_NEW |  0 );
+  result = (pba::TriangleCollisionThing *)new pba::TriangleCollisionThing(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pba__TriangleCollisionThing, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_new_RotatingCubeThing__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_TriangleCollisionThing__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  pba::RotatingCubeThing *result = 0 ;
+  pba::TriangleCollisionThing *result = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)":new_RotatingCubeThing")) SWIG_fail;
-  result = (pba::RotatingCubeThing *)new pba::RotatingCubeThing();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pba__RotatingCubeThing, SWIG_POINTER_NEW |  0 );
+  if (!PyArg_ParseTuple(args,(char *)":new_TriangleCollisionThing")) SWIG_fail;
+  result = (pba::TriangleCollisionThing *)new pba::TriangleCollisionThing();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pba__TriangleCollisionThing, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_new_RotatingCubeThing(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_new_TriangleCollisionThing(PyObject *self, PyObject *args) {
   int argc;
   PyObject *argv[2];
   int ii;
@@ -7684,39 +7708,39 @@ SWIGINTERN PyObject *_wrap_new_RotatingCubeThing(PyObject *self, PyObject *args)
     argv[ii] = PyTuple_GET_ITEM(args,ii);
   }
   if (argc == 0) {
-    return _wrap_new_RotatingCubeThing__SWIG_1(self, args);
+    return _wrap_new_TriangleCollisionThing__SWIG_1(self, args);
   }
   if (argc == 1) {
     int _v;
     int res = SWIG_AsPtr_std_string(argv[0], (std::string**)(0));
     _v = SWIG_CheckState(res);
     if (_v) {
-      return _wrap_new_RotatingCubeThing__SWIG_0(self, args);
+      return _wrap_new_TriangleCollisionThing__SWIG_0(self, args);
     }
   }
   
 fail:
-  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_RotatingCubeThing'.\n"
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_TriangleCollisionThing'.\n"
     "  Possible C/C++ prototypes are:\n"
-    "    pba::RotatingCubeThing::RotatingCubeThing(std::string const)\n"
-    "    pba::RotatingCubeThing::RotatingCubeThing()\n");
+    "    pba::TriangleCollisionThing::TriangleCollisionThing(std::string const)\n"
+    "    pba::TriangleCollisionThing::TriangleCollisionThing()\n");
   return 0;
 }
 
 
-SWIGINTERN PyObject *_wrap_delete_RotatingCubeThing(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_delete_TriangleCollisionThing(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  pba::RotatingCubeThing *arg1 = (pba::RotatingCubeThing *) 0 ;
+  pba::TriangleCollisionThing *arg1 = (pba::TriangleCollisionThing *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:delete_RotatingCubeThing",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__RotatingCubeThing, SWIG_POINTER_DISOWN |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_TriangleCollisionThing",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__TriangleCollisionThing, SWIG_POINTER_DISOWN |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_RotatingCubeThing" "', argument " "1"" of type '" "pba::RotatingCubeThing *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_TriangleCollisionThing" "', argument " "1"" of type '" "pba::TriangleCollisionThing *""'"); 
   }
-  arg1 = reinterpret_cast< pba::RotatingCubeThing * >(argp1);
+  arg1 = reinterpret_cast< pba::TriangleCollisionThing * >(argp1);
   delete arg1;
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -7725,9 +7749,9 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_RotatingCubeThing_Init(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_TriangleCollisionThing_Init(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  pba::RotatingCubeThing *arg1 = (pba::RotatingCubeThing *) 0 ;
+  pba::TriangleCollisionThing *arg1 = (pba::TriangleCollisionThing *) 0 ;
   std::vector< std::string,std::allocator< std::string > > *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -7735,20 +7759,20 @@ SWIGINTERN PyObject *_wrap_RotatingCubeThing_Init(PyObject *SWIGUNUSEDPARM(self)
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OO:RotatingCubeThing_Init",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__RotatingCubeThing, 0 |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"OO:TriangleCollisionThing_Init",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__TriangleCollisionThing, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "RotatingCubeThing_Init" "', argument " "1"" of type '" "pba::RotatingCubeThing *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TriangleCollisionThing_Init" "', argument " "1"" of type '" "pba::TriangleCollisionThing *""'"); 
   }
-  arg1 = reinterpret_cast< pba::RotatingCubeThing * >(argp1);
+  arg1 = reinterpret_cast< pba::TriangleCollisionThing * >(argp1);
   {
     std::vector<std::string,std::allocator< std::string > > *ptr = (std::vector<std::string,std::allocator< std::string > > *)0;
     res2 = swig::asptr(obj1, &ptr);
     if (!SWIG_IsOK(res2)) {
-      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "RotatingCubeThing_Init" "', argument " "2"" of type '" "std::vector< std::string,std::allocator< std::string > > const &""'"); 
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TriangleCollisionThing_Init" "', argument " "2"" of type '" "std::vector< std::string,std::allocator< std::string > > const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "RotatingCubeThing_Init" "', argument " "2"" of type '" "std::vector< std::string,std::allocator< std::string > > const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "TriangleCollisionThing_Init" "', argument " "2"" of type '" "std::vector< std::string,std::allocator< std::string > > const &""'"); 
     }
     arg2 = ptr;
   }
@@ -7762,61 +7786,19 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_RotatingCubeThing_Display(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_TriangleCollisionThing_Reset(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  pba::RotatingCubeThing *arg1 = (pba::RotatingCubeThing *) 0 ;
+  pba::TriangleCollisionThing *arg1 = (pba::TriangleCollisionThing *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:RotatingCubeThing_Display",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__RotatingCubeThing, 0 |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"O:TriangleCollisionThing_Reset",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__TriangleCollisionThing, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "RotatingCubeThing_Display" "', argument " "1"" of type '" "pba::RotatingCubeThing *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TriangleCollisionThing_Reset" "', argument " "1"" of type '" "pba::TriangleCollisionThing *""'"); 
   }
-  arg1 = reinterpret_cast< pba::RotatingCubeThing * >(argp1);
-  (arg1)->Display();
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_RotatingCubeThing_solve(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pba::RotatingCubeThing *arg1 = (pba::RotatingCubeThing *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:RotatingCubeThing_solve",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__RotatingCubeThing, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "RotatingCubeThing_solve" "', argument " "1"" of type '" "pba::RotatingCubeThing *""'"); 
-  }
-  arg1 = reinterpret_cast< pba::RotatingCubeThing * >(argp1);
-  (arg1)->solve();
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_RotatingCubeThing_Reset(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pba::RotatingCubeThing *arg1 = (pba::RotatingCubeThing *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)"O:RotatingCubeThing_Reset",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__RotatingCubeThing, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "RotatingCubeThing_Reset" "', argument " "1"" of type '" "pba::RotatingCubeThing *""'"); 
-  }
-  arg1 = reinterpret_cast< pba::RotatingCubeThing * >(argp1);
+  arg1 = reinterpret_cast< pba::TriangleCollisionThing * >(argp1);
   (arg1)->Reset();
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -7825,19 +7807,109 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_RotatingCubeThing_Usage(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_TriangleCollisionThing_solve(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  pba::RotatingCubeThing *arg1 = (pba::RotatingCubeThing *) 0 ;
+  pba::TriangleCollisionThing *arg1 = (pba::TriangleCollisionThing *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:RotatingCubeThing_Usage",&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__RotatingCubeThing, 0 |  0 );
+  if (!PyArg_ParseTuple(args,(char *)"O:TriangleCollisionThing_solve",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__TriangleCollisionThing, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "RotatingCubeThing_Usage" "', argument " "1"" of type '" "pba::RotatingCubeThing *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TriangleCollisionThing_solve" "', argument " "1"" of type '" "pba::TriangleCollisionThing *""'"); 
   }
-  arg1 = reinterpret_cast< pba::RotatingCubeThing * >(argp1);
+  arg1 = reinterpret_cast< pba::TriangleCollisionThing * >(argp1);
+  (arg1)->solve();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TriangleCollisionThing_Display(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pba::TriangleCollisionThing *arg1 = (pba::TriangleCollisionThing *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TriangleCollisionThing_Display",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__TriangleCollisionThing, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TriangleCollisionThing_Display" "', argument " "1"" of type '" "pba::TriangleCollisionThing *""'"); 
+  }
+  arg1 = reinterpret_cast< pba::TriangleCollisionThing * >(argp1);
+  (arg1)->Display();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TriangleCollisionThing_Keyboard(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pba::TriangleCollisionThing *arg1 = (pba::TriangleCollisionThing *) 0 ;
+  unsigned char arg2 ;
+  int arg3 ;
+  int arg4 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  unsigned char val2 ;
+  int ecode2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int val4 ;
+  int ecode4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:TriangleCollisionThing_Keyboard",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__TriangleCollisionThing, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TriangleCollisionThing_Keyboard" "', argument " "1"" of type '" "pba::TriangleCollisionThing *""'"); 
+  }
+  arg1 = reinterpret_cast< pba::TriangleCollisionThing * >(argp1);
+  ecode2 = SWIG_AsVal_unsigned_SS_char(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "TriangleCollisionThing_Keyboard" "', argument " "2"" of type '" "unsigned char""'");
+  } 
+  arg2 = static_cast< unsigned char >(val2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "TriangleCollisionThing_Keyboard" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  ecode4 = SWIG_AsVal_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "TriangleCollisionThing_Keyboard" "', argument " "4"" of type '" "int""'");
+  } 
+  arg4 = static_cast< int >(val4);
+  (arg1)->Keyboard(arg2,arg3,arg4);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_TriangleCollisionThing_Usage(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pba::TriangleCollisionThing *arg1 = (pba::TriangleCollisionThing *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:TriangleCollisionThing_Usage",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__TriangleCollisionThing, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TriangleCollisionThing_Usage" "', argument " "1"" of type '" "pba::TriangleCollisionThing *""'"); 
+  }
+  arg1 = reinterpret_cast< pba::TriangleCollisionThing * >(argp1);
   (arg1)->Usage();
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -7846,81 +7918,207 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_RotatingCubeThing_Vertex(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pba::RotatingCubeThing *arg1 = (pba::RotatingCubeThing *) 0 ;
-  int arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  pba::Vector result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:RotatingCubeThing_Vertex",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__RotatingCubeThing, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "RotatingCubeThing_Vertex" "', argument " "1"" of type '" "pba::RotatingCubeThing const *""'"); 
-  }
-  arg1 = reinterpret_cast< pba::RotatingCubeThing * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "RotatingCubeThing_Vertex" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  result = ((pba::RotatingCubeThing const *)arg1)->Vertex(arg2);
-  resultobj = SWIG_NewPointerObj((new pba::Vector(static_cast< const pba::Vector& >(result))), SWIGTYPE_p_pba__Vector, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_RotatingCubeThing_Normal(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  pba::RotatingCubeThing *arg1 = (pba::RotatingCubeThing *) 0 ;
-  int arg2 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  pba::Vector result;
-  
-  if (!PyArg_ParseTuple(args,(char *)"OO:RotatingCubeThing_Normal",&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__RotatingCubeThing, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "RotatingCubeThing_Normal" "', argument " "1"" of type '" "pba::RotatingCubeThing const *""'"); 
-  }
-  arg1 = reinterpret_cast< pba::RotatingCubeThing * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "RotatingCubeThing_Normal" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = static_cast< int >(val2);
-  result = ((pba::RotatingCubeThing const *)arg1)->Normal(arg2);
-  resultobj = SWIG_NewPointerObj((new pba::Vector(static_cast< const pba::Vector& >(result))), SWIGTYPE_p_pba__Vector, SWIG_POINTER_OWN |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *RotatingCubeThing_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *TriangleCollisionThing_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *obj;
   if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
-  SWIG_TypeNewClientData(SWIGTYPE_p_pba__RotatingCubeThing, SWIG_NewClientData(obj));
+  SWIG_TypeNewClientData(SWIGTYPE_p_pba__TriangleCollisionThing, SWIG_NewClientData(obj));
   return SWIG_Py_Void();
 }
 
-SWIGINTERN PyObject *_wrap_RotatingCube(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_TriangleCollision(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   pba::PbaThing result;
   
-  if (!PyArg_ParseTuple(args,(char *)":RotatingCube")) SWIG_fail;
-  result = pba::RotatingCube();
+  if (!PyArg_ParseTuple(args,(char *)":TriangleCollision")) SWIG_fail;
+  result = pba::TriangleCollision();
+  resultobj = SWIG_NewPointerObj((new pba::PbaThing(static_cast< const pba::PbaThing& >(result))), SWIGTYPE_p_pba__PbaThing, SWIG_POINTER_OWN |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_unitTestThing__SWIG_0(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string arg1 ;
+  PyObject * obj0 = 0 ;
+  pba::unitTestThing *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:new_unitTestThing",&obj0)) SWIG_fail;
+  {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string(obj0, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+      SWIG_exception_fail(SWIG_ArgError((ptr ? res : SWIG_TypeError)), "in method '" "new_unitTestThing" "', argument " "1"" of type '" "std::string const""'"); 
+    }
+    arg1 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+  }
+  result = (pba::unitTestThing *)new pba::unitTestThing(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pba__unitTestThing, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_unitTestThing__SWIG_1(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pba::unitTestThing *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)":new_unitTestThing")) SWIG_fail;
+  result = (pba::unitTestThing *)new pba::unitTestThing();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pba__unitTestThing, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_new_unitTestThing(PyObject *self, PyObject *args) {
+  int argc;
+  PyObject *argv[2];
+  int ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? (int)PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 1) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 0) {
+    return _wrap_new_unitTestThing__SWIG_1(self, args);
+  }
+  if (argc == 1) {
+    int _v;
+    int res = SWIG_AsPtr_std_string(argv[0], (std::string**)(0));
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      return _wrap_new_unitTestThing__SWIG_0(self, args);
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'new_unitTestThing'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    pba::unitTestThing::unitTestThing(std::string const)\n"
+    "    pba::unitTestThing::unitTestThing()\n");
+  return 0;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_unitTestThing(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pba::unitTestThing *arg1 = (pba::unitTestThing *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:delete_unitTestThing",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__unitTestThing, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_unitTestThing" "', argument " "1"" of type '" "pba::unitTestThing *""'"); 
+  }
+  arg1 = reinterpret_cast< pba::unitTestThing * >(argp1);
+  delete arg1;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_unitTestThing_Init(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pba::unitTestThing *arg1 = (pba::unitTestThing *) 0 ;
+  std::vector< std::string,std::allocator< std::string > > *arg2 = 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:unitTestThing_Init",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__unitTestThing, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "unitTestThing_Init" "', argument " "1"" of type '" "pba::unitTestThing *""'"); 
+  }
+  arg1 = reinterpret_cast< pba::unitTestThing * >(argp1);
+  {
+    std::vector<std::string,std::allocator< std::string > > *ptr = (std::vector<std::string,std::allocator< std::string > > *)0;
+    res2 = swig::asptr(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "unitTestThing_Init" "', argument " "2"" of type '" "std::vector< std::string,std::allocator< std::string > > const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "unitTestThing_Init" "', argument " "2"" of type '" "std::vector< std::string,std::allocator< std::string > > const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  (arg1)->Init((std::vector< std::string,std::allocator< std::string > > const &)*arg2);
+  resultobj = SWIG_Py_Void();
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_unitTestThing_testBaseSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pba::unitTestThing *arg1 = (pba::unitTestThing *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:unitTestThing_testBaseSolver",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__unitTestThing, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "unitTestThing_testBaseSolver" "', argument " "1"" of type '" "pba::unitTestThing *""'"); 
+  }
+  arg1 = reinterpret_cast< pba::unitTestThing * >(argp1);
+  (arg1)->testBaseSolver();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_unitTestThing_testSolver(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pba::unitTestThing *arg1 = (pba::unitTestThing *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:unitTestThing_testSolver",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_pba__unitTestThing, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "unitTestThing_testSolver" "', argument " "1"" of type '" "pba::unitTestThing *""'"); 
+  }
+  arg1 = reinterpret_cast< pba::unitTestThing * >(argp1);
+  (arg1)->testSolver();
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *unitTestThing_swigregister(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *obj;
+  if (!PyArg_ParseTuple(args,(char*)"O:swigregister", &obj)) return NULL;
+  SWIG_TypeNewClientData(SWIGTYPE_p_pba__unitTestThing, SWIG_NewClientData(obj));
+  return SWIG_Py_Void();
+}
+
+SWIGINTERN PyObject *_wrap_unitTest(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  pba::PbaThing result;
+  
+  if (!PyArg_ParseTuple(args,(char *)":unitTest")) SWIG_fail;
+  result = pba::unitTest();
   resultobj = SWIG_NewPointerObj((new pba::PbaThing(static_cast< const pba::PbaThing& >(result))), SWIGTYPE_p_pba__PbaThing, SWIG_POINTER_OWN |  0 );
   return resultobj;
 fail:
@@ -7982,17 +8180,23 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"StringArray_capacity", _wrap_StringArray_capacity, METH_VARARGS, NULL},
 	 { (char *)"delete_StringArray", _wrap_delete_StringArray, METH_VARARGS, NULL},
 	 { (char *)"StringArray_swigregister", StringArray_swigregister, METH_VARARGS, NULL},
-	 { (char *)"new_RotatingCubeThing", _wrap_new_RotatingCubeThing, METH_VARARGS, NULL},
-	 { (char *)"delete_RotatingCubeThing", _wrap_delete_RotatingCubeThing, METH_VARARGS, NULL},
-	 { (char *)"RotatingCubeThing_Init", _wrap_RotatingCubeThing_Init, METH_VARARGS, NULL},
-	 { (char *)"RotatingCubeThing_Display", _wrap_RotatingCubeThing_Display, METH_VARARGS, NULL},
-	 { (char *)"RotatingCubeThing_solve", _wrap_RotatingCubeThing_solve, METH_VARARGS, NULL},
-	 { (char *)"RotatingCubeThing_Reset", _wrap_RotatingCubeThing_Reset, METH_VARARGS, NULL},
-	 { (char *)"RotatingCubeThing_Usage", _wrap_RotatingCubeThing_Usage, METH_VARARGS, NULL},
-	 { (char *)"RotatingCubeThing_Vertex", _wrap_RotatingCubeThing_Vertex, METH_VARARGS, NULL},
-	 { (char *)"RotatingCubeThing_Normal", _wrap_RotatingCubeThing_Normal, METH_VARARGS, NULL},
-	 { (char *)"RotatingCubeThing_swigregister", RotatingCubeThing_swigregister, METH_VARARGS, NULL},
-	 { (char *)"RotatingCube", _wrap_RotatingCube, METH_VARARGS, NULL},
+	 { (char *)"new_TriangleCollisionThing", _wrap_new_TriangleCollisionThing, METH_VARARGS, NULL},
+	 { (char *)"delete_TriangleCollisionThing", _wrap_delete_TriangleCollisionThing, METH_VARARGS, NULL},
+	 { (char *)"TriangleCollisionThing_Init", _wrap_TriangleCollisionThing_Init, METH_VARARGS, NULL},
+	 { (char *)"TriangleCollisionThing_Reset", _wrap_TriangleCollisionThing_Reset, METH_VARARGS, NULL},
+	 { (char *)"TriangleCollisionThing_solve", _wrap_TriangleCollisionThing_solve, METH_VARARGS, NULL},
+	 { (char *)"TriangleCollisionThing_Display", _wrap_TriangleCollisionThing_Display, METH_VARARGS, NULL},
+	 { (char *)"TriangleCollisionThing_Keyboard", _wrap_TriangleCollisionThing_Keyboard, METH_VARARGS, NULL},
+	 { (char *)"TriangleCollisionThing_Usage", _wrap_TriangleCollisionThing_Usage, METH_VARARGS, NULL},
+	 { (char *)"TriangleCollisionThing_swigregister", TriangleCollisionThing_swigregister, METH_VARARGS, NULL},
+	 { (char *)"TriangleCollision", _wrap_TriangleCollision, METH_VARARGS, NULL},
+	 { (char *)"new_unitTestThing", _wrap_new_unitTestThing, METH_VARARGS, NULL},
+	 { (char *)"delete_unitTestThing", _wrap_delete_unitTestThing, METH_VARARGS, NULL},
+	 { (char *)"unitTestThing_Init", _wrap_unitTestThing_Init, METH_VARARGS, NULL},
+	 { (char *)"unitTestThing_testBaseSolver", _wrap_unitTestThing_testBaseSolver, METH_VARARGS, NULL},
+	 { (char *)"unitTestThing_testSolver", _wrap_unitTestThing_testSolver, METH_VARARGS, NULL},
+	 { (char *)"unitTestThing_swigregister", unitTestThing_swigregister, METH_VARARGS, NULL},
+	 { (char *)"unitTest", _wrap_unitTest, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 
@@ -8004,8 +8208,8 @@ static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_difference_type = {"_p_difference_type", "difference_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_PyObject = {"_p_p_PyObject", "PyObject **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_pba__PbaThing = {"_p_pba__PbaThing", "pba::PbaThing *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_pba__RotatingCubeThing = {"_p_pba__RotatingCubeThing", "pba::RotatingCubeThing *", 0, 0, (void*)0, 0};
-static swig_type_info _swigt__p_pba__Vector = {"_p_pba__Vector", "pba::Vector *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_pba__TriangleCollisionThing = {"_p_pba__TriangleCollisionThing", "pba::TriangleCollisionThing *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_pba__unitTestThing = {"_p_pba__unitTestThing", "pba::unitTestThing *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_size_type = {"_p_size_type", "size_type *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__allocatorT_std__string_t = {"_p_std__allocatorT_std__string_t", "std::vector< std::string >::allocator_type *|std::allocator< std::string > *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__invalid_argument = {"_p_std__invalid_argument", "std::invalid_argument *", 0, 0, (void*)0, 0};
@@ -8020,8 +8224,8 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_difference_type,
   &_swigt__p_p_PyObject,
   &_swigt__p_pba__PbaThing,
-  &_swigt__p_pba__RotatingCubeThing,
-  &_swigt__p_pba__Vector,
+  &_swigt__p_pba__TriangleCollisionThing,
+  &_swigt__p_pba__unitTestThing,
   &_swigt__p_size_type,
   &_swigt__p_std__allocatorT_std__string_t,
   &_swigt__p_std__invalid_argument,
@@ -8036,8 +8240,8 @@ static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0,
 static swig_cast_info _swigc__p_difference_type[] = {  {&_swigt__p_difference_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_PyObject[] = {  {&_swigt__p_p_PyObject, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_pba__PbaThing[] = {  {&_swigt__p_pba__PbaThing, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_pba__RotatingCubeThing[] = {  {&_swigt__p_pba__RotatingCubeThing, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_pba__Vector[] = {  {&_swigt__p_pba__Vector, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_pba__TriangleCollisionThing[] = {  {&_swigt__p_pba__TriangleCollisionThing, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_pba__unitTestThing[] = {  {&_swigt__p_pba__unitTestThing, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_size_type[] = {  {&_swigt__p_size_type, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__allocatorT_std__string_t[] = {  {&_swigt__p_std__allocatorT_std__string_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__invalid_argument[] = {  {&_swigt__p_std__invalid_argument, 0, 0, 0},{0, 0, 0, 0}};
@@ -8052,8 +8256,8 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_difference_type,
   _swigc__p_p_PyObject,
   _swigc__p_pba__PbaThing,
-  _swigc__p_pba__RotatingCubeThing,
-  _swigc__p_pba__Vector,
+  _swigc__p_pba__TriangleCollisionThing,
+  _swigc__p_pba__unitTestThing,
   _swigc__p_size_type,
   _swigc__p_std__allocatorT_std__string_t,
   _swigc__p_std__invalid_argument,
@@ -8745,6 +8949,8 @@ SWIG_init(void) {
   
   SWIG_InstallConstants(d,swig_const_table);
   
+  SWIG_Python_SetConstant(d, "LEAP_FROG",SWIG_From_int(static_cast< int >(0)));
+  SWIG_Python_SetConstant(d, "SIX_ORDER",SWIG_From_int(static_cast< int >(1)));
 #if PY_VERSION_HEX >= 0x03000000
   return m;
 #else

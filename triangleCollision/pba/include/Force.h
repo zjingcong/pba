@@ -36,7 +36,8 @@ namespace pba
     class Gravity: public ForceBase
     {
     public:
-        Gravity(float gconstant): name("gravity"), g(gconstant) {}
+        Gravity(float gconstant): g(gconstant)
+            {name="gravity";}
         ~Gravity()  {}
 
         void updateForce(DynamicalState DS, const size_t p);
