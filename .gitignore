@@ -36,3 +36,7 @@
 
 # other
 .*
+
+# clion
+*.xml
+*.iml
