@@ -40,9 +40,9 @@ namespace pba {
         TriangleCollisionThing(const std::string nam = "TriangleCollisionThing"):
                 PbaThingyDingy(nam),
                 solver_id(LEAP_FROG),
-                addParticles(false),
-                default_mass(1)
+                addParticles(false)
         {
+            _init();
             solver_list.push_back(new LeapFrogSolver());
             solver_list.push_back(new SixOrderSolver());
             solver = solver_list[LEAP_FROG];
@@ -56,18 +56,15 @@ namespace pba {
 
         void Init(const std::vector<std::string>& args)
         {
-            g = 0.098;
-            dt = float(1.0 / 24.0);
-            num = 100;  // init particles number
-            Cr = 1.0;
-            Cs = 1.0;
-
             emitParticles(num);
         }
 
         void Reset()
         {
-
+            DS.reset();
+            DS = CreateDynamicalState("collisionParticles");
+            _init();
+            emitParticles(num);
         }
 
         void solve()
@@ -82,9 +79,9 @@ namespace pba {
             }
 
             // add force
-            ForcePtr gravity = new Gravity(g);
+            addForce();
             // set force and ds to solver
-            solver->setForce(gravity);
+            solver->setForce(force);
             solver->setDS(DS);
             // update dynamical state
             solver->updateDS(dt);
@@ -94,6 +91,7 @@ namespace pba {
         {
             glMatrixMode(GL_MODELVIEW);
 
+            // draw particles
             for (size_t i = 0; i < DS->nb(); ++i)
             {
                 glPointSize(3.6f);
@@ -120,9 +118,9 @@ namespace pba {
 
                 // timestep control
                 case 't':
-                { dt /= 1.1; std::cout << "time step " << dt << std::endl; }
+                { dt /= 1.1; std::cout << "time step " << dt << std::endl; break;}
                 case 'T':
-                { dt *= 1.1; std::cout << "time step " << dt << std::endl; }
+                { dt *= 1.1; std::cout << "time step " << dt << std::endl; break;}
 
                 // solver switch
                 case 'q':
@@ -146,7 +144,12 @@ namespace pba {
                     {
                         std::cout << "STOP EMITTING" << std::endl;
                     }
+                    break;
                 }
+
+                // quit
+                case 27:
+                { exit(0);}
 
                 default:
                     break;
@@ -162,6 +165,7 @@ namespace pba {
             std::cout << "e       start/stop emitting more particles\n";
             std::cout << "t/T     reduce/increase animation time step\n";
             std::cout << "q       switch solvers between Leap Frog and Sixth Order" << endl;
+            std::cout << "Esc     quit" << endl;
         }
 
     private:
@@ -169,6 +173,7 @@ namespace pba {
         int solver_id;
         std::vector<SolverPtr> solver_list;
         SolverPtr solver;
+        ForcePtr force;
 
         // keyboard selection
         float g;    // gravity constant
@@ -184,6 +189,19 @@ namespace pba {
         DynamicalState DS;  // dynamical state for all particles
 
 
+        // set default value
+        void _init()
+        {
+            g = 0.098;
+            dt = float(1.0 / 24.0);
+            num = 100;  // init particles number
+            Cr = 1.0;
+            Cs = 1.0;
+            default_mass = 1.0;
+        }
+
+
+        // emit particles and set dynamical state
         void emitParticles(size_t particle_num)
         {
             size_t nb = DS->nb();
@@ -197,6 +215,18 @@ namespace pba {
                 DS->set_ci(id, Color(float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), 1.0));    // random color
                 DS->set_mass(id, default_mass);    // default mass
             }
+        }
+
+        // add force to sim
+        void addForce()
+        {
+            force = new Gravity(g); // add gravity
+        }
+
+        // draw cube
+        void drawCube()
+        {
+
         }
     };
 
