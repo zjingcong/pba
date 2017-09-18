@@ -189,12 +189,11 @@ namespace pba {
         std::vector<SolverPtr> solver_list;
         SolverPtr solver;
 
-        //! total force
+        //! forces
         ForcePtr force;
 
         //! keyboard selection
         float g;    // gravity constant
-        float dt;   // timestep
         size_t num;  // num of particles
         float Cr;   // coefficient of restitution
         float Cs;   // coefficient of stickness
@@ -216,7 +215,7 @@ namespace pba {
         void _init()
         {
             g = 0.098;
-            dt = float(1.0 / 24.0);
+            dt = 1.0 / 24.0;
             num = 100;  // init particles number
             Cr = 1.0;
             Cs = 1.0;

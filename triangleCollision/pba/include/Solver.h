@@ -19,18 +19,18 @@ namespace pba
         virtual ~SolverBase()   {}
 
         const std::string& Name() const { return name; }
-        void updateDS(float dt) { _updateDS(dt); DS->update_time(dt);}
+        void updateDS(double dt) { _updateDS(dt); DS->update_time(dt);}
 
         virtual void setForce(ForcePtr f)   {force = f;}
         virtual void setDS(DynamicalState ds)   {DS = ds;}
 
     protected:
         // partial solver: update position
-        void updatePos(float dt);
+        void updatePos(double dt);
         // partial solver: update velocity
-        void updateVel(float dt);
+        void updateVel(double dt);
 
-        virtual void _updateDS(float dt) {}
+        virtual void _updateDS(double dt) {}
 
         std::string name;
         ForcePtr force;
@@ -47,7 +47,7 @@ namespace pba
         ~LeapFrogSolver()   {}
 
     protected:
-        void _updateDS(float dt);
+        void _updateDS(double dt);
     };
 
 
@@ -58,7 +58,7 @@ namespace pba
         ~SixOrderSolver()   {}
 
     protected:
-        void _updateDS(float dt);
+        void _updateDS(double dt);
     };
 
 }
