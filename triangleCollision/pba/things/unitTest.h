@@ -57,61 +57,61 @@ namespace pba
 
         void testBaseSolver()
         {
-            SolverPtr solver;
-            solver = new SolverBase();
-
-            cout << "solver name: " << solver->Name() << endl;
-
-            DynamicalState DS = CreateDynamicalState("testDs");
-            DS->add();
-            DS->set_pos(0, Vector(0.0, 0.0, 0.0));
-            DS->set_id(0, 0);
-            DS->set_mass(0, 1);
-            DS->set_vel(0, Vector(0.0, 0.0, 0.0));
-            cout << "DS item number: " << DS->nb() << endl;
-
-            ForcePtr gravity = new Gravity(9.8);
-            cout << "Gravity.Y: " << gravity->getForce(DS, 0).Y() << endl;
-
-            solver->setForce(gravity);
-            solver->setDS(DS);
-
-            cout << "pos.Y: " << DS->pos(0).Y() << endl;
-            cout << "update pos" << endl;
-            // solver->updatePos(float(1.0/24.0));
-            cout << "pos.Y: " << DS->pos(0).Y() << endl;
-            cout << "update vel" << endl;
-            // solver->updateVel(float(1.0/24.0));
-            cout << "vel.Y: " << DS->vel(0).Y() << endl;
+//            SolverPtr solver;
+//            solver = new SolverBase();
+//
+//            cout << "solver name: " << solver->Name() << endl;
+//
+//            DynamicalState DS = CreateDynamicalState("testDs");
+//            DS->add();
+//            DS->set_pos(0, Vector(0.0, 0.0, 0.0));
+//            DS->set_id(0, 0);
+//            DS->set_mass(0, 1);
+//            DS->set_vel(0, Vector(0.0, 0.0, 0.0));
+//            cout << "DS item number: " << DS->nb() << endl;
+//
+//            ForcePtr gravity = new Gravity(9.8);
+//            cout << "Gravity.Y: " << gravity->getForce(DS, 0).Y() << endl;
+//
+//            solver->setForce(gravity);
+//            solver->setDS(DS);
+//
+//            cout << "pos.Y: " << DS->pos(0).Y() << endl;
+//            cout << "update pos" << endl;
+//            // solver->updatePos(float(1.0/24.0));
+//            cout << "pos.Y: " << DS->pos(0).Y() << endl;
+//            cout << "update vel" << endl;
+//            // solver->updateVel(float(1.0/24.0));
+//            cout << "vel.Y: " << DS->vel(0).Y() << endl;
         }
 
         void testSolver()
         {
-            SolverPtr solver;
-            solver = new LeapFrogSolver();
-
-            cout << "solver name: " << solver->Name() << endl;
-
-            DynamicalState DS = CreateDynamicalState("testDs");
-            DS->add();
-            DS->set_pos(0, Vector(0.0, 0.0, 0.0));
-            DS->set_id(0, 0);
-            DS->set_mass(0, 1);
-            DS->set_vel(0, Vector(0.0, 0.0, 0.0));
-            cout << "DS item number: " << DS->nb() << endl;
-
-            ForcePtr gravity = new Gravity(9.8);
-            cout << "Gravity.Y: " << gravity->getForce(DS, 0).Y() << endl;
-
-            solver->setForce(gravity);
-            solver->setDS(DS);
-
-            cout << "pos.Y: " << DS->pos(0).Y();
-            cout << " vel.Y: " << DS->vel(0).Y() << endl;
-            cout << "update ds" << endl;
-            solver->updateDS(float(1.0 / 24.0));
-            cout << "pos.Y: " << DS->pos(0).Y();
-            cout << " vel.Y: " << DS->vel(0).Y() << endl;
+//            SolverPtr solver;
+//            solver = new LeapFrogSolver();
+//
+//            cout << "solver name: " << solver->Name() << endl;
+//
+//            DynamicalState DS = CreateDynamicalState("testDs");
+//            DS->add();
+//            DS->set_pos(0, Vector(0.0, 0.0, 0.0));
+//            DS->set_id(0, 0);
+//            DS->set_mass(0, 1);
+//            DS->set_vel(0, Vector(0.0, 0.0, 0.0));
+//            cout << "DS item number: " << DS->nb() << endl;
+//
+//            ForcePtr gravity = new Gravity(9.8);
+//            cout << "Gravity.Y: " << gravity->getForce(DS, 0).Y() << endl;
+//
+//            solver->setForce(gravity);
+//            solver->setDS(DS);
+//
+//            cout << "pos.Y: " << DS->pos(0).Y();
+//            cout << " vel.Y: " << DS->vel(0).Y() << endl;
+//            cout << "update ds" << endl;
+//            solver->updateDS(float(1.0 / 24.0));
+//            cout << "pos.Y: " << DS->pos(0).Y();
+//            cout << " vel.Y: " << DS->vel(0).Y() << endl;
         }
 
         void testObj()

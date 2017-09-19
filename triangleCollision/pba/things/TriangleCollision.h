@@ -44,11 +44,15 @@ namespace pba {
                 solver_id(LEAP_FROG),
                 addParticles(false)
         {
+            // construct attributes
             _init();
+            // construct solvers
             solver_list.push_back(new LeapFrogSolver());
             solver_list.push_back(new SixOrderSolver());
             solver = solver_list[LEAP_FROG];
+            // construct dynamical state
             DS = CreateDynamicalState("collisionParticles");
+            cout << "Construction Complete." << endl;
         }
 
         ~TriangleCollisionThing()
@@ -72,9 +76,7 @@ namespace pba {
             /// init sim
             // add force
             addForce();
-            // set force and ds to solver
-            solver->setForce(force);
-            solver->setDS(DS);
+            // init dynamical state
             emitParticles(num);
         }
 
@@ -103,7 +105,7 @@ namespace pba {
             // update force parms
             force->updateParms("g", g);
             // update dynamical state
-            solver->updateDS(dt);
+            solver->updateDS(dt, DS, force);
         }
 
         void Display()
@@ -185,28 +187,28 @@ namespace pba {
         }
 
     private:
-        //! solvers
+        /// solvers
         int solver_id;
         std::vector<SolverPtr> solver_list;
         SolverPtr solver;
 
-        //! forces
+        /// forces
         ForcePtr force;
 
-        //! keyboard selection
+        /// keyboard selection
         float g;    // gravity constant
         size_t num;  // num of particles
-        float Cr;   // coefficient of restitution
-        float Cs;   // coefficient of stickness
+        double Cr;   // coefficient of restitution
+        double Cs;   // coefficient of stickness
         bool addParticles;  // flag to decide whether emit particles
 
-        //! default attributes
+        /// default attributes
         float mass;
 
-        //! dynamical state for all particles
+        /// dynamical state for all particles
         DynamicalState DS;
 
-        //! mesh
+        /// mesh
         std::vector<Vector> verts;
         std::vector<Vector> face_indices;
         std::vector<Color> colors;
@@ -215,7 +217,7 @@ namespace pba {
         //! set default value
         void _init()
         {
-            g = 0.098;
+            g = 0.48;
             dt = 1.0 / 24.0;
             num = 100;  // init particles number
             Cr = 1.0;
@@ -233,7 +235,7 @@ namespace pba {
                 size_t id = nb + i;
                 DS->set_id(id, int(id));
                 DS->set_pos(id, Vector(0.0, 0.0, 0.0));  // default position
-                DS->set_vel(id, Vector(drand48() - 0.5, 0.0, drand48() - 0.5));  // default velocity
+                DS->set_vel(id, Vector((drand48() - 0.5)* 0.5, 0.0, (drand48() - 0.5) * 0.5));  // default velocity
                 DS->set_ci(id, Color(float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), 1.0));    // random color
                 DS->set_mass(id, mass);    // default mass
             }
