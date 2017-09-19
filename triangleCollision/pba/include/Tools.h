@@ -19,6 +19,7 @@
 # include <string>
 # include "Vector.h"
 # include "Color.h"
+# include "Geometry.h"
 
 
 namespace pba
@@ -28,7 +29,7 @@ namespace pba
     {
     public:
         //! draw triangles for verts, face_indices and face_colors
-        static void DrawTriangles(std::vector<Vector> vertices, std::vector<Vector> face_indices, std::vector<Color> face_colors);
+        static void DrawTriangles(GeometryPtr geom);
     };
 
 
@@ -36,9 +37,9 @@ namespace pba
     {
     public:
         //! load obj file mesh
-        static void LoadObj(std::string obj_path, std::vector<Vector>& vertices, std::vector<Vector>& face_indices);
+        static void LoadObj(std::string obj_path, GeometryPtr geom);
         //! load simple box with 12 triangles
-        static void LoadBox(const float l, std::vector<Vector>& vertices, std::vector<Vector>& face_indices);
+        static void LoadBox(const float l, GeometryPtr geom);
     };
 }
 

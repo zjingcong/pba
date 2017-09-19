@@ -11,27 +11,27 @@ using namespace pba;
 using namespace std;
 
 
-void Draw::DrawTriangles(std::vector<Vector> vertices, std::vector<Vector> face_indices, std::vector<Color> face_colors)
+void Draw::DrawTriangles(GeometryPtr geom)
 {
-    size_t face_count = face_indices.size();
+    size_t face_count = geom->get_nb();
 
     glBegin(GL_TRIANGLES);
     for (size_t i = 0; i < face_count; ++i)
     {
-        glColor3f( face_colors[i].red(), face_colors[i].green(), face_colors[i].blue() );
-        Vector v0 = vertices.at(size_t(face_indices[i].X()));
-        Vector v1 = vertices.at(size_t(face_indices[i].Y()));
-        Vector v2 = vertices.at(size_t(face_indices[i].Z()));
-
-        glVertex3f( v0.X(), v0.Y(), v0.Z() );
-        glVertex3f( v1.X(), v1.Y(), v1.Z() );
-        glVertex3f( v2.X(), v2.Y(), v2.Z() );
+        glColor3f( geom->get_face_colors()[i].red(), geom->get_face_colors()[i].green(), geom->get_face_colors()[i].blue() );
+        TrianglePtr tri= geom->get_triangles().at(i);
+        Vector v0 = tri->getP0();
+        Vector v1 = tri->getP1();
+        Vector v2 = tri->getP2();
+        glVertex3f( GLfloat(v0.X()), GLfloat(v0.Y()), GLfloat(v0.Z()) );
+        glVertex3f( GLfloat(v1.X()), GLfloat(v1.Y()), GLfloat(v1.Z()) );
+        glVertex3f( GLfloat(v2.X()), GLfloat(v2.Y()), GLfloat(v2.Z()) );
     }
     glEnd();
 }
 
 
-void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector>& vertices, std::vector<Vector>& face_indices)
+void LoadMesh::LoadObj(std::string obj_path, GeometryPtr geom)
 {
     cout << "Load model " << obj_path << "..." << endl;
     // load model file
@@ -41,6 +41,8 @@ void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector>& vertices, std:
     string line;
     int vertex_num = 0;
     int face_num = 0;
+
+    std::vector<Vector> vertices;
 
     while (getline(modelFile, line))
     {
@@ -58,7 +60,12 @@ void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector>& vertices, std:
             // parse the faces
             if (tag == "f")
             {
-                face_indices.push_back(Vector(a - 1, b - 1, c - 1));    // obj face index starts with 1
+                // construct triangle geometry
+                Vector P0 = vertices.at(size_t(a - 1)); // obj face index starts with 1
+                Vector P1 = vertices.at(size_t(b - 1));
+                Vector P2 = vertices.at(size_t(c - 1));
+                TrianglePtr tri = new Triangle(P0, P1, P2);
+                geom->add_triangle(tri);
                 face_num++;
             }
         }
@@ -70,9 +77,11 @@ void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector>& vertices, std:
 }
 
 
-void LoadMesh::LoadBox(const float l, std::vector<Vector>& vertices, std::vector<Vector>& face_indices)
+void LoadMesh::LoadBox(const float l, GeometryPtr geom)
 {
     cout << "Load default box with side length = " << l << "..." << endl;
+    std::vector<Vector> vertices;
+    std::vector<Vector> face_indices;
     // verts
     float dl = float(l * 0.5);
     vertices.push_back(Vector(-dl, -dl, dl));
@@ -97,4 +106,9 @@ void LoadMesh::LoadBox(const float l, std::vector<Vector>& vertices, std::vector
     face_indices.push_back(Vector(3, 7, 5));
     face_indices.push_back(Vector(6, 0, 4));
     face_indices.push_back(Vector(4, 0, 2));
+
+    // construct triangle geometry
+    geom->gen_triangles(vertices, face_indices);
+
+    cout << "Load model success." << endl;
 }

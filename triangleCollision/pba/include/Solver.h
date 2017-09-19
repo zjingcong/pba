@@ -14,6 +14,8 @@
 namespace pba
 {
 
+//! ------------------------------------ SolverBase -------------------------------------------------
+
     class SolverBase
     {
     public:
@@ -26,32 +28,33 @@ namespace pba
         //! update vel and pos in DS, update time in DS
         void updateDS(const double& dt, DynamicalState DS, ForcePtr force) { _updateDS(dt, DS, force); DS->update_time(dt);}
         //! update vel and pos in DS with collision, update time in DS
-//        void updateDSWithCollision(const double& dt, const double& Cr, const double& Cs)
-//        {
-//            _updateDSWithCollision(dt, Cr, Cs);
-//            DS->update_time(dt);
-//        }
+        void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, CollisionPtr collision)
+        {
+            _updateDSWithCollision(dt, DS, force, collision);
+            DS->update_time(dt);
+        }
 
     protected:
         virtual void _updateDS(const double& dt, DynamicalState DS, ForcePtr force) {}
-//        virtual void _updateDSWithCollision(const double& dt, const double& Cr, const double& Cs)   {}
+        virtual void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, CollisionPtr collision)   {}
 
         //! partial solver: update position
         void updatePos(const double& dt, DynamicalState DS);
         //! partial solver: update velocity
         void updateVel(const double& dt, DynamicalState DS, ForcePtr force);
         //! partial solver: update position with collision
-        void updatePosWithCollision(const double& dt, const double& Cr, const double& Cs);
+        void updatePosWithCollision(const double& dt, DynamicalState DS, CollisionPtr collision);
 
         std::string name;
 
     private:
         void updateSinglePos(const double& dt, DynamicalState DS, size_t i);
-        void updateSingleVel(const double& dt, DynamicalState DS, size_t i, ForcePtr force);
     };
 
     typedef SolverBase* SolverPtr;
 
+
+//! ------------------------------------ LeapFrog -------------------------------------------------
 
     class LeapFrogSolver: public SolverBase
     {
@@ -61,8 +64,10 @@ namespace pba
 
     protected:
         void _updateDS(const double& dt, DynamicalState DS, ForcePtr force);
+        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, CollisionPtr collision);
     };
 
+//! ------------------------------------ SixthOrder -------------------------------------------------
 
     class SixOrderSolver: public LeapFrogSolver
     {
@@ -72,6 +77,7 @@ namespace pba
 
     protected:
         void _updateDS(const double& dt, DynamicalState DS, ForcePtr force);
+        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, CollisionPtr collision);
     };
 
 }

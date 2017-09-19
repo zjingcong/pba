@@ -6,7 +6,10 @@
 #define PBA_GEOMETRY_H
 
 # include <vector>
+# include <string>
+# include <memory>
 # include "Vector.h"
+# include "Color.h"
 
 namespace pba
 {
@@ -33,7 +36,34 @@ namespace pba
     };
 
     typedef Triangle* TrianglePtr;
-    typedef std::vector<TrianglePtr> Geom;
+    // typedef std::vector<TrianglePtr> Geom;
+
+
+    class TriangleGeometry
+    {
+    public:
+        TriangleGeometry(const std::string& nam): name(nam)  {}
+        ~TriangleGeometry() {}
+
+        void add_triangle(TrianglePtr tri);
+        void add_face_color(const Color& c);
+
+        void gen_triangles(std::vector<Vector>& vertices, std::vector<Vector>& face_indices);  // here face_indices start with 0
+
+        std::vector<TrianglePtr> get_triangles() const { return triangles;}
+        std::vector<Color> get_face_colors() const { return face_colors;}
+        size_t get_nb() const { return triangles.size();}
+        const std::string& Name() const { return name;}
+
+    private:
+        std::string name;
+        std::vector<Color> face_colors;
+        std::vector<TrianglePtr> triangles;
+
+        // TriangleGeometry()  {}
+    };
+
+    typedef TriangleGeometry* GeometryPtr;
 };
 
 #endif //PBA_GEOMETRY_H

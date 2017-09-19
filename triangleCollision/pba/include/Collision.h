@@ -13,24 +13,28 @@ namespace pba
     class TriangleCollision
     {
     public:
-        TriangleCollision(DynamicalState ds, Geom& geo):
-                DS(ds),
+        TriangleCollision(GeometryPtr geo, const double& cr, const double& cs):
                 geom(geo),
-                dt_i(0.0)   {}
+                Cr(cr),
+                Cs(cs),
+                dt_i(0.0) // init dt_i for comparing dt_i to get the maximum dt_i
+        {}
         ~TriangleCollision()    {}
 
-        void collision(const double& dt, const size_t p, const double& Cr, const double& Cs);
+        void collision(const double& dt, DynamicalState DS, const size_t p);
 
     private:
-        DynamicalState DS;
-        Geom geom;
+        GeometryPtr geom;
+        double Cr;
+        double Cs;
         double dt_i;
 
         Vector x_i;
         TrianglePtr collision_triangle; // triangle where collision happens, match the maximum dt_i
 
-        bool collisionDetection(const double& dt, const size_t p, TrianglePtr triangle);
-        void collisionHandling(const double& dt, const size_t p, const double& Cr, const double& Cs);
+        //! collision detection per triangle
+        bool collisionDetection(const double& dt, DynamicalState DS, const size_t p, TrianglePtr triangle);
+        void collisionHandling(const double& dt, DynamicalState DS, const size_t p);
     };
 
     typedef TriangleCollision* CollisionPtr;

@@ -17,6 +17,7 @@
 # include "Force.h"
 # include "DynamicalState.h"
 # include "Tools.h"
+# include "Geometry.h"
 
 # ifdef __APPLE__
 #include <OpenGL/gl.h>   // OpenGL itself.
@@ -65,13 +66,14 @@ namespace pba {
         void Init(const std::vector<std::string>& args)
         {
             /// load scene
+            geom = new TriangleGeometry("collisionMesh");
             if (args.size() == 2)   // load .obj file
             {
                 std::string scene_file = args[1];
-                LoadMesh::LoadObj(scene_file, verts, face_indices);
+                LoadMesh::LoadObj(scene_file, geom);
             }
             else    // load cube
-            { LoadMesh::LoadBox(10, verts, face_indices); }
+            { LoadMesh::LoadBox(10, geom); }
 
             /// init sim
             // add force
@@ -111,9 +113,9 @@ namespace pba {
         void Display()
         {
             // draw scene
-            for (size_t i = 0; i < face_indices.size(); ++i)
-                { colors.push_back(Color(float(drand48()), float(drand48()), float(drand48()), 1.0)); } // set random colors
-            Draw::DrawTriangles(verts, face_indices, colors);
+            for (size_t i = 0; i < geom->get_nb(); ++i)
+                { geom->add_face_color(Color(float(drand48()), float(drand48()), float(drand48()), 1.0)); } // set random colors
+            Draw::DrawTriangles(geom);
 
             // draw particles
             glPointSize(3.6f);
@@ -209,9 +211,7 @@ namespace pba {
         DynamicalState DS;
 
         /// mesh
-        std::vector<Vector> verts;
-        std::vector<Vector> face_indices;
-        std::vector<Color> colors;
+        GeometryPtr geom;
 
 
         //! set default value

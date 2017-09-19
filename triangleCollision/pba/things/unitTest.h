@@ -12,6 +12,7 @@
 # include "Force.h"
 # include "DynamicalState.h"
 # include "Tools.h"
+# include "Geometry.h"
 
 # include <iostream>
 
@@ -34,7 +35,8 @@ namespace pba
 //                std::cout << *it << std::endl;
 //            }
 //
-//            testObj();
+            // testObj();
+            geom = new TriangleGeometry("box");
             testBox();
 
             cout << "================solverTest=============" << endl;
@@ -51,9 +53,7 @@ namespace pba
 
 
     private:
-        std::vector<Vector> vertices;
-        std::vector<Vector> face_indices;
-        std::vector<Color> colors;
+        GeometryPtr geom;
 
         void testBaseSolver()
         {
@@ -116,36 +116,20 @@ namespace pba
 
         void testObj()
         {
-            LoadMesh::LoadObj("/home/jingcoz/workspace/pba/hw1/models/bigsphere.obj", vertices, face_indices);
-
-            std::cout << "Verts: " << endl;
-            for (auto it = vertices.cbegin(); it != vertices.cend(); ++it)
-            {
-                Vector v = *it;
-                std::cout << v.X() << ", " << v.Y() << ", " << v.Z() << std::endl;
-            }
-
-            std::cout << "fs: " << endl;
-            for (auto it = face_indices.cbegin(); it != face_indices.cend(); ++it)
-            {
-                Vector v = *it;
-                std::cout << v.X() << ", " << v.Y() << ", " << v.Z() << std::endl;
-            }
+            LoadMesh::LoadObj("/home/jingcoz/workspace/pba/hw1/models/bigsphere.obj", geom);
+            cout << "triangle nb: " << geom->get_nb() << endl;
         }
 
         void testBox()
         {
-            LoadMesh::LoadBox(10, vertices, face_indices);
+            LoadMesh::LoadBox(10, geom);
         }
 
         void testDrawTriangles()
         {
-            for (size_t i = 0; i < face_indices.size(); ++i)
-            {
-                colors.push_back(Color(float(drand48()), float(drand48()), float(drand48()), 1.0));
-            }
-
-            Draw::DrawTriangles(vertices, face_indices, colors);
+            for (size_t i = 0; i < geom->get_nb(); ++i)
+                { geom->add_face_color(Color(float(drand48()), float(drand48()), float(drand48()), 1.0)); } // set random colors
+            Draw::DrawTriangles(geom);
         }
     };
 

@@ -8,7 +8,7 @@ using namespace std;
 using namespace pba;
 
 
-void TriangleCollision::collision(const double& dt, const size_t p, const double& Cr, const double& Cs)
+void TriangleCollision::collision(const double& dt, DynamicalState DS, const size_t p)
 {
     // loop until no collisions
     bool collision_flag = true;
@@ -16,20 +16,20 @@ void TriangleCollision::collision(const double& dt, const size_t p, const double
     {
         // loop over triangles
         int collision_num = 0;
-        for (auto it = geom.cbegin(); it != geom.cend(); ++it)
+        for (auto it = geom->get_triangles().cbegin(); it != geom->get_triangles().cend(); ++it)
         {
             // collision detection
             TrianglePtr triangle = *it;
-            if (collisionDetection(dt, p, triangle))   {collision_num++;}
+            if (collisionDetection(dt, DS, p, triangle))   {collision_num++;}
             if (collision_num == 0)   {collision_flag = false;} // no collision
         }
         // pick the maximum dt_i and handle collision for maximum dt_i
-        if (collision_flag) {collisionHandling(dt, p, Cr, Cs);}
+        if (collision_flag) {collisionHandling(dt, DS, p);}
     }
 }
 
 
-bool TriangleCollision::collisionDetection(const double& dt, const size_t p, TrianglePtr triangle)
+bool TriangleCollision::collisionDetection(const double& dt, DynamicalState DS, const size_t p, TrianglePtr triangle)
 {
     // calculate dt_i and x_i
     double dti = ((DS->pos(p) - triangle->getP0()) * triangle->getNorm()) / (DS->vel(p) * triangle->getNorm());
@@ -60,7 +60,7 @@ bool TriangleCollision::collisionDetection(const double& dt, const size_t p, Tri
 }
 
 
-void TriangleCollision::collisionHandling(const double& dt, const size_t p, const double& Cr, const double& Cs)
+void TriangleCollision::collisionHandling(const double& dt, DynamicalState DS, const size_t p)
 {
     // calculate vel_r and new pos
     Vector vel = DS->vel(p);
