@@ -2,8 +2,8 @@
 // Created by jingcoz on 9/18/17.
 //
 
-#ifndef PBA_TRIANGLE_H
-#define PBA_TRIANGLE_H
+#ifndef PBA_GEOMETRY_H
+#define PBA_GEOMETRY_H
 
 # include <vector>
 # include "Vector.h"
@@ -36,4 +36,4 @@ namespace pba
     typedef std::vector<TrianglePtr> Geom;
 };
 
-#endif //PBA_TRIANGLE_H
+#endif //PBA_GEOMETRY_H

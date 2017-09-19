@@ -8,7 +8,7 @@ using namespace std;
 using namespace pba;
 
 
-void TriangleCollision::collision(const size_t p, const double& Cr, const double& Cs)
+void TriangleCollision::collision(const double& dt, const size_t p, const double& Cr, const double& Cs)
 {
     // loop until no collisions
     bool collision_flag = true;
@@ -20,16 +20,16 @@ void TriangleCollision::collision(const size_t p, const double& Cr, const double
         {
             // collision detection
             TrianglePtr triangle = *it;
-            if (collisionDetection(p, triangle))   {collision_num++;}
+            if (collisionDetection(dt, p, triangle))   {collision_num++;}
             if (collision_num == 0)   {collision_flag = false;} // no collision
         }
         // pick the maximum dt_i and handle collision for maximum dt_i
-        if (collision_flag) {collisionHandling(p, Cr, Cs);}
+        if (collision_flag) {collisionHandling(dt, p, Cr, Cs);}
     }
 }
 
 
-bool TriangleCollision::collisionDetection(const size_t p, TrianglePtr triangle)
+bool TriangleCollision::collisionDetection(const double& dt, const size_t p, TrianglePtr triangle)
 {
     // calculate dt_i and x_i
     double dti = ((DS->pos(p) - triangle->getP0()) * triangle->getNorm()) / (DS->vel(p) * triangle->getNorm());
@@ -60,7 +60,7 @@ bool TriangleCollision::collisionDetection(const size_t p, TrianglePtr triangle)
 }
 
 
-void TriangleCollision::collisionHandling(const size_t p, const double& Cr, const double& Cs)
+void TriangleCollision::collisionHandling(const double& dt, const size_t p, const double& Cr, const double& Cs)
 {
     // calculate vel_r and new pos
     Vector vel = DS->vel(p);
