@@ -2,6 +2,14 @@
 // Created by jingcoz on 9/13/17.
 //
 
+// Usage:
+//  - collision coefficient of restitution (keys c/C to reduce/increase)
+//  - collision coefficient of stickiness (keys s/S to reduce/increase)
+//  - number of particles (key e to start/stop emitting more particles)
+//  - magnitude of gravity (keys g/G to reduce/increase the magnitude)
+//  - timestep size (keys t/T to reduce/increase) - this is already implemented in PbaThingyDingy
+//  - Esc to quit
+
 # include "PbaThing.h"
 # include "Vector.h"
 # include "Color.h"
@@ -25,13 +33,6 @@
 # define LEAP_FROG 0
 # define SIX_ORDER 1
 
-// Usage:
-//  - collision coefficient of restitution (keys c/C to reduce/increase)
-//  - collision coefficient of stickiness (keys s/S to reduce/increase)
-//  - number of particles (key e to start/stop emitting more particles)
-//  - magnitude of gravity (keys g/G to reduce/increase the magnitude)
-//  - timestep size (keys t/T to reduce/increase) - this is already implemented in PbaThingyDingy
-
 
 namespace pba {
 
@@ -49,6 +50,7 @@ namespace pba {
             solver = solver_list[LEAP_FROG];
             DS = CreateDynamicalState("collisionParticles");
         }
+
         ~TriangleCollisionThing()
         {
             delete solver_list[LEAP_FROG];
@@ -58,7 +60,7 @@ namespace pba {
 
         void Init(const std::vector<std::string>& args)
         {
-            // load scene
+            /// load scene
             if (args.size() == 2)   // load .obj file
             {
                 std::string scene_file = args[1];
@@ -67,11 +69,13 @@ namespace pba {
             else    // load cube
             { LoadMesh::LoadBox(10, verts, face_indices); }
 
-            // init sim
-            emitParticles(num);
-
+            /// init sim
             // add force
             addForce();
+            // set force and ds to solver
+            solver->setForce(force);
+            solver->setDS(DS);
+            emitParticles(num);
         }
 
         void Reset()
@@ -98,9 +102,6 @@ namespace pba {
 
             // update force parms
             force->updateParms("g", g);
-            // set force and ds to solver
-            solver->setForce(force);
-            solver->setDS(DS);
             // update dynamical state
             solver->updateDS(dt);
         }
