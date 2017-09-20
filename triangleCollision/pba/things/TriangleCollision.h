@@ -18,6 +18,7 @@
 # include "DynamicalState.h"
 # include "Tools.h"
 # include "Geometry.h"
+# include "Collision.h"
 
 # ifdef __APPLE__
 #include <OpenGL/gl.h>   // OpenGL itself.
@@ -61,6 +62,8 @@ namespace pba {
             delete solver_list[LEAP_FROG];
             delete solver_list[SIX_ORDER];
             delete force;
+            delete geom;
+            delete collisionMesh;
         }
 
         void Init(const std::vector<std::string>& args)
@@ -80,6 +83,8 @@ namespace pba {
             addForce();
             // init dynamical state
             emitParticles(num);
+            // add collision
+            addCollision();
         }
 
         void Reset()
@@ -107,7 +112,9 @@ namespace pba {
             // update force parms
             force->updateParms("g", g);
             // update dynamical state
-            solver->updateDS(dt, DS, force);
+            // solver->updateDS(dt, DS, force);
+
+            solver->updateDSWithCollision(dt, DS, force, collisionMesh);
         }
 
         void Display()
@@ -196,6 +203,12 @@ namespace pba {
 
         /// forces
         ForcePtr force;
+        /// dynamical state for all particles
+        DynamicalState DS;
+        /// mesh
+        GeometryPtr geom;
+        /// collision
+        CollisionPtr collisionMesh;
 
         /// keyboard selection
         float g;    // gravity constant
@@ -207,20 +220,14 @@ namespace pba {
         /// default attributes
         float mass;
 
-        /// dynamical state for all particles
-        DynamicalState DS;
-
-        /// mesh
-        GeometryPtr geom;
-
 
         //! set default value
         void _init()
         {
             g = 0.48;
-            dt = 1.0 / 24.0;
+            dt = 0.06;
             num = 100;  // init particles number
-            Cr = 1.0;
+            Cr = 1.0;   // init elastic collision
             Cs = 1.0;
             mass = 1.0;
         }
@@ -245,6 +252,14 @@ namespace pba {
         void addForce()
         {
             force = new Gravity(g); // add gravity
+            cout << "- Add force " << force->Name() << endl;
+        }
+
+        //! add collision to sim
+        void addCollision()
+        {
+            collisionMesh = new TriangleCollision(geom, Cr, Cs);    // add collision between particles and triangle mesh
+            cout << "- Add collision with mesh " << collisionMesh->getGeomName() << endl;
         }
     };
 

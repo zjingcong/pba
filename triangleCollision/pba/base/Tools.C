@@ -107,6 +107,19 @@ void LoadMesh::LoadBox(const float l, GeometryPtr geom)
     face_indices.push_back(Vector(6, 0, 4));
     face_indices.push_back(Vector(4, 0, 2));
 
+//    face_indices.push_back(Vector(0, 2, 1));
+//    face_indices.push_back(Vector(1, 2, 3));
+//    face_indices.push_back(Vector(2, 4, 3));
+//    face_indices.push_back(Vector(3, 4, 5));
+//    face_indices.push_back(Vector(4, 6, 5));
+//    face_indices.push_back(Vector(5, 6, 7));
+//    face_indices.push_back(Vector(6, 0, 7));
+//    face_indices.push_back(Vector(7, 0, 1));
+//    face_indices.push_back(Vector(1, 3, 7));
+//    face_indices.push_back(Vector(7, 3, 5));
+//    face_indices.push_back(Vector(6, 4, 0));
+//    face_indices.push_back(Vector(0, 4, 2));  // normal inside
+
     // construct triangle geometry
     geom->gen_triangles(vertices, face_indices);
 

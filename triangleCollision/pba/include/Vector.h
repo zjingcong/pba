@@ -14,6 +14,7 @@
 
 #include <cmath>
 #include <cstdio>
+# include <iostream>
 
 namespace pba
 {
@@ -157,6 +158,11 @@ class Vector
       Vector vca = axis^(*this);
       Vector result = (*this)*ctheta + axis*va*(1.0-ctheta) + vca*stheta;
       return result;
+   }
+
+   void printValue()
+   {
+      std::cout << "(" << xyz[0] << ", " << xyz[1] << ", " << xyz[2] << ")";
    }
 
   private:

@@ -23,6 +23,11 @@ namespace pba
 
         void collision(const double& dt, DynamicalState DS, const size_t p);
 
+        void updateCollisionCoefficient(const double& cr, const double& cs) {Cr = cr; Cs = cs;}
+        double getCr() const { return Cr;}
+        double getCs() const { return Cs;}
+        const std::string& getGeomName() const { return geom->Name();}
+
     private:
         GeometryPtr geom;
         double Cr;

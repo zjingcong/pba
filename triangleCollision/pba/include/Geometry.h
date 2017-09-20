@@ -36,7 +36,6 @@ namespace pba
     };
 
     typedef Triangle* TrianglePtr;
-    // typedef std::vector<TrianglePtr> Geom;
 
 
     class TriangleGeometry
@@ -50,8 +49,8 @@ namespace pba
 
         void gen_triangles(std::vector<Vector>& vertices, std::vector<Vector>& face_indices);  // here face_indices start with 0
 
-        std::vector<TrianglePtr> get_triangles() const { return triangles;}
-        std::vector<Color> get_face_colors() const { return face_colors;}
+        std::vector<TrianglePtr>& get_triangles()    { return triangles;}   // return ref!
+        std::vector<Color>& get_face_colors()    { return face_colors;}
         size_t get_nb() const { return triangles.size();}
         const std::string& Name() const { return name;}
 
@@ -60,7 +59,7 @@ namespace pba
         std::vector<Color> face_colors;
         std::vector<TrianglePtr> triangles;
 
-        // TriangleGeometry()  {}
+        TriangleGeometry()  {}
     };
 
     typedef TriangleGeometry* GeometryPtr;
