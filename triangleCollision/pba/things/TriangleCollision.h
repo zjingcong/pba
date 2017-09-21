@@ -69,6 +69,7 @@ namespace pba {
         void Init(const std::vector<std::string>& args)
         {
             /// load scene
+            // load geometry
             geom = new TriangleGeometry("collisionMesh");
             if (args.size() == 2)   // load .obj file
             {
@@ -77,7 +78,7 @@ namespace pba {
             }
             else    // load cube
             { LoadMesh::LoadBox(10, geom); }
-
+            // set geometry color
             for (auto it = geom->get_triangles().begin(); it != geom->get_triangles().end(); ++it)
             {
                 TrianglePtr triangle = *it;
@@ -107,7 +108,7 @@ namespace pba {
             // emit particles
             if (addParticles)
             {
-                size_t increase_num = 1;
+                size_t increase_num = 10;
                 emitParticles(increase_num);
                 num += increase_num;
                 std::cout << "particles number: " << num << std::endl;
@@ -252,7 +253,7 @@ namespace pba {
         //! set default value
         void _init()
         {
-            g = 0.18;
+            g = 0.48;
             dt = 1.0 / 24.0;
             num = 100;  // init particles number
             Cr = 1.0;   // init elastic collision
