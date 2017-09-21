@@ -69,7 +69,6 @@ namespace pba
 
     private:
         GeometryPtr geom;
-        CollisionPtr collisionMesh;
 
         void testBaseSolver()
         {

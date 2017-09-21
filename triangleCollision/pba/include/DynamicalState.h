@@ -149,7 +149,6 @@ class DynamicalStateData
 };
 
 
-
 typedef std::shared_ptr<DynamicalStateData> DynamicalState;
 
 DynamicalState CreateDynamicalState( const std::string& nam = "DynamicalDataNoName" );

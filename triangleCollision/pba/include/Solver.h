@@ -28,22 +28,22 @@ namespace pba
         //! update vel and pos in DS, update time in DS
         void updateDS(const double& dt, DynamicalState DS, ForcePtr force) { _updateDS(dt, DS, force); DS->update_time(dt);}
         //! update vel and pos in DS with collision, update time in DS
-        void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, CollisionPtr collision)
+        void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs)
         {
-            _updateDSWithCollision(dt, DS, force, collision);
+            _updateDSWithCollision(dt, DS, force, geom, Cr, Cs);
             DS->update_time(dt);
         }
 
     protected:
         virtual void _updateDS(const double& dt, DynamicalState DS, ForcePtr force) {}
-        virtual void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, CollisionPtr collision)   {}
+        virtual void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs)   {}
 
         //! partial solver: update position
         void updatePos(const double& dt, DynamicalState DS);
         //! partial solver: update velocity
         void updateVel(const double& dt, DynamicalState DS, ForcePtr force);
         //! partial solver: update position with collision
-        void updatePosWithCollision(const double& dt, DynamicalState DS, CollisionPtr collision);
+        void updatePosWithCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs);
 
         std::string name;
 
@@ -64,7 +64,7 @@ namespace pba
 
     protected:
         void _updateDS(const double& dt, DynamicalState DS, ForcePtr force);
-        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, CollisionPtr collision);
+        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs);
     };
 
 //! ------------------------------------ SixthOrder -------------------------------------------------
@@ -77,7 +77,7 @@ namespace pba
 
     protected:
         void _updateDS(const double& dt, DynamicalState DS, ForcePtr force);
-        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, CollisionPtr collision);
+        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs);
     };
 
 }

@@ -63,7 +63,6 @@ namespace pba {
             delete solver_list[SIX_ORDER];
             delete force;
             delete geom;
-            delete collisionMesh;
         }
 
         void Init(const std::vector<std::string>& args)
@@ -83,8 +82,6 @@ namespace pba {
             addForce();
             // init dynamical state
             emitParticles(num);
-            // add collision
-            addCollision();
         }
 
         void Reset()
@@ -112,9 +109,8 @@ namespace pba {
             // update force parms
             force->updateParms("g", g);
             // update dynamical state
-            // solver->updateDS(dt, DS, force);
-
-            solver->updateDSWithCollision(dt, DS, force, collisionMesh);
+            // solver->updateDS(dt, DS, force); // no collision
+            solver->updateDSWithCollision(dt, DS, force, geom, Cr, Cs); // collision
         }
 
         void Display()
@@ -207,8 +203,6 @@ namespace pba {
         DynamicalState DS;
         /// mesh
         GeometryPtr geom;
-        /// collision
-        CollisionPtr collisionMesh;
 
         /// keyboard selection
         float g;    // gravity constant
@@ -224,8 +218,8 @@ namespace pba {
         //! set default value
         void _init()
         {
-            g = 0.48;
-            dt = 0.06;
+            g = 0.18;
+            dt = 1.0 / 24.0;
             num = 100;  // init particles number
             Cr = 1.0;   // init elastic collision
             Cs = 1.0;
@@ -253,13 +247,6 @@ namespace pba {
         {
             force = new Gravity(g); // add gravity
             cout << "- Add force " << force->Name() << endl;
-        }
-
-        //! add collision to sim
-        void addCollision()
-        {
-            collisionMesh = new TriangleCollision(geom, Cr, Cs);    // add collision between particles and triangle mesh
-            cout << "- Add collision with mesh " << collisionMesh->getGeomName() << endl;
         }
     };
 
