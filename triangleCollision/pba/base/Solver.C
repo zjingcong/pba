@@ -35,13 +35,8 @@ void SolverBase::updateVel(const double& dt, DynamicalState DS, ForcePtr force)
 
 void SolverBase::updatePosWithCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs)
 {
-    // loop over particles
-    for (size_t i = 0; i < DS->nb(); ++i)
-    {
-        // update position
-        updateSinglePos(dt, DS, i);
-        TriangleCollision::triangleCollision(dt, DS, i, geom, Cr, Cs);
-    }
+    updatePos(dt, DS);
+    TriangleCollision::triangleCollision(dt, DS, geom, Cr, Cs);
 }
 
 

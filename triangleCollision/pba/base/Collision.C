@@ -8,45 +8,52 @@
 using namespace std;
 using namespace pba;
 
-void TriangleCollision::triangleCollision(const double& dt, DynamicalState DS, const size_t i, GeometryPtr geom, const double& Cr, const double& Cs)
+void TriangleCollision::triangleCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs)
 {
-    // loop until no collisions
-    bool collision_flag = true;
-    double tmp_dt = dt;
-    while(collision_flag)
+    // loop over particles
+    for (size_t i = 0; i < DS->nb(); ++i)
     {
-        // loop over triangles
-        int collision_num = 0;
-        double max_dti = 0.0;
-        size_t max_collision_triangle_index = 0;
-        Vector max_xi;
-        for (size_t p = 0; p < geom->get_nb(); ++p)
+        // loop until no collisions
+        bool collision_flag = true;
+        double tmp_dt = dt;
+        while (collision_flag)
         {
-            // collision detection
-            TrianglePtr triangle = geom->get_triangles()[p];
-            double dti;
-            Vector xi;
-            if (collisionDetection(tmp_dt, DS, i, triangle, dti, xi))
+            // loop over triangles
+            int collision_num = 0;
+            double max_dti = 0.0;
+            size_t max_collision_triangle_index = 0;
+            Vector max_xi;
+            for (size_t p = 0; p < geom->get_nb(); ++p)
             {
-                collision_num++;
-                if (std::fabs(dti) > std::fabs(max_dti))
+                // collision detection
+                TrianglePtr triangle = geom->get_triangles()[p];
+                double dti;
+                Vector xi;
+                if (collisionDetection(tmp_dt, DS, i, triangle, dti, xi))
                 {
-                    max_dti = dti;
-                    max_collision_triangle_index = p;
-                    max_xi = xi;
+                    collision_num++;
+                    if (std::fabs(dti) > std::fabs(max_dti))
+                    {
+                        max_dti = dti;
+                        max_collision_triangle_index = p;
+                        max_xi = xi;
+                    }
                 }
             }
-        }
-        if (collision_num == 0)   {collision_flag = false;} // no collision
+            if (collision_num == 0) { collision_flag = false; } // no collision
 
-        if (collision_flag)
-        {
-            // handle collision for maximum dt_i
-            TriangleCollision::collisionHandling(tmp_dt, DS, i, geom->get_triangles().at(max_collision_triangle_index), max_dti, max_xi, Cr, Cs);
-            // store collision triangle
-            geom->add_collisions(max_collision_triangle_index);
+            if (collision_flag)
+            {
+                // handle collision for maximum dt_i
+                TriangleCollision::collisionHandling(tmp_dt, DS, i,
+                                                     geom->get_triangles().at(max_collision_triangle_index), max_dti,
+                                                     max_xi, Cr, Cs);
+                // store collision triangle
+                geom->add_collisions(max_collision_triangle_index);
 
-            tmp_dt = max_dti;
+                // update dt (use maximum dti as new dt for next collision detection)
+                tmp_dt = max_dti;
+            }
         }
     }
 }

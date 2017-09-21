@@ -8,6 +8,7 @@
 //  - number of particles (key e to start/stop emitting more particles)
 //  - magnitude of gravity (keys g/G to reduce/increase the magnitude)
 //  - timestep size (keys t/T to reduce/increase) - this is already implemented in PbaThingyDingy
+//  - mesh display mode (key w to switch wireframe and normal mode)
 //  - Esc to quit
 
 # include "PbaThing.h"

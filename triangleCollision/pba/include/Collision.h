@@ -13,7 +13,8 @@ namespace pba
     class TriangleCollision
     {
     public:
-        static void triangleCollision(const double& dt, DynamicalState DS, const size_t i, GeometryPtr geom, const double& Cr, const double& Cs);
+        //! collision detection and handling per geometry
+        static void triangleCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs);
 
     private:
         //! collision detection per triangle
