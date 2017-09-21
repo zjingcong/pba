@@ -44,7 +44,8 @@ namespace pba {
         TriangleCollisionThing(const std::string nam = "TriangleCollisionThing"):
                 PbaThingyDingy(nam),
                 solver_id(LEAP_FROG),
-                addParticles(false)
+                addParticles(false),
+                wireframe(false)
         {
             // construct attributes
             _init();
@@ -76,6 +77,12 @@ namespace pba {
             }
             else    // load cube
             { LoadMesh::LoadBox(10, geom); }
+
+            for (auto it = geom->get_triangles().begin(); it != geom->get_triangles().end(); ++it)
+            {
+                TrianglePtr triangle = *it;
+                triangle->setColor(Color(float(drand48()), float(drand48()), float(drand48()), 1.0));   // set random colors
+            }
 
             /// init sim
             // add force
@@ -116,12 +123,9 @@ namespace pba {
         void Display()
         {
             // draw scene
-            for (size_t i = 0; i < geom->get_nb(); ++i)
-                { geom->add_face_color(Color(float(drand48()), float(drand48()), float(drand48()), 1.0)); } // set random colors
             Draw::DrawTriangles(geom);
-
             // draw particles
-            glPointSize(3.6f);
+            glPointSize(4.2f);
             glBegin(GL_POINTS);
             for (size_t i = 0; i < DS->nb(); ++i)
             {
@@ -131,7 +135,6 @@ namespace pba {
                 glVertex3f(float(pos.X()), float(pos.Y()), float(pos.Z()));
             }
             glEnd();
-
             glFlush();
         }
 
@@ -139,19 +142,19 @@ namespace pba {
         {
             switch (key)
             {
-                // gravity control
+                /// gravity control
                 case 'g':
                 { g /= 1.1; std::cout << "gravity constant: " << g << std::endl; break; }
                 case 'G':
                 { g *= 1.1; std::cout << "gravity constant: " << g << std::endl; break; }
 
-                // timestep control
+                /// timestep control
                 case 't':
                 { dt /= 1.1; std::cout << "time step " << dt << std::endl; break;}
                 case 'T':
                 { dt *= 1.1; std::cout << "time step " << dt << std::endl; break;}
 
-                // solver switch
+                /// solver switch
                 case 'q':
                 {
                     solver_id += 1;
@@ -161,7 +164,7 @@ namespace pba {
                     break;
                 }
 
-                // particles number control
+                /// particles number control
                 case 'e':
                 {
                     addParticles = !addParticles;
@@ -170,7 +173,36 @@ namespace pba {
                     break;
                 }
 
-                // quit
+                /// collision coefficients control
+                case 'c':   // Cr
+                { Cr /= 1.1;    std::cout << "coefficient of restitution Cr: " << Cr << std::endl;  break; }
+                case 'C':
+                {
+                    Cr *= 1.1;
+                    if (Cr >= 1.0)  {Cr = 1.0;}
+                    std::cout << "coefficient of restitution Cr: " << Cr << std::endl;
+                    break;
+                }
+                case 's':   // Cs
+                { Cs /= 1.1;    std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;  break; }
+                case 'S':
+                {
+                    Cs *= 1.1;
+                    if (Cs >= 1.0)  {Cs = 1.0;}
+                    std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;
+                    break;
+                }
+
+                /// mesh display mode
+                case 'w':
+                {
+                    wireframe = !wireframe;
+                    if (!wireframe)  { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
+                    else    { glPolygonMode( GL_FRONT_AND_BACK, GL_LINE); }
+                    break;
+                }
+
+                /// quit
                 case 27:
                 { exit(0);}
 
@@ -181,13 +213,14 @@ namespace pba {
 
         void Usage()
         {
-            std::cout << "=== PbaThing ===\n";
-            std::cout << "c/C     reduce/increase collision coefficient of restitution\n";
-            std::cout << "s/S     reduce/increase collision coefficient of stickiness\n";
-            std::cout << "g/G     reduce/increase magnitude of gravity\n";
-            std::cout << "e       start/stop emitting more particles\n";
-            std::cout << "t/T     reduce/increase animation time step\n";
+            std::cout << "=== PbaThing ===" << endl;
+            std::cout << "c/C     reduce/increase collision coefficient of restitution" << endl;
+            std::cout << "s/S     reduce/increase collision coefficient of stickiness" << endl;
+            std::cout << "g/G     reduce/increase magnitude of gravity" << endl;
+            std::cout << "e       start/stop emitting more particles" << endl;
+            std::cout << "t/T     reduce/increase animation time step" << endl;
             std::cout << "q       switch solvers between Leap Frog and Sixth Order" << endl;
+            std::cout << "w       switch wireframe/normal display mode" << endl;
             std::cout << "Esc     quit" << endl;
         }
 
@@ -210,6 +243,7 @@ namespace pba {
         double Cr;   // coefficient of restitution
         double Cs;   // coefficient of stickness
         bool addParticles;  // flag to decide whether emit particles
+        bool wireframe; // flag to decide mesh display mode
 
         /// default attributes
         float mass;

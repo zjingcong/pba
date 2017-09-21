@@ -6,6 +6,7 @@
 # include <iostream>
 # include <fstream>
 # include <sstream>
+# include <algorithm>
 
 using namespace pba;
 using namespace std;
@@ -13,13 +14,20 @@ using namespace std;
 
 void Draw::DrawTriangles(GeometryPtr geom)
 {
-    size_t face_count = geom->get_nb();
-
     glBegin(GL_TRIANGLES);
-    for (size_t i = 0; i < face_count; ++i)
+    for (size_t i = 0; i < geom->get_nb(); ++i)
     {
-        glColor3f( geom->get_face_colors()[i].red(), geom->get_face_colors()[i].green(), geom->get_face_colors()[i].blue() );
-        TrianglePtr tri= geom->get_triangles().at(i);
+        TrianglePtr tri = geom->get_triangles().at(i);
+
+        // set collision face color
+        auto p = std::find(geom->get_collision_indices().begin(), geom->get_collision_indices().end(), i);
+        if (p != geom->get_collision_indices().end())   {glColor3f(0.9, 0.9, 0.9);}
+        else
+        {
+            Color color = tri->getColor();
+            glColor3f( color.red(), color.green(), color.blue());
+        }
+
         Vector v0 = tri->getP0();
         Vector v1 = tri->getP1();
         Vector v2 = tri->getP2();
@@ -106,19 +114,6 @@ void LoadMesh::LoadBox(const float l, GeometryPtr geom)
     face_indices.push_back(Vector(3, 7, 5));
     face_indices.push_back(Vector(6, 0, 4));
     face_indices.push_back(Vector(4, 0, 2));
-
-//    face_indices.push_back(Vector(0, 2, 1));
-//    face_indices.push_back(Vector(1, 2, 3));
-//    face_indices.push_back(Vector(2, 4, 3));
-//    face_indices.push_back(Vector(3, 4, 5));
-//    face_indices.push_back(Vector(4, 6, 5));
-//    face_indices.push_back(Vector(5, 6, 7));
-//    face_indices.push_back(Vector(6, 0, 7));
-//    face_indices.push_back(Vector(7, 0, 1));
-//    face_indices.push_back(Vector(1, 3, 7));
-//    face_indices.push_back(Vector(7, 3, 5));
-//    face_indices.push_back(Vector(6, 4, 0));
-//    face_indices.push_back(Vector(0, 4, 2));  // normal inside
 
     // construct triangle geometry
     geom->gen_triangles(vertices, face_indices);

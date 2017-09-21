@@ -152,9 +152,9 @@ namespace pba
 
         void testDrawTriangles()
         {
-            for (size_t i = 0; i < geom->get_nb(); ++i)
-                { geom->add_face_color(Color(float(drand48()), float(drand48()), float(drand48()), 1.0)); } // set random colors
-            Draw::DrawTriangles(geom);
+//            for (size_t i = 0; i < geom->get_nb(); ++i)
+//                { geom->add_face_color(Color(float(drand48()), float(drand48()), float(drand48()), 1.0)); } // set random colors
+//            Draw::DrawTriangles(geom);
         }
 
         bool testCollisionDetection()

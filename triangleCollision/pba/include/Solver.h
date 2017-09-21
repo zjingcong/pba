@@ -6,6 +6,7 @@
 #define PBA_SOLVER_H
 
 # include <string>
+# include <iostream>
 # include "DynamicalState.h"
 # include "Force.h"
 # include "Collision.h"
@@ -30,6 +31,7 @@ namespace pba
         //! update vel and pos in DS with collision, update time in DS
         void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs)
         {
+            geom->clean_collisions();
             _updateDSWithCollision(dt, DS, force, geom, Cr, Cs);
             DS->update_time(dt);
         }

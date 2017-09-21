@@ -47,34 +47,37 @@ void SolverBase::updatePosWithCollision(const double& dt, DynamicalState DS, Geo
 
             // loop over triangles
             int collision_num = 0;
-            std::vector<double> delta_times;
-            std::vector<Vector> collision_positions;
-            std::vector<TrianglePtr> collision_triangles;
-            for (auto it = geom->get_triangles().cbegin(); it != geom->get_triangles().end(); ++it)
+            std::vector<double> tmp_delta_times;
+            std::vector<Vector> tmp_collision_positions;
+            std::vector<size_t> tmp_collision_indices;
+            for (size_t p = 0; p < geom->get_nb(); ++p)
             {
                 // collision detection
-                TrianglePtr triangle = *it;
+                TrianglePtr triangle = geom->get_triangles()[p];
                 double dti;
                 Vector xi;
                 if (TriangleCollision::collisionDetection(dt, DS, i, triangle, dti, xi))
                 {
                     collision_num++;
-                    delta_times.push_back(dti);
-                    collision_positions.push_back(xi);
-                    collision_triangles.push_back(triangle);
+                    tmp_delta_times.push_back(dti);
+                    tmp_collision_positions.push_back(xi);
+                    tmp_collision_indices.push_back(p);
                 }
             }
             if (collision_num == 0)   {collision_flag = false;} // no collision
+
             if (collision_flag)
             {
                 // pick the maximum dt_i
-                auto max = std::max_element(delta_times.begin(), delta_times.end());
+                auto max = std::max_element(tmp_delta_times.begin(), tmp_delta_times.end());
                 double dt_i = *max;
-                long max_index = std::distance(delta_times.begin(), max);
-                Vector x_i = collision_positions[max_index];
-                TrianglePtr collision_triangle = collision_triangles[max_index];
-                // handle collision for maximum de_i
-                TriangleCollision::collisionHandling(dt, DS, i, collision_triangle, dt_i, x_i, Cr, Cs);
+                long max_index = std::distance(tmp_delta_times.begin(), max);
+                Vector x_i = tmp_collision_positions[max_index];
+                size_t collision_triangle_index = tmp_collision_indices[max_index];
+                // handle collision for maximum dt_i
+                TriangleCollision::collisionHandling(dt, DS, i, geom->get_triangles().at(collision_triangle_index), dt_i, x_i, Cr, Cs);
+                // store collision triangle
+                geom->add_collisions(collision_triangle_index);
             }
         }
     }

@@ -21,9 +21,14 @@ void TriangleGeometry::add_triangle(TrianglePtr tri)
     triangles.push_back(tri);
 }
 
-void TriangleGeometry::add_face_color(const Color& c)
+void TriangleGeometry::add_collisions(size_t p)
 {
-    face_colors.push_back(c);
+    collision_indices.push_back(p);
+}
+
+void TriangleGeometry::clean_collisions()
+{
+    collision_indices.clear();
 }
 
 void TriangleGeometry::gen_triangles(std::vector<Vector>& vertices, std::vector<Vector>& face_indices)
