@@ -46,7 +46,8 @@ namespace pba {
                 PbaThingyDingy(nam),
                 solver_id(LEAP_FROG),
                 addParticles(false),
-                wireframe(false)
+                wireframe(false),
+                onKdTree(false)
         {
             // construct attributes
             _init();
@@ -85,6 +86,9 @@ namespace pba {
                 TrianglePtr triangle = *it;
                 triangle->setColor(Color(float(drand48()), float(drand48()), float(drand48()), 1.0));   // set random colors
             }
+            // build geom kdTree
+            geom->build_trianglesTree(3);
+            cout << "-------------------------------------------" << endl;
 
             /// init sim
             // add force
@@ -119,7 +123,8 @@ namespace pba {
             force->updateParms("g", g);
             // update dynamical state
             // solver->updateDS(dt, DS, force); // no collision
-            solver->updateDSWithCollision(dt, DS, force, geom, Cr, Cs); // collision
+            if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, force, geom, Cr, Cs);}
+            else    {solver->updateDSWithCollision(dt, DS, force, geom, Cr, Cs);} // collision
         }
 
         void Display()
@@ -204,6 +209,15 @@ namespace pba {
                     break;
                 }
 
+                /// kdtree
+                case 'k':
+                {
+                    onKdTree = !onKdTree;
+                    if (onKdTree)   {std::cout << "TURN ON KDTREE" << std::endl;}
+                    else    {std::cout << "TURN OFF KDTREE" << std::endl;}
+                    break;
+                }
+
                 /// quit
                 case 27:
                 { exit(0);}
@@ -246,6 +260,7 @@ namespace pba {
         double Cs;   // coefficient of stickness
         bool addParticles;  // flag to decide whether emit particles
         bool wireframe; // flag to decide mesh display mode
+        bool onKdTree;  // flage to turn on/off kdtree
 
         /// default attributes
         float mass;

@@ -17,7 +17,8 @@ void SolverBase::updateSinglePos(const double& dt, DynamicalState DS, size_t i)
 
 void SolverBase::updatePos(const double& dt, DynamicalState DS)
 {
-    for (size_t i = 0; i < DS->nb(); ++i)
+    size_t i;
+    for (i = 0; i < DS->nb(); ++i)
     {
         updateSinglePos(dt, DS, i);
     }
@@ -25,7 +26,8 @@ void SolverBase::updatePos(const double& dt, DynamicalState DS)
 
 void SolverBase::updateVel(const double& dt, DynamicalState DS, ForcePtr force)
 {
-    for (size_t i = 0; i < DS->nb(); ++i)
+    size_t i;
+    for (i = 0; i < DS->nb(); ++i)
     {
         float mass = DS->mass(i);
         Vector vel = DS->vel(i) + force->getForce(DS, i) * dt / mass;
@@ -33,10 +35,11 @@ void SolverBase::updateVel(const double& dt, DynamicalState DS, ForcePtr force)
     }
 }
 
-void SolverBase::updatePosWithCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs)
+void SolverBase::updatePosWithCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree)
 {
     updatePos(dt, DS);
-    TriangleCollision::triangleCollision(dt, DS, geom, Cr, Cs);
+    if (onkdTree)   {TriangleCollision::triangleCollisionWithKdTree(dt, DS, geom, Cr, Cs);}
+    else    {TriangleCollision::triangleCollision(dt, DS, geom, Cr, Cs);}
 }
 
 
@@ -50,11 +53,11 @@ void LeapFrogSolver::_updateDS(const double& dt, DynamicalState DS, ForcePtr for
     LeapFrogSolver::updatePos(dt / 2, DS);
 }
 
-void LeapFrogSolver::_updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs)
+void LeapFrogSolver::_updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree)
 {
-    LeapFrogSolver::updatePosWithCollision(dt / 2, DS, geom, Cr, Cs);
+    LeapFrogSolver::updatePosWithCollision(dt / 2, DS, geom, Cr, Cs, onkdTree);
     LeapFrogSolver::updateVel(dt, DS, force);
-    LeapFrogSolver::updatePosWithCollision(dt / 2, DS, geom, Cr, Cs);
+    LeapFrogSolver::updatePosWithCollision(dt / 2, DS, geom, Cr, Cs, onkdTree);
 }
 
 
@@ -74,16 +77,16 @@ void SixOrderSolver::_updateDS(const double& dt, DynamicalState DS, ForcePtr for
     LeapFrogSolver::_updateDS(dt_a, DS, force);
 }
 
-void SixOrderSolver::_updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs)
+void SixOrderSolver::_updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree)
 {
     double a = 1.0 / (4.0 - std::pow(4, 1.0/3.0));
     double b = 1 - 4 * a;
     double dt_a = a * dt;
     double dt_b = b * dt;
 
-    LeapFrogSolver::_updateDSWithCollision(dt_a, DS, force, geom, Cr, Cs);
-    LeapFrogSolver::_updateDSWithCollision(dt_a, DS, force, geom, Cr, Cs);
-    LeapFrogSolver::_updateDSWithCollision(dt_b, DS, force, geom, Cr, Cs);
-    LeapFrogSolver::_updateDSWithCollision(dt_a, DS, force, geom, Cr, Cs);
-    LeapFrogSolver::_updateDSWithCollision(dt_a, DS, force, geom, Cr, Cs);
+    LeapFrogSolver::_updateDSWithCollision(dt_a, DS, force, geom, Cr, Cs, onkdTree);
+    LeapFrogSolver::_updateDSWithCollision(dt_a, DS, force, geom, Cr, Cs, onkdTree);
+    LeapFrogSolver::_updateDSWithCollision(dt_b, DS, force, geom, Cr, Cs, onkdTree);
+    LeapFrogSolver::_updateDSWithCollision(dt_a, DS, force, geom, Cr, Cs, onkdTree);
+    LeapFrogSolver::_updateDSWithCollision(dt_a, DS, force, geom, Cr, Cs, onkdTree);
 }

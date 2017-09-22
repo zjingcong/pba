@@ -31,21 +31,26 @@ namespace pba
         //! update vel and pos in DS with collision, update time in DS
         void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs)
         {
-            geom->clean_collisions();
-            _updateDSWithCollision(dt, DS, force, geom, Cr, Cs);
+            _updateDSWithCollision(dt, DS, force, geom, Cr, Cs, false);
+            DS->update_time(dt);
+        }
+        //! update vel and pos in DS with collision, update time in DS, using KdTree
+        void updateDSWithCollisionWithKdTree(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs)
+        {
+            _updateDSWithCollision(dt, DS, force, geom, Cr, Cs, true);
             DS->update_time(dt);
         }
 
     protected:
         virtual void _updateDS(const double& dt, DynamicalState DS, ForcePtr force) {}
-        virtual void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs)   {}
+        virtual void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree)   {}
 
         //! partial solver: update position
         void updatePos(const double& dt, DynamicalState DS);
         //! partial solver: update velocity
         void updateVel(const double& dt, DynamicalState DS, ForcePtr force);
         //! partial solver: update position with collision
-        void updatePosWithCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs);
+        void updatePosWithCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
 
         std::string name;
 
@@ -66,7 +71,7 @@ namespace pba
 
     protected:
         void _updateDS(const double& dt, DynamicalState DS, ForcePtr force);
-        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs);
+        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
     };
 
 //! ------------------------------------ SixthOrder -------------------------------------------------
@@ -79,7 +84,7 @@ namespace pba
 
     protected:
         void _updateDS(const double& dt, DynamicalState DS, ForcePtr force);
-        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs);
+        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtr force, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
     };
 
 }

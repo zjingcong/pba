@@ -7,6 +7,7 @@
 
 # include "DynamicalState.h"
 # include "Geometry.h"
+# include "KdTree.h"
 
 namespace pba
 {
@@ -15,6 +16,8 @@ namespace pba
     public:
         //! collision detection and handling per geometry
         static void triangleCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs);
+        //! collision detection and handling per KdTree stored geometry
+        static void triangleCollisionWithKdTree(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs);
 
     private:
         //! collision detection per triangle

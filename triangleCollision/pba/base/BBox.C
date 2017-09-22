@@ -8,9 +8,10 @@ using namespace pba;
 
 AABB::AABB(Vector &llc, Vector &urc)
 {
-    assert((llc.X() < urc.X()) && (llc.Y() < urc.Y()) && (llc.Z() < urc.Z()));  // mix < max
+    assert(lessVector(llc, urc));  // mix < max
     LLC = llc;
     URC = urc;
+    center = (LLC + URC) * 0.5;
 }
 
 AABB AABB::subDivide(const int i, const int id)
@@ -52,22 +53,66 @@ AABB AABB::subDivide(const int i, const int id)
     return AABB(llc, urc);
 }
 
-bool AABB::insidePoint(const Vector &P)
+bool AABB::insidePoint(const Vector &P) const
 {
     return (lessVector(P, URC) && lessVector(LLC, P));
 }
 
-bool AABB::insideTriangle(TrianglePtr triangle)
+int AABB::insideTriangle(TrianglePtr triangle) const
 {
-    return (insidePoint(triangle->getP0()) && insidePoint(triangle->getP1()) && insidePoint(triangle->getP2()));
+    bool b0 = insidePoint(triangle->getP0());
+    bool b1 = insidePoint(triangle->getP1());
+    bool b2 = insidePoint(triangle->getP2());
+
+    if (b0 && b1 && b2) { return 1;}    // inside
+    else if (b0 || b1 || b2)    { return 2;}    // across
+    else    { return 0;}    // outside
 }
 
-bool AABB::intersect() const
+bool AABB::intersect(const Vector& origin, const Vector& dir, const float& t0, const float& t1) const
 {
-    return true;
+    float tmin, tmax, tymin, tymax, tzmin, tzmax;
+    if (dir.X() >= 0.0)
+    {
+        tmin = float((LLC.X() - origin.X()) / dir.X());
+        tmax = float((URC.X() - origin.X()) / dir.X());
+    }
+    else
+    {
+        tmin = float((URC.X() - origin.X()) / dir.X());
+        tmax = float((LLC.X() - origin.X()) / dir.X());
+    }
+    if (dir.Y() >= 0.0)
+    {
+        tymin = float((LLC.Y() - origin.Y()) / dir.Y());
+        tymax = float((URC.Y() - origin.Y()) / dir.Y());
+    }
+    else
+    {
+        tymin = float((URC.Y() - origin.Y()) / dir.Y());
+        tymax = float((LLC.Y() - origin.Y()) / dir.Y());
+    }
+    if ((tmin > tymax) || (tymin > tmax)) { return false;}
+    if (tymin > tmin)   {tmin = tymin;}
+    if (tymax < tmax)   {tmax = tymax;}
+    if (dir.Z() >= 0.0)
+    {
+        tzmin = float((LLC.Z() - origin.Z()) / dir.Z());
+        tzmax = float((URC.Z() - origin.Z()) / dir.Z());
+    }
+    else
+    {
+        tzmin = float((URC.Z() - origin.Z()) / dir.Z());
+        tzmax = float((LLC.Z() - origin.Z()) / dir.Z());
+    }
+    if ((tmin > tzmax) || (tzmin < tmax))   { return false;}
+    if (tzmin > tmin)   {tmin = tzmin;}
+    if (tzmax < tmax)   {tmax = tzmax;}
+
+    return ((tmin < t1) && (tmax > t0));
 }
 
-bool AABB::lessVector(const Vector &v1, const Vector &v2)
+bool AABB::lessVector(const Vector &v1, const Vector &v2) const
 {
     if ((v1.X() <= v2.X()) && (v1.Y() <= v2.Y()) && (v1.Z() <= v2.Z()))
     { return true;}

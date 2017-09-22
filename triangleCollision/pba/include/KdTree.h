@@ -6,10 +6,11 @@
 #define PBA_KDTREE_H
 
 # include "BBox.h"
-# include "Geometry.h"
+# include "Triangle.h"
 # include "Vector.h"
 
 # include <string>
+# include <vector>
 
 namespace pba
 {
@@ -17,28 +18,29 @@ namespace pba
     class KdTree
     {
     public:
-        KdTree(std::string& nam, int d, AABB& aabb):
+        KdTree(std::string& nam, int d):
                 name{nam},
                 root(NULL),
-                depth(d),
-                geomAABB(aabb)  {}
+                depth(d)    {}
         ~KdTree()   {}
 
         const std::string& Name() const { return name; }
-        void buildTree(std::vector<pba::TrianglePtr> tri);
-        std::vector<pba::TrianglePtr> searchTriangles(const Vector& pos);
+        int getDepth() const { return depth;}
+
+        void buildTree(std::vector<TrianglePtr> tri, AABB aabb);
+        std::vector<TrianglePtr> searchTriangles(const Vector& vec0, const Vector& vec1);
 
     private:
         std::string name;
 
         struct KdNode
         {
-            std::vector<pba::TrianglePtr> triangles;
+            std::vector<TrianglePtr> triangles;
             pba::AABB bbox;
             KdNode *left;
             KdNode *right;
 
-            KdNode(std::vector<pba::TrianglePtr> tri, pba::AABB aabb):
+            KdNode(std::vector<TrianglePtr> tri, pba::AABB aabb):
                     triangles(tri),
                     bbox(aabb),
                     left(NULL),
@@ -47,11 +49,13 @@ namespace pba
 
         KdNode *root;
         int depth;
-        AABB geomAABB;
+        std::vector<TrianglePtr> null_triangles;
 
-        void build(std::vector<pba::TrianglePtr> tri, pba::AABB aabb, KdNode*& t, int level);
-        KdNode* search(const Vector& pos, pba::AABB aabb, KdNode*& t, int level);
+        void build(std::vector<TrianglePtr> tri, pba::AABB aabb, KdNode*& t, int level);
+        std::vector<TrianglePtr> search(const Vector& vec0, const Vector& vec1, const float& t0, const float& t1, KdNode*& t, int level);
     };
+
+    typedef KdTree* KdTreePtr;
 
 }
 
