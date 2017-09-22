@@ -9,7 +9,9 @@ OFILES = base/PbaViewer.o \
          base/Solver.o \
          base/Tools.o \
          base/Geometry.o \
-         base/Collision.o
+         base/Collision.o \
+         base/BBox.o \
+         base/KdTree.o
 
 
 THINGS = things/TriangleCollision.h \
