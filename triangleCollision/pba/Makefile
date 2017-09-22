@@ -8,6 +8,7 @@ OFILES = base/PbaViewer.o \
          base/Force.o \
          base/Solver.o \
          base/Tools.o \
+         base/Triangle.o \
          base/Geometry.o \
          base/Collision.o \
          base/BBox.o \

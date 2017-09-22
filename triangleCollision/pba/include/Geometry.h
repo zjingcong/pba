@@ -10,60 +10,44 @@
 # include <memory>
 # include "Vector.h"
 # include "Color.h"
+# include "Triangle.h"
+# include "KdTree.h"
+# include "BBox.h"
 
 namespace pba
 {
-    class Triangle
-    {
-    public:
-        Triangle(const pba::Vector& P0, const pba::Vector& P1, const pba::Vector& P2);
-        ~Triangle() {}
-
-        void setColor(pba::Color c)    {color = c;}
-
-        const pba::Vector& getP0() const { return P0;}
-        const pba::Vector& getP1() const { return P1;}
-        const pba::Vector& getP2() const { return P2;}
-        const pba::Vector& getE1() const { return e1;}
-        const pba::Vector& getE2() const { return e2;}
-        const pba::Vector& getNorm() const { return norm;}
-        const pba::Color& getColor() const { return color;}
-
-    private:
-        pba::Vector P0;
-        pba::Vector P1;
-        pba::Vector P2;
-        pba::Vector e1;
-        pba::Vector e2;
-        pba::Vector norm;
-        pba::Color color;
-    };
-
-    typedef Triangle* TrianglePtr;
-
 
     class TriangleGeometry
     {
     public:
-        TriangleGeometry(const std::string& nam): name(nam)  {}
+        TriangleGeometry(const std::string& nam): name(nam)
+        {
+            Vector llc = Vector(0.0, 0.0, 0.0);
+            Vector urc = Vector(0.0, 0.0, 0.0);
+            bbox = new AABB(llc, urc);
+        }
         ~TriangleGeometry() {}
 
         void add_triangle(TrianglePtr tri);
-        void add_collisions(size_t p);
-        void clean_collisions();
-
-        void gen_triangles(std::vector<Vector>& vertices, std::vector<Vector>& face_indices);  // here face_indices start with 0
+        void setBBox(AABB aabb) {bbox->setLLC(aabb.getLLC()); bbox->setURC(aabb.getURC());}
+        void setBBox(Vector& llc, Vector& urc)  {bbox->setLLC(llc); bbox->setURC(urc);}
 
         std::vector<TrianglePtr>& get_triangles()    { return triangles;}   // return ref!
-        std::vector<size_t>& get_collision_indices() { return collision_indices;}
-
+        AABB& getBBox() const { return *bbox;}
+        KdTreePtr getKdTree() const  { return trianglesTree;}
         size_t get_nb() const { return triangles.size();}
         const std::string& Name() const { return name;}
+
+        void cleanTrianglesCollisionStatus();
+
+        void build_triangles(std::vector<Vector> &vertices, std::vector<Vector> &face_indices);  // here face_indices start with 0
+        void build_trianglesTree(int depth);
 
     private:
         std::string name;
         std::vector<TrianglePtr> triangles;
-        std::vector<size_t> collision_indices;
+        KdTreePtr trianglesTree;
+        AABB* bbox;
 
         TriangleGeometry()  {}
     };
