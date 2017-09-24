@@ -3,7 +3,9 @@
 //
 
 # include "Tools.h"
+# include <stdio.h>
 # include <iostream>
+# include <string.h>
 # include <fstream>
 # include <sstream>
 # include <algorithm>
@@ -45,47 +47,78 @@ void LoadMesh::LoadObj(std::string obj_path, GeometryPtr geom)
     cout << "Load model " << obj_path << "..." << endl;
     // load model file
     const char* file_path = obj_path.c_str();
-    ifstream modelFile(file_path);
 
-    string line;
     int vertex_num = 0;
     int face_num = 0;
-
     std::vector<Vector> vertices;
 
     std::vector<float> xvec;
     std::vector<float> yvec;
     std::vector<float> zvec;
-    while (getline(modelFile, line))
-    {
-        istringstream iss(line);
-        string tag;
-        float a, b, c;
-        if (iss >> tag >> a >> b >> c)
-        {
-            // parse the vertices
-            if (tag == "v")
-            {
-                xvec.push_back(a);
-                yvec.push_back(b);
-                zvec.push_back(c);
 
-                vertices.push_back(Vector(a, b, c));
-                vertex_num++;
-            }
-            // parse the faces
-            if (tag == "f")
+    FILE * file = fopen(file_path, "r");
+    if( file == NULL ){
+        cout << "Impossible to open the file !" << endl;
+        return;
+    }
+
+    char lineHeader[128];
+    int index_num[3] = {0, 0, 0};
+    while (true)
+    {
+        // read the first word of the line
+        int res = fscanf(file, "%s", lineHeader);
+        if (res == EOF)
+            break; // EOF = End Of File. Quit the loop
+
+        // parse the vertices
+        if (strcmp(lineHeader, "v") == 0)
+        {
+            index_num[0] = 1;
+            float x, y, z;
+            fscanf(file, "%f %f %f\n", &x, &y, &z);
+
+            xvec.push_back(x);
+            yvec.push_back(y);
+            zvec.push_back(z);
+            vertices.push_back(Vector(x, y, z));
+            vertex_num++;
+        }
+        if ( strcmp( lineHeader, "vt" ) == 0 ) {index_num[1] = 1;}
+        if ( strcmp( lineHeader, "vn" ) == 0 ) {index_num[2] = 1;}
+    }
+
+    file = fopen(file_path, "r");
+    while (true)
+    {
+        // read the first word of the line
+        int res = fscanf(file, "%s", lineHeader);
+        if (res == EOF)
+            break; // EOF = End Of File. Quit the loop
+
+        if (strcmp(lineHeader, "f") == 0)
+        {
+            unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+            if (index_num[0] == 1 && index_num[1] == 1 && index_num[2] == 1)
             {
-                // construct triangle geometry
-                Vector P0 = vertices.at(size_t(a - 1)); // obj face index starts with 1
-                Vector P1 = vertices.at(size_t(b - 1));
-                Vector P2 = vertices.at(size_t(c - 1));
-                TrianglePtr tri = new Triangle(P0, P1, P2);
-                geom->add_triangle(tri);
-                face_num++;
+                fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0],
+                       &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2],
+                       &normalIndex[2]);
             }
+            else
+            {
+                fscanf(file, "%d %d %d\n", &vertexIndex[0], &vertexIndex[1], &vertexIndex[2]);
+            }
+            // construct triangle geometry
+            Vector P0 = vertices.at(size_t(vertexIndex[0] - 1)); // obj face index starts with 1
+            Vector P1 = vertices.at(size_t(vertexIndex[1] - 1));
+            Vector P2 = vertices.at(size_t(vertexIndex[2] - 1));
+            TrianglePtr tri = new Triangle(P0, P1, P2);
+            geom->add_triangle(tri);
+            face_num++;
         }
     }
+
     // log the model info
     cout << "vertex_num: " << vertex_num << endl;
     cout << "face_num: " << face_num << endl;

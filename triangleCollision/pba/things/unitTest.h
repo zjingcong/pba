@@ -46,9 +46,9 @@ namespace pba
 //                std::cout << *it << std::endl;
 //            }
 //
-            // testObj();
-            geom = new TriangleGeometry("box");
-            testBox();
+            testObj(args);
+//            geom = new TriangleGeometry("box");
+//            testBox();
 
 //            if (testCollisionDetection())   {cout << "collision" << endl;}
 //            else    {cout << "no collision" << endl;}
@@ -129,10 +129,18 @@ namespace pba
 //            cout << " vel.Y: " << DS->vel(0).Y() << endl;
         }
 
-        void testObj()
+        void testObj(const std::vector<std::string>& args)
         {
-            LoadMesh::LoadObj("/home/jingcoz/workspace/pba/hw1/models/bigsphere.obj", geom);
-            cout << "triangle nb: " << geom->get_nb() << endl;
+            /// load scene
+            // load geometry
+            geom = new TriangleGeometry("collisionMesh");
+            if (args.size() == 2)   // load .obj file
+            {
+                std::string scene_file = args[1];
+                LoadMesh::LoadObj(scene_file, geom);
+            }
+            else    // load cube
+            { LoadMesh::LoadBox(10, geom); }
         }
 
         void testBox()
