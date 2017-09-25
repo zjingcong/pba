@@ -14,11 +14,12 @@ namespace pba
     class AABB
     {
     public:
+        AABB();
         AABB(Vector& llc, Vector& urc);
         ~AABB() {}
 
-        void setLLC(const Vector& llc)  {LLC = llc;}
-        void setURC(const Vector& urc)  {URC = urc;}
+        void setLLC(const Vector& llc)  {LLC = llc; center = (LLC + URC) * 0.5;}
+        void setURC(const Vector& urc)  {URC = urc; center = (LLC + URC) * 0.5;}
 
         const Vector& getLLC() const  { return LLC;}
         const Vector& getURC() const  { return URC;}
@@ -30,7 +31,8 @@ namespace pba
         //! return 0 - outside, 1 - inside, 2 - across
         int insideTriangle(TrianglePtr triangle) const;
 
-        bool intersect(const Vector& origin, const Vector& dir, const float& t0, const float& t1) const;
+        //! AABB intersection: 0 - no intersection, 1 - intersect, 2 - inside
+        int intersect(const Vector& origin, const Vector& target) const;
 
     private:
         Vector LLC; // lower left center

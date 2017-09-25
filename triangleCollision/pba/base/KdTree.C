@@ -8,66 +8,57 @@
 using namespace pba;
 using namespace std;
 
-void KdTree::buildTree(std::vector<TrianglePtr> tri, AABB aabb)
+void KdTree::build(AABB bbox, std::vector<pba::TrianglePtr> tris, int l)
 {
-    build(tri, aabb, root, 0);
-    cout << "KdTree building complete | Tree Depth: " << depth << endl;
-}
+    aabb = bbox;
+    level = l;
+    left = NULL;
+    right = NULL;
+    cout << "Current level: " << level << endl;
 
-std::vector<TrianglePtr> KdTree::searchTriangles(const Vector& vec0, const Vector& vec1)
-{
-    float t0 = 0.0;
-    float t1 = float((vec1 - vec0).magnitude());
-    Vector dir = vec1 - vec0;
-    return search(vec0, dir, t0, t1, root, 0);
-}
+    // end conditions
+    if(tris.empty()) { cout << "Current triangles num: " << tris.size() << endl; return; }
+    if (l == depth) { triangles = tris; cout << "Current triangles num: " << tris.size() << endl; return; }
 
-void KdTree::build(std::vector<TrianglePtr> tri, pba::AABB aabb, KdNode*& t, int level)
-{
-    if (t == NULL)  {t = new KdNode(tri, aabb);}
-    else if (level == depth) { t = new KdNode(tri, aabb); }
-    else if (level < depth)
+    // compute
+    int direction = level % 3;
+    AABB aabb_left = aabb.subDivide(direction, 0);
+    AABB aabb_right = aabb.subDivide(direction, 1);
+
+    std::vector<TrianglePtr> triangles_left;
+    std::vector<TrianglePtr> triangles_right;
+    // split triangles
+    for (auto it = tris.cbegin(); it != tris.cend(); ++it)
     {
-        int direction = level % 3;
-        AABB aabb0 = aabb.subDivide(direction, 0);
-        AABB aabb1 = aabb.subDivide(direction, 1);
-        std::vector<TrianglePtr> triangles0;
-        std::vector<TrianglePtr> triangles1;
-        for (auto it = tri.cbegin(); it != tri.cend(); ++it)
+        TrianglePtr triangle = *it;
+        if (aabb_left.insideTriangle(triangle) == 1) {triangles_left.push_back(triangle);}
+        else if (aabb_right.insideTriangle(triangle) == 1) {triangles_right.push_back(triangle);}
+        else
         {
-            TrianglePtr triangle = *it;
-            if (aabb0.insideTriangle(triangle) != 0) {triangles0.push_back(triangle);}
-            if (aabb1.insideTriangle(triangle) != 0) {triangles1.push_back(triangle);}
+            triangles_left.push_back(triangle);
+            triangles_right.push_back(triangle);
         }
-        if (!triangles0.empty())    {build(triangles0, aabb0, t->left, level + 1); tri.clear();}
-        if (!triangles1.empty())    {build(triangles1, aabb1, t->right, level + 1); tri.clear();}
-    }
-}
-
-std::vector<TrianglePtr> KdTree::search(const Vector& origin, const Vector& dir, const float& t0, const float& t1, KdNode*& t, int level)
-{
-    if (t == NULL)  { return null_triangles;}
-    if (level > depth)  { return null_triangles;}
-    if ((t->left == NULL) && (t->right == NULL))    { return t->triangles;}
-
-    if ((t == root) && (!(t->bbox.intersect(origin, dir, t0, t1))))  { return null_triangles;}
-    else
-    {
-        bool left_result = t->left->bbox.intersect(origin, dir, t0, t1);
-        bool right_result = t->right->bbox.intersect(origin, dir, t0, t1);
-        if (left_result && right_result)
-        {
-            std::vector<TrianglePtr> triangles0 = search(origin, dir, t0, t1, t->left, level + 1);
-            std::vector<TrianglePtr> triangles1 = search(origin, dir, t0, t1, t->right, level + 1);
-            triangles0.insert(triangles0.end(), triangles1.begin(), triangles1.end());  // combine two triangles containers
-            return triangles0;
-        }
-
-        if (left_result)
-        { return search(origin, dir, t0, t1, t->left, level + 1); }
-        if (right_result)
-        { return search(origin, dir, t0, t1, t->right, level + 1); }
     }
 
-    return null_triangles;
+    left = new KdTree(depth);
+    right = new KdTree(depth);
+    left->build(aabb_left, triangles_left, level + 1);
+    right->build(aabb_right, triangles_right, level + 1);
+}
+
+std::vector<TrianglePtr> KdTree::search(const Vector& origin, const Vector& target)
+{
+    int intersect_result = aabb.intersect(origin, target);
+
+    if (intersect_result == 0) { return null_triangles; }
+    if (left == NULL && right == NULL) { return triangles; }
+    if (level == depth) { return triangles; }
+
+    std::vector<TrianglePtr> triangles_left = left->search(origin, target);
+    std::vector<TrianglePtr> triangles_right = right->search(origin, target);
+
+    // combine two triangles containers
+    triangles_left.insert(triangles_left.end(), triangles_right.begin(), triangles_right.end());
+
+    return triangles_left;
 }

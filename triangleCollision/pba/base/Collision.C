@@ -44,6 +44,7 @@ void TriangleCollision::triangleCollision(const double& dt, DynamicalState DS, G
                     }
                 }
             }
+
             if (collision_num == 0) { collision_flag = false; } // no collision
             if (collision_flag)
             {
@@ -71,8 +72,8 @@ void TriangleCollision::triangleCollisionWithKdTree(const double& dt, DynamicalS
         {
             // search triangles
             Vector vec1 = DS->pos(i);
-            Vector vec0 = vec1 - DS->vel(i) * dt;
-            std::vector<TrianglePtr> triangles = geom->getKdTree()->searchTriangles(vec0, vec1);
+            Vector vec0 = vec1 - DS->vel(i) * tmp_dt;
+            std::vector<TrianglePtr> triangles = geom->getKdTree()->search(vec0, vec1);
 
             double max_dti = 0.0;
             TrianglePtr collision_triangle = NULL;
@@ -82,6 +83,7 @@ void TriangleCollision::triangleCollisionWithKdTree(const double& dt, DynamicalS
             {
                 // collision detection
                 TrianglePtr triangle = *it;
+
                 double dti;
                 Vector xi;
                 if (collisionDetection(tmp_dt, DS, i, triangle, dti, xi))
@@ -95,6 +97,7 @@ void TriangleCollision::triangleCollisionWithKdTree(const double& dt, DynamicalS
                     }
                 }
             }
+
             if (collision_num == 0) { collision_flag = false; } // no collision
 
             if (collision_flag)

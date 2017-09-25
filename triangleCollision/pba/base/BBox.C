@@ -3,8 +3,18 @@
 //
 
 # include "BBox.h"
+# include <iostream>
 
 using namespace pba;
+
+
+AABB::AABB()
+{
+    Vector llc(0.0, 0.0, 0.0);
+    Vector urc(0.0, 0.0, 0.0);
+
+    AABB(llc, urc);
+}
 
 AABB::AABB(Vector &llc, Vector &urc)
 {
@@ -16,8 +26,8 @@ AABB::AABB(Vector &llc, Vector &urc)
 
 AABB AABB::subDivide(const int i, const int id)
 {
-    assert(i <= 2);
-    assert(id <= 1);
+    assert(i <= 2 && i >= 0);
+    assert(id <= 1 && id >= 0);
     Vector llc;
     Vector urc;
     switch (i)
@@ -50,6 +60,11 @@ AABB AABB::subDivide(const int i, const int id)
             break;
     }
 
+//    std::cout << "direction: " << i << std::endl;
+//    std::cout << "id: " << id << std::endl;
+//    std::cout << "llc: ";   llc.printValue(); std::cout << std::endl;
+//    std::cout << "urc: ";   urc.printValue(); std::cout << std::endl;
+
     return AABB(llc, urc);
 }
 
@@ -65,51 +80,63 @@ int AABB::insideTriangle(TrianglePtr triangle) const
     bool b2 = insidePoint(triangle->getP2());
 
     if (b0 && b1 && b2) { return 1;}    // inside
-    else if (b0 || b1 || b2)    { return 2;}    // across
-    else    { return 0;}    // outside
+    else    {return 0;}
 }
 
-bool AABB::intersect(const Vector& origin, const Vector& dir, const float& t0, const float& t1) const
+//! AABB intersection: 0 - no intersection, 1 - intersect, 2 - inside
+int AABB::intersect(const Vector& origin, const Vector& target) const
 {
+    if (insidePoint(origin) && insidePoint(target)) { return 2;}
+
+    Vector dir = (target - origin).unitvector();
+    float t0 = 0.0;
+    float t1 = float((target - origin).magnitude());
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
-    if (dir.X() >= 0.0)
+
+    float divx = float(1.0 / dir.X());
+    if (divx >= 0.0)
     {
-        tmin = float((LLC.X() - origin.X()) / dir.X());
-        tmax = float((URC.X() - origin.X()) / dir.X());
+        tmin = float((LLC.X() - origin.X()) * divx);
+        tmax = float((URC.X() - origin.X()) * divx);
     }
     else
     {
-        tmin = float((URC.X() - origin.X()) / dir.X());
-        tmax = float((LLC.X() - origin.X()) / dir.X());
+        tmin = float((URC.X() - origin.X()) * divx);
+        tmax = float((LLC.X() - origin.X()) * divx);
     }
-    if (dir.Y() >= 0.0)
+
+    float divy = float(1.0 / dir.Y());
+    if (divy >= 0.0)
     {
-        tymin = float((LLC.Y() - origin.Y()) / dir.Y());
-        tymax = float((URC.Y() - origin.Y()) / dir.Y());
+        tymin = float((LLC.Y() - origin.Y()) * divy);
+        tymax = float((URC.Y() - origin.Y()) * divy);
     }
     else
     {
-        tymin = float((URC.Y() - origin.Y()) / dir.Y());
-        tymax = float((LLC.Y() - origin.Y()) / dir.Y());
+        tymin = float((URC.Y() - origin.Y()) * divy);
+        tymax = float((LLC.Y() - origin.Y()) * divy);
     }
-    if ((tmin > tymax) || (tymin > tmax)) { return false;}
+    if ((tmin > tymax) || (tymin > tmax)) { return 0;}
     if (tymin > tmin)   {tmin = tymin;}
     if (tymax < tmax)   {tmax = tymax;}
-    if (dir.Z() >= 0.0)
+
+    float divz = float(1.0 / dir.Z());
+    if (divz >= 0.0)
     {
-        tzmin = float((LLC.Z() - origin.Z()) / dir.Z());
-        tzmax = float((URC.Z() - origin.Z()) / dir.Z());
+        tzmin = float((LLC.Z() - origin.Z()) * divz);
+        tzmax = float((URC.Z() - origin.Z()) * divz);
     }
     else
     {
-        tzmin = float((URC.Z() - origin.Z()) / dir.Z());
-        tzmax = float((LLC.Z() - origin.Z()) / dir.Z());
+        tzmin = float((URC.Z() - origin.Z()) * divz);
+        tzmax = float((LLC.Z() - origin.Z()) * divz);
     }
-    if ((tmin > tzmax) || (tzmin < tmax))   { return false;}
+    if ((tmin > tzmax) || (tzmin > tmax))   { return 0;}
     if (tzmin > tmin)   {tmin = tzmin;}
     if (tzmax < tmax)   {tmax = tzmax;}
 
-    return ((tmin < t1) && (tmax > t0));
+    if ((tmin < t1) && (tmax > t0)) { return 1;}
+    else    { return 0;}
 }
 
 bool AABB::lessVector(const Vector &v1, const Vector &v2) const

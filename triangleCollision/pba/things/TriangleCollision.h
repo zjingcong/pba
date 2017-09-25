@@ -87,7 +87,7 @@ namespace pba {
                 triangle->setColor(Color(float(drand48()), float(drand48()), float(drand48()), 1.0));   // set random colors
             }
             // build geom kdTree
-            geom->build_trianglesTree(3);
+            geom->build_trianglesTree(5);
             cout << "-------------------------------------------" << endl;
 
             /// init sim
@@ -125,6 +125,8 @@ namespace pba {
             // solver->updateDS(dt, DS, force); // no collision
             if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, force, geom, Cr, Cs);}
             else    {solver->updateDSWithCollision(dt, DS, force, geom, Cr, Cs);} // collision
+
+            // solver->updateDSWithCollision(dt, DS, force, geom, Cr, Cs);
         }
 
         void Display()
@@ -271,7 +273,7 @@ namespace pba {
         {
             g = 0.48;
             dt = 1.0 / 24.0;
-            num = 100;  // init particles number
+            num = 1;  // init particles number
             Cr = 1.0;   // init elastic collision
             Cs = 1.0;
             mass = 1.0;

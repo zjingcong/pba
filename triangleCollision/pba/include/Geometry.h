@@ -20,20 +20,15 @@ namespace pba
     class TriangleGeometry
     {
     public:
-        TriangleGeometry(const std::string& nam): name(nam)
-        {
-            Vector llc = Vector(0.0, 0.0, 0.0);
-            Vector urc = Vector(0.0, 0.0, 0.0);
-            bbox = new AABB(llc, urc);
-        }
+        TriangleGeometry(const std::string& nam): name(nam) {}
         ~TriangleGeometry() {}
 
         void add_triangle(TrianglePtr tri);
-        void setBBox(AABB aabb) {bbox->setLLC(aabb.getLLC()); bbox->setURC(aabb.getURC());}
-        void setBBox(Vector& llc, Vector& urc)  {bbox->setLLC(llc); bbox->setURC(urc);}
+        void setBBox(AABB aabb) {bbox.setLLC(aabb.getLLC()); bbox.setURC(aabb.getURC());}
+        void setBBox(Vector& llc, Vector& urc)  {bbox.setLLC(llc); bbox.setURC(urc);}
 
         std::vector<TrianglePtr>& get_triangles()    { return triangles;}   // return ref!
-        AABB& getBBox() const { return *bbox;}
+        AABB getBBox() const { return bbox;}
         KdTreePtr getKdTree() const  { return trianglesTree;}
         size_t get_nb() const { return triangles.size();}
         const std::string& Name() const { return name;}
@@ -47,7 +42,7 @@ namespace pba
         std::string name;
         std::vector<TrianglePtr> triangles;
         KdTreePtr trianglesTree;
-        AABB* bbox;
+        AABB bbox;
 
         TriangleGeometry()  {}
     };

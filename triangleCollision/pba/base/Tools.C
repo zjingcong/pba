@@ -178,8 +178,8 @@ void LoadMesh::LoadBox(const float l, GeometryPtr geom)
     geom->build_triangles(vertices, face_indices);
     geom->get_triangles().at(10)->setVisible(false);
     geom->get_triangles().at(11)->setVisible(false);
-    Vector llc = Vector(-dl, -dl, -dl);
-    Vector urc = Vector(dl, dl, dl);
+    Vector llc = Vector(-dl - 0.0001, -dl - 0.0001, -dl - 0.0001);
+    Vector urc = Vector(dl + 0.0001, dl + 0.0001, dl + 0.0001);
     geom->setBBox(llc, urc);
 
     cout << "Load model success." << endl;
