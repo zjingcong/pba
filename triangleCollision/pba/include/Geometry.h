@@ -11,7 +11,13 @@
 # include "Vector.h"
 # include "Color.h"
 # include "Triangle.h"
-# include "KdTree.h"
+
+namespace pba
+{
+    class KdTree;
+    typedef KdTree* KdTreePtr;
+}
+
 # include "BBox.h"
 
 namespace pba
@@ -50,4 +56,5 @@ namespace pba
     typedef TriangleGeometry* GeometryPtr;
 };
 
+# include "KdTree.h"
 #endif //PBA_GEOMETRY_H

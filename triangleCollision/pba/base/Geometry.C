@@ -40,7 +40,7 @@ void TriangleGeometry::build_triangles(std::vector<Vector> &vertices, std::vecto
 void TriangleGeometry::build_trianglesTree(int depth)
 {
     string nam = "kdTree_" + name;
-    cout << "Starting building Geometry KdTree " << nam << "..." << endl;
+    cout << "Starting building Geometry KdTree " << nam << " with depeth" << depth << "..." << endl;
     trianglesTree = new KdTree(depth);
     trianglesTree->build(bbox, triangles);
     cout << "Building Geometry KdTree complete." << endl;

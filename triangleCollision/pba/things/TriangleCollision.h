@@ -9,6 +9,7 @@
 //  - magnitude of gravity (keys g/G to reduce/increase the magnitude)
 //  - timestep size (keys t/T to reduce/increase) - this is already implemented in PbaThingyDingy
 //  - mesh display mode (key w to switch wireframe and normal mode)
+//  - KdTree (key k to turn on/off kdtree)
 //  - Esc to quit
 
 # include "PbaThing.h"
@@ -77,17 +78,19 @@ namespace pba {
             {
                 std::string scene_file = args[1];
                 LoadMesh::LoadObj(scene_file, geom);
+                geom->build_trianglesTree(5);   // build geom kdTree
             }
             else    // load cube
-            { LoadMesh::LoadBox(10, geom); }
+            {
+                LoadMesh::LoadBox(10, geom);
+                geom->build_trianglesTree(0);   // build geom kdTree
+            }
             // set geometry color
             for (auto it = geom->get_triangles().begin(); it != geom->get_triangles().end(); ++it)
             {
                 TrianglePtr triangle = *it;
                 triangle->setColor(Color(float(drand48()), float(drand48()), float(drand48()), 1.0));   // set random colors
             }
-            // build geom kdTree
-            geom->build_trianglesTree(5);
             cout << "-------------------------------------------" << endl;
 
             /// init sim
@@ -125,8 +128,6 @@ namespace pba {
             // solver->updateDS(dt, DS, force); // no collision
             if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, force, geom, Cr, Cs);}
             else    {solver->updateDSWithCollision(dt, DS, force, geom, Cr, Cs);} // collision
-
-            // solver->updateDSWithCollision(dt, DS, force, geom, Cr, Cs);
         }
 
         void Display()
@@ -239,6 +240,7 @@ namespace pba {
             std::cout << "t/T     reduce/increase animation time step" << endl;
             std::cout << "q       switch solvers between Leap Frog and Sixth Order" << endl;
             std::cout << "w       switch wireframe/normal display mode" << endl;
+            std::cout << "k       turn on/off KdTree" << endl;
             std::cout << "Esc     quit" << endl;
         }
 
@@ -273,7 +275,7 @@ namespace pba {
         {
             g = 0.48;
             dt = 1.0 / 24.0;
-            num = 1;  // init particles number
+            num = 100;  // init particles number
             Cr = 1.0;   // init elastic collision
             Cs = 1.0;
             mass = 1.0;

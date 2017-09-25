@@ -8,13 +8,48 @@
 using namespace std;
 using namespace pba;
 
+void TriangleCollision::collisionWithinTriangles(const double& dt, DynamicalState DS, size_t i, std::vector<TrianglePtr> triangles, CollisionData& CD)
+{
+    double max_dti = 0.0;
+    TrianglePtr collision_triangle = NULL;
+    Vector max_xi;
+    bool collision_flag = true;
+    int collision_num = 0;
+
+    // loop over triangles
+    for (auto it = triangles.cbegin(); it != triangles.cend(); ++it)
+    {
+        // collision detection
+        TrianglePtr triangle = *it;
+        double dti;
+        Vector xi;
+        if (collisionDetection(dt, DS, i, triangle, dti, xi))
+        {
+            collision_num++;
+            if (std::fabs(dti) > std::fabs(max_dti))
+            {
+                max_dti = dti;
+                collision_triangle = triangle;
+                max_xi = xi;
+            }
+        }
+    }
+
+    if (collision_num == 0) { collision_flag = false; } // no collision
+
+    CD.collision_status = collision_flag;
+    CD.triangle = collision_triangle;
+    CD.x_i = max_xi;
+    CD.dt_i = max_dti;
+}
+
 void TriangleCollision::triangleCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs)
 {
     // clean collision status
     geom->cleanTrianglesCollisionStatus();
     // loop over particles
     size_t i;
-    //#pragma omp parallel for num_threads(4) private(i) schedule(dynamic, 256)
+    // #pragma omp parallel for num_threads(4) private(i) schedule(dynamic, 256)
     for (i = 0; i < DS->nb(); ++i)
     {
         // loop until no collisions
@@ -22,38 +57,17 @@ void TriangleCollision::triangleCollision(const double& dt, DynamicalState DS, G
         double tmp_dt = dt;
         while (collision_flag)
         {
-            // loop over triangles
-            double max_dti = 0.0;
-            TrianglePtr collision_triangle = NULL;
-            Vector max_xi;
-            int collision_num = 0;
-            for (auto it = geom->get_triangles().cbegin(); it != geom->get_triangles().cend(); ++it)
-            {
-                // collision detection
-                TrianglePtr triangle = *it;
-                double dti;
-                Vector xi;
-                if (collisionDetection(tmp_dt, DS, i, triangle, dti, xi))
-                {
-                    collision_num++;
-                    if (std::fabs(dti) > std::fabs(max_dti))
-                    {
-                        max_dti = dti;
-                        collision_triangle = triangle;
-                        max_xi = xi;
-                    }
-                }
-            }
-
-            if (collision_num == 0) { collision_flag = false; } // no collision
+            CollisionData CD;
+            collisionWithinTriangles(tmp_dt, DS, i, geom->get_triangles(), CD);
+            collision_flag = CD.collision_status;
             if (collision_flag)
             {
                 // handle collision for maximum dt_i
-                TriangleCollision::collisionHandling(tmp_dt, DS, i, collision_triangle, max_dti, max_xi, Cr, Cs);
+                TriangleCollision::collisionHandling(tmp_dt, DS, i, CD, Cr, Cs);
                 // store collision triangle
-                collision_triangle->setCollisionStatus(true);
+                CD.triangle->setCollisionStatus(true);
                 // update dt (use maximum dti as new dt for next collision detection)
-                tmp_dt = max_dti;
+                tmp_dt = CD.dt_i;
             }
         }
     }
@@ -73,41 +87,17 @@ void TriangleCollision::triangleCollisionWithKdTree(const double& dt, DynamicalS
             // search triangles
             Vector vec1 = DS->pos(i);
             Vector vec0 = vec1 - DS->vel(i) * tmp_dt;
-            std::vector<TrianglePtr> triangles = geom->getKdTree()->search(vec0, vec1);
-
-            double max_dti = 0.0;
-            TrianglePtr collision_triangle = NULL;
-            Vector max_xi;
-            int collision_num = 0;
-            for (auto it = triangles.cbegin(); it != triangles.cend(); ++it)
-            {
-                // collision detection
-                TrianglePtr triangle = *it;
-
-                double dti;
-                Vector xi;
-                if (collisionDetection(tmp_dt, DS, i, triangle, dti, xi))
-                {
-                    collision_num++;
-                    if (std::fabs(dti) > std::fabs(max_dti))
-                    {
-                        max_dti = dti;
-                        collision_triangle = triangle;
-                        max_xi = xi;
-                    }
-                }
-            }
-
-            if (collision_num == 0) { collision_flag = false; } // no collision
+            CollisionData CD = geom->getKdTree()->searchCollision(tmp_dt, DS, i, vec0, vec1);
+            collision_flag = CD.collision_status;
 
             if (collision_flag)
             {
                 // handle collision for maximum dt_i
-                TriangleCollision::collisionHandling(tmp_dt, DS, i, collision_triangle, max_dti, max_xi, Cr, Cs);
+                TriangleCollision::collisionHandling(tmp_dt, DS, i, CD, Cr, Cs);
                 // store collision triangle
-                collision_triangle->setCollisionStatus(true);
+                CD.triangle->setCollisionStatus(true);
                 // update dt (use maximum dti as new dt for next collision detection)
-                tmp_dt = max_dti;
+                tmp_dt = CD.dt_i;
             }
         }
     }
@@ -148,17 +138,17 @@ bool TriangleCollision::collisionDetection(const double& dt, DynamicalState DS, 
 }
 
 
-void TriangleCollision::collisionHandling(const double& dt, DynamicalState DS, const size_t p, TrianglePtr collision_triangle, const double& dt_i, const Vector& x_i, const double& Cr, const double& Cs)
+void TriangleCollision::collisionHandling(const double& dt, DynamicalState DS, const size_t p, const CollisionData& CD, const double& Cr, const double& Cs)
 {
     // calculate vel_r and new pos
     Vector vel = DS->vel(p);
-    Vector norm = collision_triangle->getNorm();
+    Vector norm = CD.triangle->getNorm();
     Vector tmp = norm * (norm * vel);
     Vector vel_perp = vel - tmp;
     Vector vel_r = Cs * vel_perp - Cr * tmp;
 
     // update dynamical state
-    Vector pos_new = x_i + vel_r * dt_i;
+    Vector pos_new = CD.x_i + vel_r * CD.dt_i;
     DS->set_pos(p, pos_new);
     DS->set_vel(p, vel_r);
 }

@@ -60,11 +60,6 @@ AABB AABB::subDivide(const int i, const int id)
             break;
     }
 
-//    std::cout << "direction: " << i << std::endl;
-//    std::cout << "id: " << id << std::endl;
-//    std::cout << "llc: ";   llc.printValue(); std::cout << std::endl;
-//    std::cout << "urc: ";   urc.printValue(); std::cout << std::endl;
-
     return AABB(llc, urc);
 }
 

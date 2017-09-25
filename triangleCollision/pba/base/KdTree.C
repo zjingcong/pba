@@ -14,11 +14,10 @@ void KdTree::build(AABB bbox, std::vector<pba::TrianglePtr> tris, int l)
     level = l;
     left = NULL;
     right = NULL;
-    cout << "Current level: " << level << endl;
 
     // end conditions
-    if(tris.empty()) { cout << "Current triangles num: " << tris.size() << endl; return; }
-    if (l == depth) { triangles = tris; cout << "Current triangles num: " << tris.size() << endl; return; }
+    if(tris.empty()) { return; }
+    if (l == depth) { triangles = tris; return; }
 
     // compute
     int direction = level % 3;
@@ -62,3 +61,33 @@ std::vector<TrianglePtr> KdTree::search(const Vector& origin, const Vector& targ
 
     return triangles_left;
 }
+
+pba::CollisionData KdTree::searchCollision(double& dt, DynamicalState DS, size_t i, const Vector& origin, const Vector& target)
+{
+    int intersect_result = aabb.intersect(origin, target);
+    CollisionData collisionData;
+    if (intersect_result == 0) { collisionData.collision_status = false;    return collisionData;}
+    if ((left == NULL && right == NULL) || (level == depth))
+    {
+        TriangleCollision::collisionWithinTriangles(dt, DS, i, triangles, collisionData);
+        return collisionData;
+    }
+
+    CollisionData collisionData_left = left->searchCollision(dt, DS, i, origin, target);
+    CollisionData collisionData_right = right->searchCollision(dt, DS, i, origin, target);
+    collisionData.collision_status = collisionData_left.collision_status + collisionData_right.collision_status;
+    if (std::fabs(collisionData_left.dt_i) > std::fabs(collisionData_right.dt_i))
+    {
+        collisionData.dt_i = collisionData_left.dt_i;
+        collisionData.triangle = collisionData_left.triangle;
+        collisionData.x_i = collisionData_left.x_i;
+    }
+    else
+    {
+        collisionData.dt_i = collisionData_right.dt_i;
+        collisionData.triangle = collisionData_right.triangle;
+        collisionData.x_i = collisionData_right.x_i;
+    }
+
+    return collisionData;
+};
