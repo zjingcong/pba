@@ -78,7 +78,7 @@ namespace pba {
             {
                 std::string scene_file = args[1];
                 LoadMesh::LoadObj(scene_file, geom);
-                geom->build_trianglesTree(5);   // build geom kdTree
+                geom->build_trianglesTree(6);   // build geom kdTree
             }
             else    // load cube
             {

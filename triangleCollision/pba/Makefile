@@ -15,9 +15,7 @@ OFILES = base/PbaViewer.o \
          base/KdTree.o
 
 
-THINGS = things/TriangleCollision.h \
-         things/unitTest.h \
-         things/RotatingCube.h
+THINGS = things/TriangleCollision.h
 
 
 ROOTDIR = .

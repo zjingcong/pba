@@ -1,0 +1,40 @@
+Homework 1
+
+- Name: Jingcong Zhang
+- Email: jingcoz@clemson.edu
+- 2017-09-24
+
+This program is to implement particle simulations using Leap Frog Solver and Sixth Order Solver, 
+with collision behavior and a Kdtree to store all the triangles mesh. 
+The initial simulation starts with 100 particles at (0.0, 0.0, 0.0) with random colors and random velocities.
+
+To build this code: 
+    cd pba
+    make clean
+    make
+    make stuff
+    make viewer
+
+To run this code: 
+    cd pba/python
+    ./pba_triangleCollision_viewer.py <obj_path>
+
+  <obj_path> is the file path to the .obj scene model, 
+  the default scene is a hand-drawing 12-triangle cube with 12 triangles with the front face invisible.
+  For example: 
+    To show the cube:       ./pba_triangleCollision_viewer.py
+    To show the bigsphere:  ./pba_triangleCollision_viewer.py ../../models/bigsphere.obj
+
+Command line usage: 
+  - Basic viewer usage
+  - PbaThing usage: 
+    c/C     reduce/increase collision coefficient of restitution
+    s/S     reduce/increase collision coefficient of stickiness
+    g/G     reduce/increase magnitude of gravity
+    e       start/stop emitting more particles
+    t/T     reduce/increase animation time step
+    q       switch solvers between Leap Frog and Sixth Order
+    w       switch wireframe/normal display mode
+    k       turn on/off KdTree
+    Esc     quit
+
