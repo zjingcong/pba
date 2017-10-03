@@ -19,16 +19,19 @@ namespace pba
         virtual ~ForceBase()    {}
 
         const std::string& Name() const { return name; }
-        const float getParms(const std::string& key) const {return parms.at(key);}
+        const float get_floatParms(const std::string &key) const {return floatParms.at(key);}
+        const Vector get_vectorParms(const std::string &key) const { return vectorParms.at(key);}
         //! update force
-        void updateParms(const std::string& key, const float& value)  {parms.at(key) = value;}
+        void update_floatParms(const std::string &key, const float &value)  {floatParms.at(key) = value;}
+        void update_vectorParms(const std::string &key, const Vector &value)  {vectorParms.at(key) = value;}
 
         virtual const Vector getForce(DynamicalState DS, const size_t p) {return force;}
 
     protected:
         Vector force;
         std::string name;
-        std::map<std::string, float> parms; // force parms
+        std::map<std::string, float> floatParms; // force floatParms
+        std::map<std::string, Vector> vectorParms; // force floatParms
     };
 
     typedef ForceBase* ForcePtr;
@@ -44,7 +47,7 @@ namespace pba
         Gravity(const float& gconstant)
         {
             name = "gravity";
-            parms = {{"g", gconstant}}; // gravity parms: gravity constant
+            floatParms = {{"g", gconstant}}; // gravity floatParms: gravity constant
         }
         ~Gravity()  {}
 
@@ -65,6 +68,21 @@ namespace pba
 
     private:
         BoidPtr boid;
+    };
+
+
+    class Spring: public ForceBase
+    {
+    public:
+        Spring(const Vector& x0, const float& kconstant)
+        {
+            name = "spring";
+            floatParms = {{"k", kconstant}};
+            vectorParms = {{"x0", x0}};
+        }
+        ~Spring()   {}
+
+        const Vector getForce(DynamicalState DS, const size_t p);
     };
 }
 

@@ -52,9 +52,6 @@ namespace pba {
             DS = CreateDynamicalState("boidParticles");
             // construct boid system
             boid = new Boid(DS);
-            // set boid force
-            boidInner = new BoidInnerForce(boid);
-            forces.push_back(boidInner);
             cout << "Construction Complete." << endl;
         }
 
@@ -101,6 +98,11 @@ namespace pba {
             setBoidDS(boids_num);
             // set boid attributes
             setBoid();
+            // set forces
+            boidInner = new BoidInnerForce(boid);
+            guidingSpringForce = new Spring(Vector(0.0, -2.0, 0.0), spring_k);
+            forces.push_back(boidInner);
+            forces.push_back(guidingSpringForce);
         }
 
         void Reset()
@@ -124,6 +126,8 @@ namespace pba {
                 setBoidDS(increase_num);
                 std::cout << "boid particles number: " << DS->nb() << std::endl;
             }
+            // update forces
+            guidingSpringForce->update_floatParms("k", spring_k);
             // update boid attributes
             setBoid();
             // update dynamical state
@@ -156,83 +160,23 @@ namespace pba {
             {
                 /// boid control
                 // Collision avoidance strength
-                case 'a':
-                {
-                    Ka /= 1.1;
-                    std::cout << "collision avoidance strength: " << Ka << std::endl;
-                    break;
-                }
-                case 'A':
-                {
-                    Ka *= 1.1;
-                    std::cout << "collision avoidance strength: " << Ka << std::endl;
-                    break;
-                }
+                case 'a': { Ka /= 1.1; std::cout << "collision avoidance strength: " << Ka << std::endl; break; }
+                case 'A': { Ka *= 1.1; std::cout << "collision avoidance strength: " << Ka << std::endl; break; }
                 // Velocity matching strength
-                case 'v':
-                {
-                    Kv /= 1.1;
-                    std::cout << "velocity matching strength: " << Kv << std::endl;
-                    break;
-                }
-                case 'V':
-                {
-                    Kv *= 1.1;
-                    std::cout << "velocity matching strength: " << Kv << std::endl;
-                    break;
-                }
+                case 'v': { Kv /= 1.1; std::cout << "velocity matching strength: " << Kv << std::endl; break; }
+                case 'V': { Kv *= 1.1; std::cout << "velocity matching strength: " << Kv << std::endl; break; }
                 // Centering strength
-                case 'c':
-                {
-                    Kc /= 1.1;
-                    std::cout << "centering strength: " << Kc << std::endl;
-                    break;
-                }
-                case 'C':
-                {
-                    Kc *= 1.1;
-                    std::cout << "centering strength: " << Kc << std::endl;
-                    break;
-                }
+                case 'c': { Kc /= 1.1; std::cout << "centering strength: " << Kc << std::endl; break; }
+                case 'C': { Kc *= 1.1; std::cout << "centering strength: " << Kc << std::endl; break; }
                 // Maximum acceleration threshold
-                case 'm':
-                {
-                    accel_max /= 1.1;
-                    std::cout << "maximum acceleration threshold: " << accel_max << std::endl;
-                    break;
-                }
-                case 'M':
-                {
-                    accel_max *= 1.1;
-                    std::cout << "maximum acceleration threshold: " << accel_max << std::endl;
-                    break;
-                }
+                case 'm': { accel_max /= 1.1; std::cout << "maximum acceleration threshold: " << accel_max << std::endl; break; }
+                case 'M': { accel_max *= 1.1; std::cout << "maximum acceleration threshold: " << accel_max << std::endl; break; }
                 // Range
-                case 'd':
-                {
-                    range /= 1.1;
-                    std::cout << "range: " << range << std::endl;
-                    break;
-                }
-                case 'D':
-                {
-                    range *= 1.1;
-                    std::cout << "range: " << range << std::endl;
-                    break;
-                }
+                case 'd': { range /= 1.1; std::cout << "range: " << range << std::endl; break; }
+                case 'D': { range *= 1.1; std::cout << "range: " << range << std::endl; break; }
                 // Range ramp
-                case 'y':
-                {
-                    range_ramp /= 1.1;
-                    std::cout << "range ramp: " << range_ramp << std::endl;
-                    break;
-                }
-                case 'Y':
-                {
-                    range_ramp *= 1.1;
-                    std::cout << "range ramp: " << range_ramp << std::endl;
-                    break;
-                }
+                case 'y': { range_ramp /= 1.1; std::cout << "range ramp: " << range_ramp << std::endl; break; }
+                case 'Y': { range_ramp *= 1.1; std::cout << "range ramp: " << range_ramp << std::endl; break; }
                 // Field of view
                 case 'q':
                 {
@@ -264,6 +208,10 @@ namespace pba {
                     std::cout << "peripheral field of view: " << peripheral_fov << std::endl;
                     break;
                 }
+                /// force control
+                // spring force
+                case 'k': { spring_k /= 1.1; std::cout << "spring_k: " << spring_k << std::endl; break; }
+                case 'K': { spring_k *= 1.1; std::cout << "spring_k: " << spring_k << std::endl; break; }
 
                 /// solver switch
                 case 's':
@@ -305,7 +253,7 @@ namespace pba {
                 }
 
                 /// kdtree
-                case 'k':
+                case 't':
                 {
                     onKdTree = !onKdTree;
                     if (onKdTree) { std::cout << "TURN ON KDTREE" << std::endl; }
@@ -323,10 +271,7 @@ namespace pba {
                 }
 
                 /// quit
-                case 27:
-                {
-                    exit(0);
-                }
+                case 27: { exit(0); }
 
                 default:
                     break;
@@ -343,11 +288,14 @@ namespace pba {
             std::cout << "d/D     reduce/increase range" << endl;
             std::cout << "y/Y     reduce/increase range ramp" << endl;
             std::cout << "q/Q     reduce/increase fov" << endl;
+            std::cout << "---- More Controls ----" << endl;
             std::cout << "p/P     reduce/increase peripheral fov" << endl;
+            std::cout << "g       turn on/off guiding spring force" << endl;
+            std::cout << "k/K     reduce/increase spring force k" << endl;
             std::cout << "s       switch solvers between Leap Frog and Sixth Order" << endl;
             std::cout << "e       add boid particles" << endl;
             std::cout << "l       switch wireframe/hide/normal display mode" << endl;
-            std::cout << "k       turn on/off KdTree" << endl;
+            std::cout << "t       turn on/off KdTree" << endl;
             std::cout << "Esc     quit" << endl;
         }
 
@@ -359,6 +307,7 @@ namespace pba {
         /// forces
         ForcePtrContainer forces;
         ForcePtr boidInner;
+        ForcePtr guidingSpringForce;
         /// dynamical state for all particles
         DynamicalState DS;
         /// mesh
@@ -378,6 +327,8 @@ namespace pba {
         int display_mode;   // 0 - hide, 1 - fill, 2 - line
         bool onKdTree;  // turn on/off kdtree
         bool addBoids;  // flag to add boid particles
+        bool addGuiding;    // flag to add guiding force
+        float spring_k;
 
         /// default setting
         size_t boids_num;
@@ -394,7 +345,8 @@ namespace pba {
             fov = 360.0;
             peripheral_fov = 360.0;
 
-            boids_num = 11;
+            boids_num = 10;
+            spring_k = 2.0;
         }
 
         //! emit particles and set dynamical state

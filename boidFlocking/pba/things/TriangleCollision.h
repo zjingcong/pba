@@ -122,8 +122,8 @@ namespace pba {
                 std::cout << "particles number: " << num << std::endl;
             }
 
-            // update force parms
-            force->updateParms("g", g);
+            // update force floatParms
+            force->update_floatParms("g", g);
             // update dynamical state
             // solver->updateDS(dt, DS, force); // no collision
             if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, force, geom, Cr, Cs);}
