@@ -7,7 +7,7 @@
 using namespace std;
 using namespace pba;
 
-Boid::Boid(DynamicalState DS):
+Boid::Boid(DynamicalState& DS):
         boidDS(DS),
         Ka(0.0),
         Kv(0.0),
@@ -88,24 +88,10 @@ Vector Boid::get_total_accel(const size_t i)
             accel_v += (Kv * (boidDS->vel(j) - vel_i)) * Kr * K_theta;
             // centering
             accel_c += (Kc * d) * Kr * K_theta;
-
-//            Vector tmp = (-Ka * d / pow(d_mag, 2.0)) * Kr * K_theta;
-//            Vector X_j = boidDS->pos(j);
-//            cout << "d vector: "; d.printValue();
-//            cout << " d: " << d_mag;
-//            cout << " Kr: " << Kr;
-//            cout << " K_theta: " << K_theta;
-//            cout << " aa: "; accel_a.printValue();
-//            cout << " tmp: "; tmp.printValue();
-//            cout << endl;
         }
     }
     // limit the accel and prioritize basic behaviors
-//    cout << "before set accelthreshold: " << endl;
-//    accel_a.printValue(); accel_v.printValue(); accel_c.printValue();
     accelThreshold(accel_a, accel_v, accel_c);
-//    cout << "after set accelthreshold: " << endl;
-//    accel_a.printValue(); accel_v.printValue(); accel_c.printValue();
 
     return accel_a + accel_v + accel_c;
 }

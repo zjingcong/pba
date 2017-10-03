@@ -2,15 +2,6 @@
 // Created by jingcoz on 10/2/17.
 //
 
-// Usage:
-//  - Collision avoidance strength (keys a/A to reduce/increase)
-//  - Velocity matching strength (keys v/V to reduce/increase)
-//  - Centering strength (keys c/C to reduce/increase)
-//  - Maximum acceleration threshold (m/M to reduce/increase)
-//  - range (d/D to reduce/increase)
-//  - range ramp (y/Y to reduce/increase)
-//  - field of view (q/Q to reduce/increase)
-
 # include "PbaThing.h"
 # include "Vector.h"
 # include "Color.h"
@@ -25,7 +16,7 @@
 # define PBA_BOIDFLOCKING_H
 
 # ifdef __APPLE__
-#include <OpenGL/gl.h>   // OpenGL itself.
+# include <OpenGL/gl.h>   // OpenGL itself.
   #include <OpenGL/glu.h>  // GLU support library.
   #include <GLUT/glut.h>
 # else
@@ -41,9 +32,10 @@
 
 namespace pba {
 
-    class BoidFlockingThing : public PbaThingyDingy {
+    class BoidFlockingThing : public PbaThingyDingy
+    {
     public:
-        BoidFlockingThing(const std::string nam = "BoidFlockingThing") :
+        BoidFlockingThing(const std::string nam = "BoidFlockingThing"):
                 PbaThingyDingy(nam),
                 solver_id(LEAP_FROG),
                 display_mode(1),
@@ -130,13 +122,12 @@ namespace pba {
             {
                 size_t increase_num = 1;
                 setBoidDS(increase_num);
-                boids_num += increase_num;
-                std::cout << "boid particles number: " << boids_num << std::endl;
+                std::cout << "boid particles number: " << DS->nb() << std::endl;
             }
             // update boid attributes
             setBoid();
             // update dynamical state
-//            solver->updateDS(dt, DS, forces); // no collision
+            // solver->updateDS(dt, DS, forces); // no collision
             if (onKdTree) { solver->updateDSWithCollisionWithKdTree(dt, DS, forces, geom, 1.0, 1.0); }   // Cr = Cs = 1.0
             else { solver->updateDSWithCollision(dt, DS, forces, geom, 1.0, 1.0); } // collision
         }
@@ -246,13 +237,31 @@ namespace pba {
                 case 'q':
                 {
                     fov /= 1.1;
+                    if (fov < 0.0)  {fov = 0.0;}
                     std::cout << "field of view: " << fov << std::endl;
                     break;
                 }
                 case 'Q':
                 {
                     fov *= 1.1;
+                    if (fov > 360.0)    {fov = 360.0;}
                     std::cout << "field of view: " << fov << std::endl;
+                    break;
+                }
+                // Peripheral field of view
+                case 'p':
+                {
+                    peripheral_fov /= 1.1;
+                    if (peripheral_fov < 0.0)  {peripheral_fov = 0.0;}
+                    if (peripheral_fov < fov)   {peripheral_fov = fov;}
+                    std::cout << "peripheral field of view: " << peripheral_fov << std::endl;
+                    break;
+                }
+                case 'P':
+                {
+                    peripheral_fov *= 1.1;
+                    if (peripheral_fov > 360.0)    {peripheral_fov = 360.0;}
+                    std::cout << "peripheral field of view: " << peripheral_fov << std::endl;
                     break;
                 }
 
@@ -334,6 +343,7 @@ namespace pba {
             std::cout << "d/D     reduce/increase range" << endl;
             std::cout << "y/Y     reduce/increase range ramp" << endl;
             std::cout << "q/Q     reduce/increase fov" << endl;
+            std::cout << "p/P     reduce/increase peripheral fov" << endl;
             std::cout << "s       switch solvers between Leap Frog and Sixth Order" << endl;
             std::cout << "e       add boid particles" << endl;
             std::cout << "l       switch wireframe/hide/normal display mode" << endl;
@@ -346,7 +356,6 @@ namespace pba {
         int solver_id;
         std::vector<SolverPtr> solver_list;
         SolverPtr solver;
-
         /// forces
         ForcePtrContainer forces;
         ForcePtr boidInner;
@@ -365,7 +374,7 @@ namespace pba {
         double range;   // range
         double range_ramp;  // range ramp
         double fov; // field of view
-        double fov_ramp;    // field of view ramp
+        double peripheral_fov;    // peripheral field of view
         int display_mode;   // 0 - hide, 1 - fill, 2 - line
         bool onKdTree;  // turn on/off kdtree
         bool addBoids;  // flag to add boid particles
@@ -373,20 +382,19 @@ namespace pba {
         /// default setting
         size_t boids_num;
 
-
         //! set default value
         void _init()
         {
-            Ka = 1.0;
+            Ka = 0.8;
             Kv = 1.0;
-            Kc = 1.0;
-            accel_max = 10.0;
+            Kc = 1.2;
+            accel_max = 5.0;
             range = 1.0;
             range_ramp = 0.1;
             fov = 360.0;
-            fov_ramp = 10.0;
+            peripheral_fov = 360.0;
 
-            boids_num = 10;
+            boids_num = 11;
         }
 
         //! emit particles and set dynamical state
@@ -398,8 +406,8 @@ namespace pba {
             {
                 size_t id = nb + i;
                 DS->set_id(id, int(id));
-                DS->set_pos(id, 2.0 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random position
-                DS->set_vel(id, 0.5 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random velocity
+                DS->set_pos(id, 1.5 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random position
+                DS->set_vel(id, 0.3 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random velocity
                 DS->set_ci(id, Color(float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25),
                                      float(drand48() * 0.75 + 0.25), 1.0));    // random color
                 DS->set_mass(id, 1.0);    // default mass is 1.0
@@ -414,7 +422,7 @@ namespace pba {
             boid->set_r1(range);
             boid->set_r_ramp(range_ramp);
             boid->set_theta1(fov);
-            boid->set_theta_ramp(fov_ramp);
+            boid->set_theta2(peripheral_fov);
             boid->set_accel_max(accel_max);
         }
     };
