@@ -9,10 +9,13 @@ using namespace pba;
 
 Boid::Boid(DynamicalState DS):
         boidDS(DS),
-        r1(0.0),
-        r2(0.0),
-        theta1(0.0),
-        theta2(0.0),
+        Ka(0.0),
+        Kv(0.0),
+        Kc(0.0),
+        r1(100.0),
+        r2(100.0),
+        theta1(360.0),
+        theta2(360.0),
         accel_max(10000)
 {}
 
@@ -28,8 +31,8 @@ double Boid::rangeWeight(const double &d)
 double Boid::vision(const Vector &d, const Vector &vel)
 {
     double cos_theta = (vel * d) / (vel.magnitude() * d.magnitude());
-    double cos_half_theta1 = std::cos(M_PI * theta1 / 180.0);
-    double cos_half_theta2 = std::cos(M_PI * theta2 / 180.0);
+    double cos_half_theta1 = std::cos(M_PI * (theta1 * 0.5) / 180.0);
+    double cos_half_theta2 = std::cos(M_PI * (theta2 * 0.5) / 180.0);
     if (cos_theta >= cos_half_theta1)   { return 1.0;}
     if (cos_theta <= cos_half_theta2)   { return 0.0;}
     double K_theta = (cos_half_theta2 - cos_theta) / (cos_half_theta2 - cos_half_theta1);
@@ -58,5 +61,51 @@ void Boid::accelThreshold(Vector &accel_a, Vector &accel_v, Vector &accel_c)
     if (accel_c.magnitude() > residual)
     {
         accel_c = residual * (accel_c).unitvector();
+        return;
     }
+}
+
+Vector Boid::get_total_accel(const size_t i)
+{
+    Vector accel_a = Vector(0.0, 0.0, 0.0);
+    Vector accel_v = Vector(0.0, 0.0, 0.0);
+    Vector accel_c = Vector(0.0, 0.0, 0.0);
+    Vector X_i = boidDS->pos(i);
+    Vector vel_i = boidDS->vel(i);
+    for (size_t j = 0; j < boidDS->nb(); j++)
+    {
+        if (j != i)
+        {
+            Vector d = boidDS->pos(j) - X_i;
+            double d_mag = d.magnitude();
+
+            double Kr = rangeWeight(d_mag);
+            double K_theta = vision(d, vel_i);
+
+            // collision avoidance
+            accel_a += (-Ka * d / pow(d_mag, 2.0)) * Kr * K_theta;
+            // velocity matching
+            accel_v += (Kv * (boidDS->vel(j) - vel_i)) * Kr * K_theta;
+            // centering
+            accel_c += (Kc * d) * Kr * K_theta;
+
+//            Vector tmp = (-Ka * d / pow(d_mag, 2.0)) * Kr * K_theta;
+//            Vector X_j = boidDS->pos(j);
+//            cout << "d vector: "; d.printValue();
+//            cout << " d: " << d_mag;
+//            cout << " Kr: " << Kr;
+//            cout << " K_theta: " << K_theta;
+//            cout << " aa: "; accel_a.printValue();
+//            cout << " tmp: "; tmp.printValue();
+//            cout << endl;
+        }
+    }
+    // limit the accel and prioritize basic behaviors
+//    cout << "before set accelthreshold: " << endl;
+//    accel_a.printValue(); accel_v.printValue(); accel_c.printValue();
+    accelThreshold(accel_a, accel_v, accel_c);
+//    cout << "after set accelthreshold: " << endl;
+//    accel_a.printValue(); accel_v.printValue(); accel_c.printValue();
+
+    return accel_a + accel_v + accel_c;
 }

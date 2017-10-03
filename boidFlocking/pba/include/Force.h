@@ -8,6 +8,7 @@
 # include <string>
 # include "Vector.h"
 # include "DynamicalState.h"
+# include "Boid.h"
 
 namespace pba
 {
@@ -31,19 +32,39 @@ namespace pba
     };
 
     typedef ForceBase* ForcePtr;
+    typedef std::vector<ForcePtr> ForcePtrContainer;
+
+
+    //! -------------------------------------------------------------------------------------------------
 
 
     class Gravity: public ForceBase
     {
     public:
-        Gravity(float gconstant)
+        Gravity(const float& gconstant)
         {
-            name="gravity";
+            name = "gravity";
             parms = {{"g", gconstant}}; // gravity parms: gravity constant
         }
         ~Gravity()  {}
 
         const Vector getForce(DynamicalState DS, const size_t p);
+    };
+
+
+    class BoidInnerForce: public ForceBase
+    {
+    public:
+        BoidInnerForce(BoidPtr b): boid(b)
+        {
+            name = "boid_inner_force";
+        }
+        ~BoidInnerForce()   {}
+
+        const Vector getForce(DynamicalState DS, const size_t p);
+
+    private:
+        BoidPtr boid;
     };
 }
 

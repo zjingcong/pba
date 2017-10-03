@@ -12,7 +12,8 @@ OFILES = base/PbaViewer.o \
          base/Geometry.o \
          base/Collision.o \
          base/BBox.o \
-         base/KdTree.o
+         base/KdTree.o \
+         base/Boid.o
 
 
 THINGS = things/BoidFlocking.h

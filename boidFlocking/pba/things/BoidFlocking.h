@@ -46,9 +46,9 @@ namespace pba {
         BoidFlockingThing(const std::string nam = "BoidFlockingThing") :
                 PbaThingyDingy(nam),
                 solver_id(LEAP_FROG),
-                addParticles(false),
-                wireframe(false),
-                onKdTree(false)
+                display_mode(1),
+                onKdTree(false),
+                addBoids(false)
         {
             // construct attributes
             _init();
@@ -58,6 +58,11 @@ namespace pba {
             solver = solver_list[LEAP_FROG];
             // construct dynamical state
             DS = CreateDynamicalState("boidParticles");
+            // construct boid system
+            boid = new Boid(DS);
+            // set boid force
+            boidInner = new BoidInnerForce(boid);
+            forces.push_back(boidInner);
             cout << "Construction Complete." << endl;
         }
 
@@ -65,11 +70,16 @@ namespace pba {
         {
             delete solver_list[LEAP_FROG];
             delete solver_list[SIX_ORDER];
-            delete force;
+            delete boid;
             delete geom;
+            for (auto& it: forces)
+            {
+                delete it;
+            }
         }
 
-        void Init(const std::vector<std::string> &args) {
+        void Init(const std::vector<std::string> &args)
+        {
             /// load scene
             // load geometry
             geom = new TriangleGeometry("collisionMesh");
@@ -78,13 +88,16 @@ namespace pba {
                 std::string scene_file = args[1];
                 LoadMesh::LoadObj(scene_file, geom);
                 geom->build_trianglesTree(5);   // build geom kdTree
-            } else    // load cube
+            }
+            // load cube
+            else
             {
                 LoadMesh::LoadBox(10, geom);
                 geom->build_trianglesTree(0);   // build geom kdTree
             }
             // set geometry color
-            for (auto it = geom->get_triangles().begin(); it != geom->get_triangles().end(); ++it) {
+            for (auto it = geom->get_triangles().begin(); it != geom->get_triangles().end(); ++it)
+            {
                 TrianglePtr triangle = *it;
                 triangle->setColor(
                         Color(float(drand48()), float(drand48()), float(drand48()), 1.0));   // set random colors
@@ -92,10 +105,10 @@ namespace pba {
             cout << "-------------------------------------------" << endl;
 
             /// init sim
-            // add force
-            addForce();
-            // init dynamical state
-            emitParticles(num);
+            // init boid system dynamical state
+            setBoidDS(boids_num);
+            // set boid attributes
+            setBoid();
         }
 
         void Reset()
@@ -106,32 +119,32 @@ namespace pba {
             // set default values
             _init();
             // init sim
-            emitParticles(num);
+            setBoidDS(boids_num);
+            setBoid();
         }
 
         void solve()
         {
-            // emit particles
-            if (addParticles)
+            // add boid
+            if (addBoids)
             {
-                size_t increase_num = 10;
-                emitParticles(increase_num);
-                num += increase_num;
-                std::cout << "particles number: " << num << std::endl;
+                size_t increase_num = 1;
+                setBoidDS(increase_num);
+                boids_num += increase_num;
+                std::cout << "boid particles number: " << boids_num << std::endl;
             }
-
-            // update force parms
-            force->updateParms("g", g);
+            // update boid attributes
+            setBoid();
             // update dynamical state
-            // solver->updateDS(dt, DS, force); // no collision
-            if (onKdTree) { solver->updateDSWithCollisionWithKdTree(dt, DS, force, geom, Cr, Cs); }
-            else { solver->updateDSWithCollision(dt, DS, force, geom, Cr, Cs); } // collision
+//            solver->updateDS(dt, DS, forces); // no collision
+            if (onKdTree) { solver->updateDSWithCollisionWithKdTree(dt, DS, forces, geom, 1.0, 1.0); }   // Cr = Cs = 1.0
+            else { solver->updateDSWithCollision(dt, DS, forces, geom, 1.0, 1.0); } // collision
         }
 
         void Display()
         {
             // draw scene
-            Draw::DrawTriangles(geom);
+            if (display_mode != 0)  {Draw::DrawTriangles(geom);}
             // draw particles
             glPointSize(4.2f);
             glBegin(GL_POINTS);
@@ -150,32 +163,102 @@ namespace pba {
         {
             switch (key)
             {
-                /// gravity control
-                case 'g': {
-                    g /= 1.1;
-                    std::cout << "gravity constant: " << g << std::endl;
+                /// boid control
+                // Collision avoidance strength
+                case 'a':
+                {
+                    Ka /= 1.1;
+                    std::cout << "collision avoidance strength: " << Ka << std::endl;
                     break;
                 }
-                case 'G': {
-                    g *= 1.1;
-                    std::cout << "gravity constant: " << g << std::endl;
+                case 'A':
+                {
+                    Ka *= 1.1;
+                    std::cout << "collision avoidance strength: " << Ka << std::endl;
+                    break;
+                }
+                // Velocity matching strength
+                case 'v':
+                {
+                    Kv /= 1.1;
+                    std::cout << "velocity matching strength: " << Kv << std::endl;
+                    break;
+                }
+                case 'V':
+                {
+                    Kv *= 1.1;
+                    std::cout << "velocity matching strength: " << Kv << std::endl;
+                    break;
+                }
+                // Centering strength
+                case 'c':
+                {
+                    Kc /= 1.1;
+                    std::cout << "centering strength: " << Kc << std::endl;
+                    break;
+                }
+                case 'C':
+                {
+                    Kc *= 1.1;
+                    std::cout << "centering strength: " << Kc << std::endl;
+                    break;
+                }
+                // Maximum acceleration threshold
+                case 'm':
+                {
+                    accel_max /= 1.1;
+                    std::cout << "maximum acceleration threshold: " << accel_max << std::endl;
+                    break;
+                }
+                case 'M':
+                {
+                    accel_max *= 1.1;
+                    std::cout << "maximum acceleration threshold: " << accel_max << std::endl;
+                    break;
+                }
+                // Range
+                case 'd':
+                {
+                    range /= 1.1;
+                    std::cout << "range: " << range << std::endl;
+                    break;
+                }
+                case 'D':
+                {
+                    range *= 1.1;
+                    std::cout << "range: " << range << std::endl;
+                    break;
+                }
+                // Range ramp
+                case 'y':
+                {
+                    range_ramp /= 1.1;
+                    std::cout << "range ramp: " << range_ramp << std::endl;
+                    break;
+                }
+                case 'Y':
+                {
+                    range_ramp *= 1.1;
+                    std::cout << "range ramp: " << range_ramp << std::endl;
+                    break;
+                }
+                // Field of view
+                case 'q':
+                {
+                    fov /= 1.1;
+                    std::cout << "field of view: " << fov << std::endl;
+                    break;
+                }
+                case 'Q':
+                {
+                    fov *= 1.1;
+                    std::cout << "field of view: " << fov << std::endl;
                     break;
                 }
 
-                    /// timestep control
-                case 't': {
-                    dt /= 1.1;
-                    std::cout << "time step " << dt << std::endl;
-                    break;
-                }
-                case 'T': {
-                    dt *= 1.1;
-                    std::cout << "time step " << dt << std::endl;
-                    break;
-                }
-
-                    /// solver switch
-                case 'q': {
+                /// solver switch
+                case 's':
+                {
                     solver_id += 1;
                     solver_id = (solver_id % 2);
                     solver = solver_list[solver_id];
@@ -183,58 +266,56 @@ namespace pba {
                     break;
                 }
 
-                    /// particles number control
-                case 'e': {
-                    addParticles = !addParticles;
-                    if (addParticles) { std::cout << "START EMITTING" << std::endl; }
-                    else { std::cout << "STOP EMITTING" << std::endl; }
-                    break;
-                }
-
-                    /// collision coefficients control
-                case 'c':   // Cr
+                /// mesh display mode
+                case 'l':
                 {
-                    Cr /= 1.1;
-                    std::cout << "coefficient of restitution Cr: " << Cr << std::endl;
+                    display_mode += 1;
+                    display_mode = (display_mode % 3);
+                    switch (display_mode)
+                    {
+                        case 0:
+                            cout << "Current Display Mode: hide" << endl;
+                            break;
+
+                        case 1:
+                            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                            cout << "Current Display Mode: normal" << endl;
+                            break;
+
+                        case 2:
+                            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                            cout << "Current Display Mode: wireframe" << endl;
+                            break;
+
+                        default:
+                            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                            cout << "Current Display Mode: normal" << endl;
+                            break;
+                    }
                     break;
                 }
-                case 'C': {
-                    Cr *= 1.1;
-                    if (Cr >= 1.0) { Cr = 1.0; }
-                    std::cout << "coefficient of restitution Cr: " << Cr << std::endl;
-                    break;
-                }
-                case 's':   // Cs
+
+                /// kdtree
+                case 'k':
                 {
-                    Cs /= 1.1;
-                    std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;
-                    break;
-                }
-                case 'S': {
-                    Cs *= 1.1;
-                    if (Cs >= 1.0) { Cs = 1.0; }
-                    std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;
-                    break;
-                }
-
-                    /// mesh display mode
-                case 'w': {
-                    wireframe = !wireframe;
-                    if (!wireframe) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
-                    else { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); }
-                    break;
-                }
-
-                    /// kdtree
-                case 'k': {
                     onKdTree = !onKdTree;
                     if (onKdTree) { std::cout << "TURN ON KDTREE" << std::endl; }
                     else { std::cout << "TURN OFF KDTREE" << std::endl; }
                     break;
                 }
 
-                    /// quit
-                case 27: {
+                /// add particles
+                case 'e':
+                {
+                    addBoids  = !addBoids;
+                    if (addBoids) { std::cout << "START ADDING BOID" << std::endl; }
+                    else  {std::cout << "STOP ADDING BOID" << std::endl;}
+                    break;
+                }
+
+                /// quit
+                case 27:
+                {
                     exit(0);
                 }
 
@@ -246,13 +327,16 @@ namespace pba {
         void Usage()
         {
             std::cout << "=== PbaThing ===" << endl;
-            std::cout << "c/C     reduce/increase collision coefficient of restitution" << endl;
-            std::cout << "s/S     reduce/increase collision coefficient of stickiness" << endl;
-            std::cout << "g/G     reduce/increase magnitude of gravity" << endl;
-            std::cout << "e       start/stop emitting more particles" << endl;
-            std::cout << "t/T     reduce/increase animation time step" << endl;
-            std::cout << "q       switch solvers between Leap Frog and Sixth Order" << endl;
-            std::cout << "w       switch wireframe/normal display mode" << endl;
+            std::cout << "a/A     reduce/increase collision avoidance strength" << endl;
+            std::cout << "v/V     reduce/increase velocity matching strength" << endl;
+            std::cout << "c/C     reduce/increase centering strength" << endl;
+            std::cout << "m/M     reduce/increase max acceleration threshold" << endl;
+            std::cout << "d/D     reduce/increase range" << endl;
+            std::cout << "y/Y     reduce/increase range ramp" << endl;
+            std::cout << "q/Q     reduce/increase fov" << endl;
+            std::cout << "s       switch solvers between Leap Frog and Sixth Order" << endl;
+            std::cout << "e       add boid particles" << endl;
+            std::cout << "l       switch wireframe/hide/normal display mode" << endl;
             std::cout << "k       turn on/off KdTree" << endl;
             std::cout << "Esc     quit" << endl;
         }
@@ -264,58 +348,74 @@ namespace pba {
         SolverPtr solver;
 
         /// forces
-        ForcePtr force;
+        ForcePtrContainer forces;
+        ForcePtr boidInner;
         /// dynamical state for all particles
         DynamicalState DS;
         /// mesh
         GeometryPtr geom;
+        /// boid
+        BoidPtr boid;
 
         /// keyboard selection
-        float g;    // gravity constant
-        size_t num;  // num of particles
-        double Cr;   // coefficient of restitution
-        double Cs;   // coefficient of stickness
-        bool addParticles;  // flag to decide whether emit particles
-        bool wireframe; // flag to decide mesh display mode
-        bool onKdTree;  // flage to turn on/off kdtree
+        double Ka;   // collision avoidance strength
+        double Kv;  // velocity matching strength
+        double Kc;  // centering strength
+        double accel_max;   // max acceleration threshold
+        double range;   // range
+        double range_ramp;  // range ramp
+        double fov; // field of view
+        double fov_ramp;    // field of view ramp
+        int display_mode;   // 0 - hide, 1 - fill, 2 - line
+        bool onKdTree;  // turn on/off kdtree
+        bool addBoids;  // flag to add boid particles
 
-        /// default attributes
-        float mass;
+        /// default setting
+        size_t boids_num;
 
 
         //! set default value
         void _init()
         {
-            g = 0.48;
-            dt = 1.0 / 24.0;
-            num = 100;  // init particles number
-            Cr = 1.0;   // init elastic collision
-            Cs = 1.0;
-            mass = 1.0;
+            Ka = 1.0;
+            Kv = 1.0;
+            Kc = 1.0;
+            accel_max = 10.0;
+            range = 1.0;
+            range_ramp = 0.1;
+            fov = 360.0;
+            fov_ramp = 10.0;
+
+            boids_num = 10;
         }
 
         //! emit particles and set dynamical state
-        void emitParticles(size_t particle_num)
+        void setBoidDS(size_t num)
         {
             size_t nb = DS->nb();
-            DS->add(particle_num);
-            for (size_t i = 0; i < particle_num; ++i)
+            DS->add(num);
+            for (size_t i = 0; i < num; ++i)
             {
                 size_t id = nb + i;
                 DS->set_id(id, int(id));
-                DS->set_pos(id, Vector(0.0, 0.0, 0.0));  // default position
-                DS->set_vel(id, Vector((drand48() - 0.5) * 0.5, 0.0, (drand48() - 0.5) * 0.5));  // default velocity
+                DS->set_pos(id, 2.0 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random position
+                DS->set_vel(id, 0.5 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random velocity
                 DS->set_ci(id, Color(float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25),
                                      float(drand48() * 0.75 + 0.25), 1.0));    // random color
-                DS->set_mass(id, mass);    // default mass
+                DS->set_mass(id, 1.0);    // default mass is 1.0
             }
         }
 
-        //! add force to sim
-        void addForce()
+        void setBoid()
         {
-            force = new Gravity(g); // add gravity
-            cout << "- Add force " << force->Name() << endl;
+            boid->set_Ka(Ka);
+            boid->set_Kv(Kv);
+            boid->set_Kc(Kc);
+            boid->set_r1(range);
+            boid->set_r_ramp(range_ramp);
+            boid->set_theta1(fov);
+            boid->set_theta_ramp(fov_ramp);
+            boid->set_accel_max(accel_max);
         }
     };
 
