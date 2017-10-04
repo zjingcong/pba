@@ -84,6 +84,21 @@ namespace pba
 
         const Vector getForce(DynamicalState DS, const size_t p);
     };
+
+
+    class MagneticForce: public ForceBase
+    {
+    public:
+        MagneticForce(const Vector& xm, const float& b)
+        {
+            name = "magnetic_force";
+            floatParms = {{"B", b}};
+            vectorParms = {{"xm", xm}};
+        }
+        ~MagneticForce()    {}
+
+        const Vector getForce(DynamicalState DS, const size_t p);
+    };
 }
 
 # endif //PBA_FORCE_H

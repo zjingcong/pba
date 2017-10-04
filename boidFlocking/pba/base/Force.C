@@ -35,3 +35,15 @@ const Vector Spring::getForce(DynamicalState DS, const size_t p)
 
     return force;
 }
+
+
+const Vector MagneticForce::getForce(DynamicalState DS, const size_t p)
+{
+    Vector x = DS->pos(p);
+    Vector xm = MagneticForce::vectorParms.at("xm");
+    Vector B = MagneticForce::floatParms.at("B") * (x - xm) / pow((x - xm).magnitude(), 3.0);
+    Vector v = DS->vel(p);
+    force = v ^ B;
+
+    return force;
+}

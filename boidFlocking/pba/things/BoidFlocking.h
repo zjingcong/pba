@@ -40,7 +40,8 @@ namespace pba {
                 solver_id(LEAP_FROG),
                 display_mode(1),
                 onKdTree(false),
-                addBoids(false)
+                addBoids(false),
+                addGuiding(false)
         {
             // construct attributes
             _init();
@@ -100,9 +101,9 @@ namespace pba {
             setBoid();
             // set forces
             boidInner = new BoidInnerForce(boid);
-            guidingSpringForce = new Spring(Vector(0.0, -2.0, 0.0), spring_k);
-            forces.push_back(boidInner);
-            forces.push_back(guidingSpringForce);
+            guidingSpringForce = new Spring(Vector(0.0, -1.0, 0.0), spring_k);
+            deflectMagForce = new MagneticForce(Vector(0.0, -2.0, 0.0), magnetic_B);
+            // gravity = new Gravity(0.59);
         }
 
         void Reset()
@@ -126,14 +127,27 @@ namespace pba {
                 setBoidDS(increase_num);
                 std::cout << "boid particles number: " << DS->nb() << std::endl;
             }
+
+            // set force container
+            forces.push_back(boidInner);
+            if (addGuiding) {forces.push_back(guidingSpringForce);}
+            if (addMag) {forces.push_back(deflectMagForce);}
+            // forces.push_back(gravity);
+
             // update forces
             guidingSpringForce->update_floatParms("k", spring_k);
+            deflectMagForce->update_floatParms("B", magnetic_B);
+
             // update boid attributes
             setBoid();
+
             // update dynamical state
             // solver->updateDS(dt, DS, forces); // no collision
             if (onKdTree) { solver->updateDSWithCollisionWithKdTree(dt, DS, forces, geom, 1.0, 1.0); }   // Cr = Cs = 1.0
             else { solver->updateDSWithCollision(dt, DS, forces, geom, 1.0, 1.0); } // collision
+
+            // clean force container
+            forces.clear();
         }
 
         void Display()
@@ -210,8 +224,25 @@ namespace pba {
                 }
                 /// force control
                 // spring force
+                case 'g':
+                {
+                    addGuiding = !addGuiding;
+                    if (addGuiding) {std::cout << "TURN ON GUIDING" << endl;}
+                    else    {std::cout << "TURN OFF GUIDING" << endl;}
+                    break;
+                }
                 case 'k': { spring_k /= 1.1; std::cout << "spring_k: " << spring_k << std::endl; break; }
                 case 'K': { spring_k *= 1.1; std::cout << "spring_k: " << spring_k << std::endl; break; }
+                // magnetic force
+                case 'f':
+                {
+                    addMag = !addMag;
+                    if (addMag) {std::cout << "TURN ON DEFLECTION" << endl;}
+                    else    {std::cout << "TURN OFF DEFLECTION" << endl;}
+                    break;
+                }
+                case 'b': { magnetic_B /= 1.1; std::cout << "magnetic_B: " << magnetic_B << std::endl; break; }
+                case 'B': { magnetic_B *= 1.1; std::cout << "magnetic_B: " << magnetic_B << std::endl; break; }
 
                 /// solver switch
                 case 's':
@@ -288,10 +319,14 @@ namespace pba {
             std::cout << "d/D     reduce/increase range" << endl;
             std::cout << "y/Y     reduce/increase range ramp" << endl;
             std::cout << "q/Q     reduce/increase fov" << endl;
+            std::cout << "-----------------------" << endl;
             std::cout << "---- More Controls ----" << endl;
+            std::cout << "-----------------------" << endl;
             std::cout << "p/P     reduce/increase peripheral fov" << endl;
             std::cout << "g       turn on/off guiding spring force" << endl;
             std::cout << "k/K     reduce/increase spring force k" << endl;
+            std::cout << "f       turn on/off magnetic force" << endl;
+            std::cout << "b/B     reduce/increase magnetic force B" << endl;
             std::cout << "s       switch solvers between Leap Frog and Sixth Order" << endl;
             std::cout << "e       add boid particles" << endl;
             std::cout << "l       switch wireframe/hide/normal display mode" << endl;
@@ -308,6 +343,8 @@ namespace pba {
         ForcePtrContainer forces;
         ForcePtr boidInner;
         ForcePtr guidingSpringForce;
+        ForcePtr deflectMagForce;
+        ForcePtr gravity;
         /// dynamical state for all particles
         DynamicalState DS;
         /// mesh
@@ -328,7 +365,9 @@ namespace pba {
         bool onKdTree;  // turn on/off kdtree
         bool addBoids;  // flag to add boid particles
         bool addGuiding;    // flag to add guiding force
-        float spring_k;
+        float spring_k; // spring force k
+        bool addMag;    // flag to add magnetic force in order to deflect boids
+        float magnetic_B;    // magnetic force B
 
         /// default setting
         size_t boids_num;
@@ -347,6 +386,7 @@ namespace pba {
 
             boids_num = 10;
             spring_k = 2.0;
+            magnetic_B = 2.0;
         }
 
         //! emit particles and set dynamical state
