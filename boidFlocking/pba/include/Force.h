@@ -8,7 +8,12 @@
 # include <string>
 # include "Vector.h"
 # include "DynamicalState.h"
-# include "Boid.h"
+
+namespace pba
+{
+    class Boid;
+    typedef Boid* BoidPtr;
+}
 
 namespace pba
 {
@@ -22,8 +27,8 @@ namespace pba
         const float get_floatParms(const std::string &key) const {return floatParms.at(key);}
         const Vector get_vectorParms(const std::string &key) const { return vectorParms.at(key);}
         //! update force
-        void update_floatParms(const std::string &key, const float &value)  {floatParms.at(key) = value;}
-        void update_vectorParms(const std::string &key, const Vector &value)  {vectorParms.at(key) = value;}
+        void update_parms(const std::string &key, const float &value)  {floatParms.at(key) = value;}
+        void update_parms(const std::string &key, const Vector &value)  {vectorParms.at(key) = value;}
 
         virtual const Vector getForce(DynamicalState DS, const size_t p) {return force;}
 
@@ -101,4 +106,5 @@ namespace pba
     };
 }
 
+# include "Boid.h"
 # endif //PBA_FORCE_H

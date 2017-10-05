@@ -10,6 +10,7 @@
 
 # include "DynamicalState.h"
 # include "Vector.h"
+# include "Force.h"
 
 namespace pba
 {
@@ -28,6 +29,8 @@ namespace pba
         void set_theta1(const double& theta)    {theta1 = theta; assert(checkTheta(theta1, theta2));}
         void set_theta2(const double& theta)    {theta2 = theta; assert(checkTheta(theta1, theta2));}
         void set_accel_max(const double& a) {accel_max = a; assert(accel_max > 0);}
+        void set_guiding_forces(ForcePtrContainer& force, std::vector<Vector>& l)
+            {guidingForces = &force; guidingLocators = &l; assert(guidingForces->size() == guidingLocators->size());}
 
         Vector get_total_accel(const size_t i);
 
@@ -48,10 +51,14 @@ namespace pba
         double accel_max;
         // ramp
         double r_ramp;
+        //! steering and guiding
+        ForcePtrContainer* guidingForces;
+        std::vector<Vector>* guidingLocators;
 
+        Vector guide(const size_t i);
         double rangeWeight(const double& d);
         double vision(const Vector& d, const Vector& vel);
-        void accelThreshold(Vector& accel_a, Vector& accel_v, Vector& accel_c);
+        void accelThreshold(Vector& accel_a, Vector& accel_v, Vector& accel_c, Vector& accel_g);
 
         bool checkTheta(double& t1, double& t2)
         {

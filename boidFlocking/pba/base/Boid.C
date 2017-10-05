@@ -19,6 +19,21 @@ Boid::Boid(DynamicalState& DS):
         accel_max(10000)
 {}
 
+Vector Boid::guide(const size_t i)
+{
+    Vector guiding_force = Vector(0.0, 0.0, 0.0);
+    for (size_t p = 0; p < guidingForces->size(); p++)
+    {
+        Vector locator = guidingLocators->at(p);
+        Vector d = locator - boidDS->pos(i);
+        Vector vel = boidDS->vel(i);
+        double Kv = vision(d, vel);
+        guiding_force += (guidingForces->at(p)->getForce(boidDS, i)) * Kv;
+    }
+    Vector accel_g = guiding_force / boidDS->mass(i);
+
+    return accel_g;
+}
 
 double Boid::rangeWeight(const double &d)
 {
@@ -39,7 +54,7 @@ double Boid::vision(const Vector &d, const Vector &vel)
     return K_theta;
 }
 
-void Boid::accelThreshold(Vector &accel_a, Vector &accel_v, Vector &accel_c)
+void Boid::accelThreshold(Vector &accel_a, Vector &accel_v, Vector &accel_c, Vector& accel_g)
 {
     double aa_mag = accel_a.magnitude();
     if (aa_mag > accel_max)
@@ -47,9 +62,22 @@ void Boid::accelThreshold(Vector &accel_a, Vector &accel_v, Vector &accel_c)
         accel_a = accel_max * (accel_a).unitvector();
         accel_v = Vector(0.0, 0.0, 0.0);
         accel_c = Vector(0.0, 0.0, 0.0);
+        accel_g = Vector(0.0, 0.0, 0.0);
         return;
     }
     double residual = accel_max - aa_mag;
+
+    // add guiding accel
+    double ag_mag = accel_g.magnitude();
+    if (ag_mag > residual)
+    {
+        accel_g = residual * (accel_g).unitvector();
+        accel_v = Vector(0.0, 0.0, 0.0);
+        accel_c = Vector(0.0, 0.0, 0.0);
+        return;
+    }
+    residual = residual - ag_mag;
+
     double av_mag = accel_v.magnitude();
     if (av_mag > residual)
     {
@@ -70,6 +98,7 @@ Vector Boid::get_total_accel(const size_t i)
     Vector accel_a = Vector(0.0, 0.0, 0.0);
     Vector accel_v = Vector(0.0, 0.0, 0.0);
     Vector accel_c = Vector(0.0, 0.0, 0.0);
+    Vector accel_g = Vector(0.0, 0.0, 0.0);
     Vector X_i = boidDS->pos(i);
     Vector vel_i = boidDS->vel(i);
     for (size_t j = 0; j < boidDS->nb(); j++)
@@ -90,8 +119,14 @@ Vector Boid::get_total_accel(const size_t i)
             accel_c += (Kc * d) * Kr * K_theta;
         }
     }
-    // limit the accel and prioritize basic behaviors
-    accelThreshold(accel_a, accel_v, accel_c);
+    // guiding
+    accel_g = guide(i);
 
-    return accel_a + accel_v + accel_c;
+    // limit the accel and prioritize basic behaviors
+    accelThreshold(accel_a, accel_v, accel_c, accel_g);
+
+    // get total acceleration
+    Vector total_accel = accel_a + accel_v + accel_c + accel_g;
+
+    return total_accel;
 }

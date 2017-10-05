@@ -38,6 +38,8 @@ namespace pba {
         BoidFlockingThing(const std::string nam = "BoidFlockingThing"):
                 PbaThingyDingy(nam),
                 solver_id(LEAP_FROG),
+                spring_locator(Vector(-3.0, -3.0, 0.0)),
+                magnetic_locator(Vector(3.0, -2.0, 0.0)),
                 display_mode(1),
                 onKdTree(false),
                 addBoids(false),
@@ -62,10 +64,8 @@ namespace pba {
             delete solver_list[SIX_ORDER];
             delete boid;
             delete geom;
-            for (auto& it: forces)
-            {
-                delete it;
-            }
+            for (auto& it: guidingForces) { delete it; }
+            for (auto& it: forces) { delete it; }
         }
 
         void Init(const std::vector<std::string> &args)
@@ -99,11 +99,13 @@ namespace pba {
             setBoidDS(boids_num);
             // set boid attributes
             setBoid();
+            boid->set_guiding_forces(guidingForces, guidingLocators);
             // set forces
             boidInner = new BoidInnerForce(boid);
-            guidingSpringForce = new Spring(Vector(0.0, -1.0, 0.0), spring_k);
-            deflectMagForce = new MagneticForce(Vector(0.0, -2.0, 0.0), magnetic_B);
-            // gravity = new Gravity(0.59);
+            guidingSpringForce = new Spring(spring_locator, spring_k);
+            deflectMagForce = new MagneticForce(magnetic_locator, magnetic_B);
+            // construct system env forces
+            forces.push_back(boidInner);
         }
 
         void Reset()
@@ -128,15 +130,17 @@ namespace pba {
                 std::cout << "boid particles number: " << DS->nb() << std::endl;
             }
 
-            // set force container
-            forces.push_back(boidInner);
-            if (addGuiding) {forces.push_back(guidingSpringForce);}
-            if (addMag) {forces.push_back(deflectMagForce);}
-            // forces.push_back(gravity);
+            // clean guide container
+            guidingForces.clear();
+            guidingLocators.clear();
 
-            // update forces
-            guidingSpringForce->update_floatParms("k", spring_k);
-            deflectMagForce->update_floatParms("B", magnetic_B);
+            // set guiding force container
+            if (addGuiding) {guidingForces.push_back(guidingSpringForce);   guidingLocators.push_back(spring_locator);}
+            if (addMag) {guidingForces.push_back(deflectMagForce);  guidingLocators.push_back(magnetic_locator);}
+
+            // update guidingForces
+            guidingSpringForce->update_parms("k", spring_k);
+            deflectMagForce->update_parms("B", magnetic_B);
 
             // update boid attributes
             setBoid();
@@ -145,9 +149,6 @@ namespace pba {
             // solver->updateDS(dt, DS, forces); // no collision
             if (onKdTree) { solver->updateDSWithCollisionWithKdTree(dt, DS, forces, geom, 1.0, 1.0); }   // Cr = Cs = 1.0
             else { solver->updateDSWithCollision(dt, DS, forces, geom, 1.0, 1.0); } // collision
-
-            // clean force container
-            forces.clear();
         }
 
         void Display()
@@ -340,11 +341,15 @@ namespace pba {
         std::vector<SolverPtr> solver_list;
         SolverPtr solver;
         /// forces
-        ForcePtrContainer forces;
         ForcePtr boidInner;
         ForcePtr guidingSpringForce;
+        Vector spring_locator;
         ForcePtr deflectMagForce;
-        ForcePtr gravity;
+        Vector magnetic_locator;
+        ForcePtrContainer forces;
+        /// boid guiding
+        ForcePtrContainer guidingForces;
+        std::vector<Vector> guidingLocators;
         /// dynamical state for all particles
         DynamicalState DS;
         /// mesh
@@ -375,17 +380,17 @@ namespace pba {
         //! set default value
         void _init()
         {
-            Ka = 0.8;
-            Kv = 1.0;
-            Kc = 1.2;
-            accel_max = 5.0;
+            Ka = 0.04;
+            Kv = 0.05;
+            Kc = 0.06;
+            accel_max = 0.1;
             range = 1.0;
             range_ramp = 0.1;
             fov = 360.0;
             peripheral_fov = 360.0;
 
             boids_num = 10;
-            spring_k = 2.0;
+            spring_k = 0.2;
             magnetic_B = 2.0;
         }
 
