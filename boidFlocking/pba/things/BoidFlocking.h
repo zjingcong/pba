@@ -358,21 +358,21 @@ namespace pba {
         BoidPtr boid;
 
         /// keyboard selection
-        double Ka;   // collision avoidance strength
-        double Kv;  // velocity matching strength
-        double Kc;  // centering strength
-        double accel_max;   // max acceleration threshold
-        double range;   // range
-        double range_ramp;  // range ramp
-        double fov; // field of view
-        double peripheral_fov;    // peripheral field of view
-        int display_mode;   // 0 - hide, 1 - fill, 2 - line
-        bool onKdTree;  // turn on/off kdtree
-        bool addBoids;  // flag to add boid particles
-        bool addGuiding;    // flag to add guiding force
-        float spring_k; // spring force k
-        bool addMag;    // flag to add magnetic force in order to deflect boids
-        float magnetic_B;    // magnetic force B
+        double Ka;              // collision avoidance strength
+        double Kv;              // velocity matching strength
+        double Kc;              // centering strength
+        double accel_max;       // max acceleration threshold
+        double range;           // range
+        double range_ramp;      // range ramp
+        double fov;             // field of view
+        double peripheral_fov;  // peripheral field of view
+        int display_mode;       // 0 - hide, 1 - fill, 2 - line
+        bool onKdTree;          // turn on/off kdtree
+        bool addBoids;          // flag to add boid particles
+        bool addGuiding;        // flag to add guiding force
+        float spring_k;         // spring force k
+        bool addMag;            // flag to add magnetic force in order to deflect boids
+        float magnetic_B;       // magnetic force B
 
         /// default setting
         size_t boids_num;
