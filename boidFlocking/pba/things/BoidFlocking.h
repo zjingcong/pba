@@ -43,7 +43,8 @@ namespace pba {
                 display_mode(1),
                 onKdTree(false),
                 addBoids(false),
-                addGuiding(false)
+                addGuiding(false),
+                boids_num(100)
         {
             // construct attributes
             _init();
@@ -60,10 +61,10 @@ namespace pba {
 
         ~BoidFlockingThing()
         {
-            delete solver_list[LEAP_FROG];
-            delete solver_list[SIX_ORDER];
-            delete boid;
-            delete geom;
+//            delete solver_list[LEAP_FROG];
+//            delete solver_list[SIX_ORDER];
+//            delete boid;
+//            delete geom;
             for (auto& it: guidingForces) { delete it; }
             for (auto& it: forces) { delete it; }
         }
@@ -82,7 +83,7 @@ namespace pba {
             // load cube
             else
             {
-                LoadMesh::LoadBox(10, geom);
+                LoadMesh::LoadBox(6, geom);
                 geom->build_trianglesTree(0);   // build geom kdTree
             }
             // set geometry color
@@ -113,8 +114,6 @@ namespace pba {
             // clear dynamical state
             DS.reset();
             DS = CreateDynamicalState("boidParticles");
-            // set default values
-            _init();
             // init sim
             setBoidDS(boids_num);
             setBoid();
@@ -193,36 +192,11 @@ namespace pba {
                 case 'y': { range_ramp /= 1.1; std::cout << "range ramp: " << range_ramp << std::endl; break; }
                 case 'Y': { range_ramp *= 1.1; std::cout << "range ramp: " << range_ramp << std::endl; break; }
                 // Field of view
-                case 'q':
-                {
-                    fov /= 1.1;
-                    if (fov < 0.0)  {fov = 0.0;}
-                    std::cout << "field of view: " << fov << std::endl;
-                    break;
-                }
-                case 'Q':
-                {
-                    fov *= 1.1;
-                    if (fov > 360.0)    {fov = 360.0;}
-                    std::cout << "field of view: " << fov << std::endl;
-                    break;
-                }
+                case 'q': { fov /= 1.1; std::cout << "field of view: " << fov << std::endl; break; }
+                case 'Q': { fov *= 1.1; std::cout << "field of view: " << fov << std::endl; break; }
                 // Peripheral field of view
-                case 'p':
-                {
-                    peripheral_fov /= 1.1;
-                    if (peripheral_fov < 0.0)  {peripheral_fov = 0.0;}
-                    if (peripheral_fov < fov)   {peripheral_fov = fov;}
-                    std::cout << "peripheral field of view: " << peripheral_fov << std::endl;
-                    break;
-                }
-                case 'P':
-                {
-                    peripheral_fov *= 1.1;
-                    if (peripheral_fov > 360.0)    {peripheral_fov = 360.0;}
-                    std::cout << "peripheral field of view: " << peripheral_fov << std::endl;
-                    break;
-                }
+                case 'p': { fov_ramp /= 1.1; std::cout << "peripheral field of view: " << fov_ramp << std::endl; break; }
+                case 'P': { fov_ramp *= 1.1; std::cout << "peripheral field of view: " << fov_ramp << std::endl; break; }
                 /// force control
                 // spring force
                 case 'g':
@@ -323,7 +297,7 @@ namespace pba {
             std::cout << "-----------------------" << endl;
             std::cout << "---- More Controls ----" << endl;
             std::cout << "-----------------------" << endl;
-            std::cout << "p/P     reduce/increase peripheral fov" << endl;
+            std::cout << "p/P     reduce/increase fov ramp" << endl;
             std::cout << "g       turn on/off guiding spring force" << endl;
             std::cout << "k/K     reduce/increase spring force k" << endl;
             std::cout << "f       turn on/off magnetic force" << endl;
@@ -365,7 +339,7 @@ namespace pba {
         double range;           // range
         double range_ramp;      // range ramp
         double fov;             // field of view
-        double peripheral_fov;  // peripheral field of view
+        double fov_ramp;  // peripheral field of view
         int display_mode;       // 0 - hide, 1 - fill, 2 - line
         bool onKdTree;          // turn on/off kdtree
         bool addBoids;          // flag to add boid particles
@@ -380,18 +354,17 @@ namespace pba {
         //! set default value
         void _init()
         {
-            Ka = 0.04;
-            Kv = 0.05;
-            Kc = 0.06;
-            accel_max = 0.1;
-            range = 1.0;
-            range_ramp = 0.1;
-            fov = 360.0;
-            peripheral_fov = 360.0;
+            Ka = 0.3;
+            Kv = 23;
+            Kc = 16;
+            accel_max = 20;
+            range = 0.25;
+            range_ramp = 0.8;
+            fov = 160.0;
+            fov_ramp = 70.0;
 
-            boids_num = 10;
             spring_k = 0.2;
-            magnetic_B = 2.0;
+            magnetic_B = 20.0;
         }
 
         //! emit particles and set dynamical state
@@ -403,8 +376,8 @@ namespace pba {
             {
                 size_t id = nb + i;
                 DS->set_id(id, int(id));
-                DS->set_pos(id, 1.5 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random position
-                DS->set_vel(id, 0.3 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random velocity
+                DS->set_pos(id, 1 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random position
+                DS->set_vel(id, 5 * Vector((drand48() - 0.5), (drand48() - 0.5), (drand48() - 0.5)));  // random velocity
                 DS->set_ci(id, Color(float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25),
                                      float(drand48() * 0.75 + 0.25), 1.0));    // random color
                 DS->set_mass(id, 1.0);    // default mass is 1.0
@@ -419,7 +392,7 @@ namespace pba {
             boid->set_r1(range);
             boid->set_r_ramp(range_ramp);
             boid->set_theta1(fov);
-            boid->set_theta2(peripheral_fov);
+            boid->set_theta_ramp(fov_ramp);
             boid->set_accel_max(accel_max);
         }
     };

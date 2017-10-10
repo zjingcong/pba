@@ -117,6 +117,13 @@ Vector Boid::get_total_accel(const size_t i)
             accel_v += (Kv * (boidDS->vel(j) - vel_i)) * Kr * K_theta;
             // centering
             accel_c += (Kc * d) * Kr * K_theta;
+
+            if (d_mag == 0.0)   // handle special case, usually won't happen
+            {
+                accel_a = accel_max * d.unitvector();
+                accel_v = Vector(0.0, 0.0, 0.0);
+                accel_c = Vector(0.0, 0.0, 0.0);
+            }
         }
     }
     // guiding
