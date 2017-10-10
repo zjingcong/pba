@@ -1,0 +1,54 @@
+Homework 2
+
+- Name: Jingcong Zhang
+- Email: jingcoz@clemson.edu
+- 2017-10-10
+
+This program is to implement boid system simulations using Leap Frog Solver and Sixth Order Solver, with basic boids behaviors and simple guiding/steering.
+Boids could have collisions with triangles, which could be stored and searched in Kdtree when turning on Kdtree.
+The initial simulation starts with 100 particles with random positions, random velocities and random colors.
+
+To build this code: 
+    cd pba
+    make clean
+    make
+    make stuff
+    make viewer
+
+To run this code: 
+    cd pba/python
+    ./pba_boid_viewer.py <obj_path>
+
+  <obj_path> is the file path to the .obj scene model.
+  Default scene is a hand-drawing 12-triangle cube with front face invisible.
+  For example: 
+    To show the cube:       ./pba_boid_viewer.py
+    To show the bigsphere:  ./pba_boid_viewer.py ../../models/bigsphere.obj
+
+Command line usage: 
+  - Basic viewer usage
+
+  - PbaThing usage:
+
+    * Boids related:
+        a/A     reduce/increase collision avoidance strength
+        v/V     reduce/increase velocity matching strength
+        c/C     reduce/increase centering strength
+        m/M     reduce/increase max acceleration threshold
+        d/D     reduce/increase range
+        y/Y     reduce/increase range ramp
+        q/Q     reduce/increase fov
+        p/P     reduce/increase fov ramp
+
+    * Guiding related:
+        g       turn on/off guiding spring force
+        k/K     reduce/increase spring force k
+        f       turn on/off magnetic force
+        b/B     reduce/increase magnetic force B
+
+    * Simulation related:
+        s       switch solvers between Leap Frog and Sixth Order
+        e       add boid particles
+        l       switch wireframe/hide/normal display mode
+        t       turn on/off KdTree
+        Esc     quit
