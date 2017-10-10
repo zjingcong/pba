@@ -11,6 +11,7 @@
 # include "Tools.h"
 # include "Geometry.h"
 # include "Collision.h"
+# include "Boid.h"
 
 # ifndef PBA_BOIDFLOCKING_H
 # define PBA_BOIDFLOCKING_H
@@ -32,14 +33,12 @@
 
 namespace pba {
 
-    class BoidFlockingThing : public PbaThingyDingy
+    class BoidFlockingThing: public PbaThingyDingy
     {
     public:
         BoidFlockingThing(const std::string nam = "BoidFlockingThing"):
                 PbaThingyDingy(nam),
                 solver_id(LEAP_FROG),
-                spring_locator(Vector(-3.0, -3.0, 0.0)),
-                magnetic_locator(Vector(3.0, -2.0, 0.0)),
                 display_mode(1),
                 onKdTree(false),
                 addBoids(false),
@@ -49,31 +48,23 @@ namespace pba {
             // construct attributes
             _init();
             // construct solvers
-            solver_list.push_back(new LeapFrogSolver());
-            solver_list.push_back(new SixOrderSolver());
+            solver_list.push_back(CreateLeapFrogSolver());
+            solver_list.push_back(CreateSixOrderSolver());
             solver = solver_list[LEAP_FROG];
             // construct dynamical state
             DS = CreateDynamicalState("boidParticles");
             // construct boid system
-            boid = new Boid(DS);
+            boid = CreateBoid(DS);
             cout << "Construction Complete." << endl;
         }
 
-        ~BoidFlockingThing()
-        {
-//            delete solver_list[LEAP_FROG];
-//            delete solver_list[SIX_ORDER];
-//            delete boid;
-//            delete geom;
-            for (auto& it: guidingForces) { delete it; }
-            for (auto& it: forces) { delete it; }
-        }
+        ~BoidFlockingThing() {}
 
         void Init(const std::vector<std::string> &args)
         {
             /// load scene
             // load geometry
-            geom = new TriangleGeometry("collisionMesh");
+            geom = CreateGeometry("collisionMesh");
             if (args.size() == 2)   // load .obj file
             {
                 std::string scene_file = args[1];
@@ -102,10 +93,9 @@ namespace pba {
             setBoid();
             boid->set_guiding_forces(guidingForces, guidingLocators);
             // set forces
-            boidInner = new BoidInnerForce(boid);
-            guidingSpringForce = new Spring(spring_locator, spring_k);
-            deflectMagForce = new MagneticForce(magnetic_locator, magnetic_B);
-            // construct system env forces
+            boidInner = CreateBoidInnerForce(boid);
+            guidingSpringForce = CreateSpring(spring_locator, spring_k);
+            deflectMagForce = CreateMagneticForce(magnetic_locator, magnetic_B);
             forces.push_back(boidInner);
         }
 
@@ -114,40 +104,26 @@ namespace pba {
             // clear dynamical state
             DS.reset();
             DS = CreateDynamicalState("boidParticles");
-            // init sim
+            // init sim: boid dynamical state
             setBoidDS(boids_num);
-            setBoid();
         }
 
         void solve()
         {
             // add boid
-            if (addBoids)
-            {
-                size_t increase_num = 1;
-                setBoidDS(increase_num);
-                std::cout << "boid particles number: " << DS->nb() << std::endl;
-            }
-
-            // clean guide container
-            guidingForces.clear();
-            guidingLocators.clear();
-
-            // set guiding force container
-            if (addGuiding) {guidingForces.push_back(guidingSpringForce);   guidingLocators.push_back(spring_locator);}
-            if (addMag) {guidingForces.push_back(deflectMagForce);  guidingLocators.push_back(magnetic_locator);}
+            if (addBoids) { setBoidDS(1); std::cout << "boid particles number: " << DS->nb() << std::endl; }
 
             // update guidingForces
             guidingSpringForce->update_parms("k", spring_k);
             deflectMagForce->update_parms("B", magnetic_B);
-
             // update boid attributes
             setBoid();
 
             // update dynamical state
             // solver->updateDS(dt, DS, forces); // no collision
-            if (onKdTree) { solver->updateDSWithCollisionWithKdTree(dt, DS, forces, geom, 1.0, 1.0); }   // Cr = Cs = 1.0
-            else { solver->updateDSWithCollision(dt, DS, forces, geom, 1.0, 1.0); } // collision
+            // Collision: Cr = Cs = 1.0
+            if (onKdTree) { solver->updateDSWithCollisionWithKdTree(dt, DS, forces, geom, 1.0, 1.0); }  // kdtree
+            else { solver->updateDSWithCollision(dt, DS, forces, geom, 1.0, 1.0); } // no kdtree
         }
 
         void Display()
@@ -168,146 +144,9 @@ namespace pba {
             glFlush();
         }
 
-        void Keyboard(unsigned char key, int x, int y)
-        {
-            switch (key)
-            {
-                /// boid control
-                // Collision avoidance strength
-                case 'a': { Ka /= 1.1; std::cout << "collision avoidance strength: " << Ka << std::endl; break; }
-                case 'A': { Ka *= 1.1; std::cout << "collision avoidance strength: " << Ka << std::endl; break; }
-                // Velocity matching strength
-                case 'v': { Kv /= 1.1; std::cout << "velocity matching strength: " << Kv << std::endl; break; }
-                case 'V': { Kv *= 1.1; std::cout << "velocity matching strength: " << Kv << std::endl; break; }
-                // Centering strength
-                case 'c': { Kc /= 1.1; std::cout << "centering strength: " << Kc << std::endl; break; }
-                case 'C': { Kc *= 1.1; std::cout << "centering strength: " << Kc << std::endl; break; }
-                // Maximum acceleration threshold
-                case 'm': { accel_max /= 1.1; std::cout << "maximum acceleration threshold: " << accel_max << std::endl; break; }
-                case 'M': { accel_max *= 1.1; std::cout << "maximum acceleration threshold: " << accel_max << std::endl; break; }
-                // Range
-                case 'd': { range /= 1.1; std::cout << "range: " << range << std::endl; break; }
-                case 'D': { range *= 1.1; std::cout << "range: " << range << std::endl; break; }
-                // Range ramp
-                case 'y': { range_ramp /= 1.1; std::cout << "range ramp: " << range_ramp << std::endl; break; }
-                case 'Y': { range_ramp *= 1.1; std::cout << "range ramp: " << range_ramp << std::endl; break; }
-                // Field of view
-                case 'q': { fov /= 1.1; std::cout << "field of view: " << fov << std::endl; break; }
-                case 'Q': { fov *= 1.1; std::cout << "field of view: " << fov << std::endl; break; }
-                // Peripheral field of view
-                case 'p': { fov_ramp /= 1.1; std::cout << "peripheral field of view: " << fov_ramp << std::endl; break; }
-                case 'P': { fov_ramp *= 1.1; std::cout << "peripheral field of view: " << fov_ramp << std::endl; break; }
-                /// force control
-                // spring force
-                case 'g':
-                {
-                    addGuiding = !addGuiding;
-                    if (addGuiding) {std::cout << "TURN ON GUIDING" << endl;}
-                    else    {std::cout << "TURN OFF GUIDING" << endl;}
-                    break;
-                }
-                case 'k': { spring_k /= 1.1; std::cout << "spring_k: " << spring_k << std::endl; break; }
-                case 'K': { spring_k *= 1.1; std::cout << "spring_k: " << spring_k << std::endl; break; }
-                // magnetic force
-                case 'f':
-                {
-                    addMag = !addMag;
-                    if (addMag) {std::cout << "TURN ON DEFLECTION" << endl;}
-                    else    {std::cout << "TURN OFF DEFLECTION" << endl;}
-                    break;
-                }
-                case 'b': { magnetic_B /= 1.1; std::cout << "magnetic_B: " << magnetic_B << std::endl; break; }
-                case 'B': { magnetic_B *= 1.1; std::cout << "magnetic_B: " << magnetic_B << std::endl; break; }
+        void Keyboard(unsigned char key, int x, int y);
 
-                /// solver switch
-                case 's':
-                {
-                    solver_id += 1;
-                    solver_id = (solver_id % 2);
-                    solver = solver_list[solver_id];
-                    std::cout << "Current Solver: " << solver->Name() << std::endl;
-                    break;
-                }
-
-                /// mesh display mode
-                case 'l':
-                {
-                    display_mode += 1;
-                    display_mode = (display_mode % 3);
-                    switch (display_mode)
-                    {
-                        case 0:
-                            cout << "Current Display Mode: hide" << endl;
-                            break;
-
-                        case 1:
-                            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                            cout << "Current Display Mode: normal" << endl;
-                            break;
-
-                        case 2:
-                            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                            cout << "Current Display Mode: wireframe" << endl;
-                            break;
-
-                        default:
-                            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                            cout << "Current Display Mode: normal" << endl;
-                            break;
-                    }
-                    break;
-                }
-
-                /// kdtree
-                case 't':
-                {
-                    onKdTree = !onKdTree;
-                    if (onKdTree) { std::cout << "TURN ON KDTREE" << std::endl; }
-                    else { std::cout << "TURN OFF KDTREE" << std::endl; }
-                    break;
-                }
-
-                /// add particles
-                case 'e':
-                {
-                    addBoids  = !addBoids;
-                    if (addBoids) { std::cout << "START ADDING BOID" << std::endl; }
-                    else  {std::cout << "STOP ADDING BOID" << std::endl;}
-                    break;
-                }
-
-                /// quit
-                case 27: { exit(0); }
-
-                default:
-                    break;
-            }
-        }
-
-        void Usage()
-        {
-            std::cout << "=== PbaThing ===" << endl;
-            std::cout << "a/A     reduce/increase collision avoidance strength" << endl;
-            std::cout << "v/V     reduce/increase velocity matching strength" << endl;
-            std::cout << "c/C     reduce/increase centering strength" << endl;
-            std::cout << "m/M     reduce/increase max acceleration threshold" << endl;
-            std::cout << "d/D     reduce/increase range" << endl;
-            std::cout << "y/Y     reduce/increase range ramp" << endl;
-            std::cout << "q/Q     reduce/increase fov" << endl;
-            std::cout << "-----------------------" << endl;
-            std::cout << "---- More Controls ----" << endl;
-            std::cout << "-----------------------" << endl;
-            std::cout << "p/P     reduce/increase fov ramp" << endl;
-            std::cout << "g       turn on/off guiding spring force" << endl;
-            std::cout << "k/K     reduce/increase spring force k" << endl;
-            std::cout << "f       turn on/off magnetic force" << endl;
-            std::cout << "b/B     reduce/increase magnetic force B" << endl;
-            std::cout << "s       switch solvers between Leap Frog and Sixth Order" << endl;
-            std::cout << "e       add boid particles" << endl;
-            std::cout << "l       switch wireframe/hide/normal display mode" << endl;
-            std::cout << "t       turn on/off KdTree" << endl;
-            std::cout << "Esc     quit" << endl;
-        }
+        void Usage();
 
     private:
         /// solvers
@@ -316,12 +155,12 @@ namespace pba {
         SolverPtr solver;
         /// forces
         ForcePtr boidInner;
+        ForcePtrContainer forces;
+        /// boid guiding
         ForcePtr guidingSpringForce;
         Vector spring_locator;
         ForcePtr deflectMagForce;
         Vector magnetic_locator;
-        ForcePtrContainer forces;
-        /// boid guiding
         ForcePtrContainer guidingForces;
         std::vector<Vector> guidingLocators;
         /// dynamical state for all particles
@@ -339,13 +178,13 @@ namespace pba {
         double range;           // range
         double range_ramp;      // range ramp
         double fov;             // field of view
-        double fov_ramp;  // peripheral field of view
+        double fov_ramp;        // field of view ramp
         int display_mode;       // 0 - hide, 1 - fill, 2 - line
-        bool onKdTree;          // turn on/off kdtree
+        bool onKdTree;          // turn on/off kdtree mode for geometry
         bool addBoids;          // flag to add boid particles
         bool addGuiding;        // flag to add guiding force
-        float spring_k;         // spring force k
         bool addMag;            // flag to add magnetic force in order to deflect boids
+        float spring_k;         // spring force k
         float magnetic_B;       // magnetic force B
 
         /// default setting
@@ -354,6 +193,7 @@ namespace pba {
         //! set default value
         void _init()
         {
+            /// boid
             Ka = 0.3;
             Kv = 23;
             Kc = 16;
@@ -362,9 +202,11 @@ namespace pba {
             range_ramp = 0.8;
             fov = 160.0;
             fov_ramp = 70.0;
-
+            /// boid guiding
             spring_k = 0.2;
             magnetic_B = 20.0;
+            spring_locator = Vector(-3.0, -3.0, 0.0);
+            magnetic_locator = Vector(3.0, -3.0, 0.0);
         }
 
         //! emit particles and set dynamical state
@@ -395,10 +237,167 @@ namespace pba {
             boid->set_theta_ramp(fov_ramp);
             boid->set_accel_max(accel_max);
         }
+
+        void guidingControl()
+        {
+            // clean guide container
+            guidingForces.clear();
+            guidingLocators.clear();
+
+            // set guiding force container
+            if (addGuiding) {guidingForces.push_back(guidingSpringForce);   guidingLocators.push_back(spring_locator);}
+            if (addMag) {guidingForces.push_back(deflectMagForce);  guidingLocators.push_back(magnetic_locator);}
+        }
     };
 
-
+    //! create pbathing
     pba::PbaThing BoidFlocking() { return PbaThing(new pba::BoidFlockingThing()); }
+
+
+    //! ---------------------------------------- Keyboard and Usage ---------------------------------------------------
+
+    void BoidFlockingThing::Usage()
+    {
+        std::cout << "=== PbaThing ===" << endl;
+        std::cout << "a/A     reduce/increase collision avoidance strength" << endl;
+        std::cout << "v/V     reduce/increase velocity matching strength" << endl;
+        std::cout << "c/C     reduce/increase centering strength" << endl;
+        std::cout << "m/M     reduce/increase max acceleration threshold" << endl;
+        std::cout << "d/D     reduce/increase range" << endl;
+        std::cout << "y/Y     reduce/increase range ramp" << endl;
+        std::cout << "q/Q     reduce/increase fov" << endl;
+        std::cout << "-----------------------" << endl;
+        std::cout << "---- More Controls ----" << endl;
+        std::cout << "-----------------------" << endl;
+        std::cout << "p/P     reduce/increase fov ramp" << endl;
+        std::cout << "g       turn on/off guiding spring force" << endl;
+        std::cout << "k/K     reduce/increase spring force k" << endl;
+        std::cout << "f       turn on/off magnetic force" << endl;
+        std::cout << "b/B     reduce/increase magnetic force B" << endl;
+        std::cout << "s       switch solvers between Leap Frog and Sixth Order" << endl;
+        std::cout << "e       add boid particles" << endl;
+        std::cout << "l       switch wireframe/hide/normal display mode" << endl;
+        std::cout << "t       turn on/off KdTree" << endl;
+        std::cout << "Esc     quit" << endl;
+    }
+
+    void BoidFlockingThing::Keyboard(unsigned char key, int x, int y)
+    {
+        switch (key)
+        {
+            /// boid control
+            // Collision avoidance strength
+            case 'a': { Ka /= 1.1; std::cout << "collision avoidance strength: " << Ka << std::endl; break; }
+            case 'A': { Ka *= 1.1; std::cout << "collision avoidance strength: " << Ka << std::endl; break; }
+                // Velocity matching strength
+            case 'v': { Kv /= 1.1; std::cout << "velocity matching strength: " << Kv << std::endl; break; }
+            case 'V': { Kv *= 1.1; std::cout << "velocity matching strength: " << Kv << std::endl; break; }
+                // Centering strength
+            case 'c': { Kc /= 1.1; std::cout << "centering strength: " << Kc << std::endl; break; }
+            case 'C': { Kc *= 1.1; std::cout << "centering strength: " << Kc << std::endl; break; }
+                // Maximum acceleration threshold
+            case 'm': { accel_max /= 1.1; std::cout << "maximum acceleration threshold: " << accel_max << std::endl; break; }
+            case 'M': { accel_max *= 1.1; std::cout << "maximum acceleration threshold: " << accel_max << std::endl; break; }
+                // Range
+            case 'd': { range /= 1.1; std::cout << "range: " << range << std::endl; break; }
+            case 'D': { range *= 1.1; std::cout << "range: " << range << std::endl; break; }
+                // Range ramp
+            case 'y': { range_ramp /= 1.1; std::cout << "range ramp: " << range_ramp << std::endl; break; }
+            case 'Y': { range_ramp *= 1.1; std::cout << "range ramp: " << range_ramp << std::endl; break; }
+                // Field of view
+            case 'q': { fov /= 1.1; std::cout << "field of view: " << fov << std::endl; break; }
+            case 'Q': { fov *= 1.1; std::cout << "field of view: " << fov << std::endl; break; }
+                // Peripheral field of view
+            case 'p': { fov_ramp /= 1.1; std::cout << "peripheral field of view: " << fov_ramp << std::endl; break; }
+            case 'P': { fov_ramp *= 1.1; std::cout << "peripheral field of view: " << fov_ramp << std::endl; break; }
+                /// force control
+                // spring force
+            case 'g':
+            {
+                addGuiding = !addGuiding;
+                if (addGuiding) {std::cout << "TURN ON GUIDING" << endl;}
+                else    {std::cout << "TURN OFF GUIDING" << endl;}
+                guidingControl();
+                break;
+            }
+            case 'k': { spring_k /= 1.1; std::cout << "spring k: " << spring_k << std::endl; break; }
+            case 'K': { spring_k *= 1.1; std::cout << "spring k: " << spring_k << std::endl; break; }
+                // magnetic force
+            case 'f':
+            {
+                addMag = !addMag;
+                if (addMag) {std::cout << "TURN ON DEFLECTION" << endl;}
+                else    {std::cout << "TURN OFF DEFLECTION" << endl;}
+                guidingControl();
+                break;
+            }
+            case 'b': { magnetic_B /= 1.1; std::cout << "magnetic B: " << magnetic_B << std::endl; break; }
+            case 'B': { magnetic_B *= 1.1; std::cout << "magnetic B: " << magnetic_B << std::endl; break; }
+
+                /// solver switch
+            case 's':
+            {
+                solver_id += 1;
+                solver_id = (solver_id % 2);
+                solver = solver_list[solver_id];
+                std::cout << "Current Solver: " << solver->Name() << std::endl;
+                break;
+            }
+
+                /// mesh display mode
+            case 'l':
+            {
+                display_mode += 1;
+                display_mode = (display_mode % 3);
+                switch (display_mode)
+                {
+                    case 0:
+                        cout << "Current Display Mode: hide" << endl;
+                        break;
+
+                    case 1:
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                        cout << "Current Display Mode: normal" << endl;
+                        break;
+
+                    case 2:
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                        cout << "Current Display Mode: wireframe" << endl;
+                        break;
+
+                    default:
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                        cout << "Current Display Mode: normal" << endl;
+                        break;
+                }
+                break;
+            }
+
+                /// kdtree
+            case 't':
+            {
+                onKdTree = !onKdTree;
+                if (onKdTree) { std::cout << "TURN ON KDTREE" << std::endl; }
+                else { std::cout << "TURN OFF KDTREE" << std::endl; }
+                break;
+            }
+
+                /// add particles
+            case 'e':
+            {
+                addBoids  = !addBoids;
+                if (addBoids) { std::cout << "START ADDING BOID" << std::endl; }
+                else  {std::cout << "STOP ADDING BOID" << std::endl;}
+                break;
+            }
+
+                /// quit
+            case 27: { exit(0); }
+
+            default:
+                break;
+        }
+    }
 }
 
 

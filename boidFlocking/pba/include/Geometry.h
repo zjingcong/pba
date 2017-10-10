@@ -53,7 +53,9 @@ namespace pba
         TriangleGeometry()  {}
     };
 
-    typedef TriangleGeometry* GeometryPtr;
+    /// set up geometry share ptr
+    typedef std::shared_ptr<TriangleGeometry> GeometryPtr;
+    GeometryPtr CreateGeometry(const std::string& nam = "GeometryNoName");
 };
 
 # include "KdTree.h"

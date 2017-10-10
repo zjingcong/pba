@@ -21,6 +21,7 @@ namespace pba
         Boid(DynamicalState& DS);
         ~Boid() {}
 
+        //! set boid system attributes
         void set_Ka(const double& ka)   {Ka = ka;}
         void set_Kv(const double& kv)   {Kv = kv;}
         void set_Kc(const double& kc)   {Kc = kc;}
@@ -29,6 +30,7 @@ namespace pba
         void set_theta1(const double& theta)    {theta1 = theta; theta2 = theta1 + theta_ramp;}
         void set_theta_ramp(const double& theta)    {theta_ramp = theta; theta2 = theta1 + theta_ramp;}
         void set_accel_max(const double& a) {accel_max = a; assert(accel_max > 0);}
+        //! set boid system guide
         void set_guiding_forces(ForcePtrContainer& force, std::vector<Vector>& l)
             {guidingForces = &force; guidingLocators = &l; assert(guidingForces->size() == guidingLocators->size());}
 
@@ -62,7 +64,9 @@ namespace pba
         void accelThreshold(Vector& accel_a, Vector& accel_v, Vector& accel_c, Vector& accel_g);
     };
 
-    typedef Boid* BoidPtr;
+    /// set up boid shared ptr
+    typedef std::shared_ptr<Boid> BoidPtr;
+    BoidPtr CreateBoid(DynamicalState& DS);
 
 }
 

@@ -137,3 +137,9 @@ Vector Boid::get_total_accel(const size_t i)
 
     return total_accel;
 }
+
+
+pba::BoidPtr pba::CreateBoid(DynamicalState& DS)
+{
+    return BoidPtr(new Boid(DS));
+}

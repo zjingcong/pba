@@ -12,7 +12,7 @@
 namespace pba
 {
     class Boid;
-    typedef Boid* BoidPtr;
+    typedef std::shared_ptr<Boid> BoidPtr;
 }
 
 namespace pba
@@ -39,7 +39,7 @@ namespace pba
         std::map<std::string, Vector> vectorParms; // force floatParms
     };
 
-    typedef ForceBase* ForcePtr;
+    typedef std::shared_ptr<ForceBase> ForcePtr;
     typedef std::vector<ForcePtr> ForcePtrContainer;
 
 
@@ -63,16 +63,13 @@ namespace pba
     class BoidInnerForce: public ForceBase
     {
     public:
-        BoidInnerForce(BoidPtr b): boid(b)
-        {
-            name = "boid_inner_force";
-        }
+        BoidInnerForce(BoidPtr& b): boid(b) { name = "boid_inner_force"; }
         ~BoidInnerForce()   {}
 
         const Vector getForce(DynamicalState DS, const size_t p);
 
     private:
-        BoidPtr boid;
+        BoidPtr& boid;
     };
 
 
@@ -104,6 +101,13 @@ namespace pba
 
         const Vector getForce(DynamicalState DS, const size_t p);
     };
+
+
+    /// set up forces shared ptrs
+    ForcePtr CreateGravity(const float& gconstant);
+    ForcePtr CreateBoidInnerForce(BoidPtr& b);
+    ForcePtr CreateSpring(const Vector& x0, const float& kconstant);
+    ForcePtr CreateMagneticForce(const Vector& xm, const float& b);
 }
 
 # include "Boid.h"

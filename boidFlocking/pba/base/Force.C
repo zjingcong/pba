@@ -47,3 +47,26 @@ const Vector MagneticForce::getForce(DynamicalState DS, const size_t p)
 
     return force;
 }
+
+
+//! --------------------------- Create Force Share Ptrs ------------------------------------
+
+pba::ForcePtr pba::CreateGravity(const float &gconstant)
+{
+    return ForcePtr(new Gravity(gconstant));
+}
+
+pba::ForcePtr pba::CreateBoidInnerForce(BoidPtr &b)
+{
+    return ForcePtr(new BoidInnerForce(b));
+}
+
+pba::ForcePtr pba::CreateSpring(const Vector &x0, const float &kconstant)
+{
+    return ForcePtr(new Spring(x0, kconstant));
+}
+
+pba::ForcePtr pba::CreateMagneticForce(const Vector &xm, const float &b)
+{
+    return ForcePtr(new MagneticForce(xm, b));
+}

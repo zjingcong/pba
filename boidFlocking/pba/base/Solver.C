@@ -78,6 +78,12 @@ void LeapFrogSolver::_updateDSWithCollision(const double& dt, DynamicalState DS,
 }
 
 
+pba::SolverPtr pba::CreateLeapFrogSolver()
+{
+    return SolverPtr(new LeapFrogSolver);
+}
+
+
 //! ------------------------------------ SixthOrder -------------------------------------------------
 
 void SixOrderSolver::_updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces)
@@ -106,4 +112,10 @@ void SixOrderSolver::_updateDSWithCollision(const double& dt, DynamicalState DS,
     LeapFrogSolver::_updateDSWithCollision(dt_b, DS, forces, geom, Cr, Cs, onkdTree);
     LeapFrogSolver::_updateDSWithCollision(dt_a, DS, forces, geom, Cr, Cs, onkdTree);
     LeapFrogSolver::_updateDSWithCollision(dt_a, DS, forces, geom, Cr, Cs, onkdTree);
+}
+
+
+pba::SolverPtr pba::CreateSixOrderSolver()
+{
+    return SolverPtr(new SixOrderSolver);
 }

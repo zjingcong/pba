@@ -45,3 +45,9 @@ void TriangleGeometry::build_trianglesTree(int depth)
     trianglesTree->build(bbox, triangles);
     cout << "Building Geometry KdTree complete." << endl;
 }
+
+
+pba::GeometryPtr pba::CreateGeometry(const std::string &nam)
+{
+    return GeometryPtr(new TriangleGeometry(nam));
+}

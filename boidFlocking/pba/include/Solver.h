@@ -30,7 +30,7 @@ namespace pba
         void updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces) { _updateDS(dt, DS, forces); DS->update_time(dt);}
         //! update vel and pos in DS with collision, update time in DS
         void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs);
-        //! update vel and pos in DS with collision, update time in DS, using KdTree
+        //! update vel and pos in DS with collision, update time in DS, using KdTree for the geometry
         void updateDSWithCollisionWithKdTree(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs);
 
     protected:
@@ -50,7 +50,7 @@ namespace pba
         void updateSinglePos(const double& dt, DynamicalState DS, size_t i);
     };
 
-    typedef SolverBase* SolverPtr;
+    typedef std::shared_ptr<SolverBase> SolverPtr;
 
 
 //! ------------------------------------ LeapFrog -------------------------------------------------
@@ -66,6 +66,8 @@ namespace pba
         void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
     };
 
+    SolverPtr CreateLeapFrogSolver();
+
 //! ------------------------------------ SixthOrder -------------------------------------------------
 
     class SixOrderSolver: public LeapFrogSolver
@@ -78,6 +80,8 @@ namespace pba
         void _updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces);
         void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
     };
+
+    SolverPtr CreateSixOrderSolver();
 
 }
 
