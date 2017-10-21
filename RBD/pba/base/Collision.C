@@ -318,7 +318,7 @@ void RBDCollision::collisionHandling(const RigidBodyState &RBDS, const Collision
 
     RBDS->set_pos_cm(pos_cm);
     RBDS->set_angular_rotation(R);
-    // RBDS->set_moment_of_inertia();
+    RBDS->set_moment_of_inertia();
 
     // modify v_cm and w to reflect off the surface
     size_t p = CD.id;
@@ -344,5 +344,5 @@ void RBDCollision::collisionHandling(const RigidBodyState &RBDS, const Collision
     R = rotation(vel_ang.unitvector(), -vel_ang.magnitude() * dti) * RBDS->get_angular_rotation();
     RBDS->set_pos_cm(pos_cm);
     RBDS->set_angular_rotation(R);
-    // RBDS->set_moment_of_inertia();
+    RBDS->set_moment_of_inertia();
 }

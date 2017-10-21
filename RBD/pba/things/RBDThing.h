@@ -35,13 +35,14 @@ namespace pba {
         RigidBodyDynamicThing(const std::string nam = "RBDThing"):
                 PbaThingyDingy(nam),
                 vel_cm_mag(1.0),
-                vel_ang_mag(1.0)
+                vel_ang_mag(1.0),
+                g(0.98)
         {
             dt = 1.0/24;
 
             RBDS = CreateRigidBodyState("RBDS");
             // force
-            gravity = CreateGravity(0.98);
+            gravity = CreateGravity(g);
             forces.push_back(gravity);
             // solver
             solver = CreateRBDLeapFrogSolver();
@@ -71,6 +72,8 @@ namespace pba {
             }
             else { std::cout << "Please specify rigid body model." << std::endl; exit(0);}
 
+
+            /// init rigid body data
             // specify mass
             for (size_t i = 0; i < verts.size(); ++i)   {m.push_back(1.0);}
             std::cout << "Set default mass for each particles: " << 1.0 << std::endl;
@@ -98,6 +101,7 @@ namespace pba {
 
         void solve()
         {
+            gravity->update_parms("g", g);
             // solver->updateRBDS(dt, RBDS, forces); // no collision
             solver->updateRBDSWithCollision(dt, RBDS, forces, geom); // collision
         }
@@ -133,6 +137,12 @@ namespace pba {
                 case 'w': { vel_ang_mag /= 1.1; std::cout << "init angular velocity magnitude: " << vel_ang_mag << std::endl; break; }
                 case 'W': { vel_ang_mag *= 1.1; std::cout << "init angular velocity magnitude: " << vel_ang_mag << std::endl; break; }
 
+                /// gravity control
+                case 'g':
+                { g /= 1.1; std::cout << "gravity constant: " << g << std::endl; break; }
+                case 'G':
+                { g *= 1.1; std::cout << "gravity constant: " << g << std::endl; break; }
+
                 /// timestep control
                 case 't':
                 { dt /= 1.1; std::cout << "time step " << dt << std::endl; break;}
@@ -153,6 +163,7 @@ namespace pba {
             std::cout << "v/V     reduce/increase center of mass velocity magnitude" << endl;
             std::cout << "w/W     reduce/increase angular velocity magnitude" << endl;
             std::cout << "t/T     reduce/increase time step" << endl;
+            std::cout << "g/G     reduce/increase gravity constant" << endl;
             std::cout << "Esc     quit" << endl;
         }
 
@@ -171,6 +182,7 @@ namespace pba {
         //! keyboard control
         float vel_cm_mag;   // magnitude of center of mass velocity
         float vel_ang_mag;  // magnitude of angular velocity
+        float g;    // gravity constant
     };
 
     //! create pbathing
