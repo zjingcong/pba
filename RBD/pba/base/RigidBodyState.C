@@ -74,6 +74,7 @@ void RigidBodyStateData::set_moment_of_inertia()
     }
 }
 
+
 // ---------------------------------------------------------------------------------------------------
 
 void RigidBodyStateData::set_total_mass()
@@ -109,4 +110,23 @@ void RigidBodyStateData::set_pi(const std::vector<Vector>& x)
 pba::RigidBodyState pba::CreateRigidBodyState(const std::string &nam)
 {
     return pba::RigidBodyState(new RigidBodyStateData(nam));
+}
+
+
+std::tuple<pba::Vector, pba::Vector> pba::totalForce_and_tau(pba::ForcePtrContainer& forces, const pba::RigidBodyState &RBDS)
+{
+    Vector total_force = Vector(0.0, 0.0, 0.0);
+    Vector tau = Vector(0.0, 0.0, 0.0);
+    for (size_t i = 0; i < RBDS->nb(); ++i)
+    {
+        Vector force_value = Vector(0.0, 0.0, 0.0);
+        for (auto& it: forces)
+        {
+            force_value += it->getForce(RBDS, i);
+        }
+        total_force += force_value;
+        tau += RBDS->vert_rel_pos(i) ^ force_value;
+    }
+
+    return std::make_tuple(total_force, tau);
 }

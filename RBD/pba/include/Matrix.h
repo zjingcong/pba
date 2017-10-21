@@ -12,6 +12,7 @@
 #define __PBA_MATRIX_H__
 
 #include "Vector.h"
+# include <iostream>
 
 namespace pba
 {
@@ -156,6 +157,14 @@ class Matrix
   const double Get( const int a, const int b ) const { return m[a][b]; }
   void Set( const int a, const int b, const double value ) { m[a][b] = value; }
 
+    void printValue()
+    {
+        for (int a = 0; a < 3; a++)
+        {
+            std::cout <<  m[a][0] << " " << m[a][1] << " " << m[a][2] << std::endl;
+        }
+    }
+
   
   private:
 
@@ -163,7 +172,7 @@ class Matrix
   double m[3][3];
 
 
-  const double cofactor(const int i, const int j) const;  
+  const double cofactor(const int i, const int j) const;
 };
 
 

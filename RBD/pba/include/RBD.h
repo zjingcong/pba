@@ -9,6 +9,7 @@
 # include "RigidBodyState.h"
 # include "LinearAlgebra.h"
 # include "Force.h"
+# include "Collision.h"
 # include <tuple>
 
 namespace pba
@@ -21,13 +22,13 @@ namespace pba
         virtual ~RBDSolverBase()    {}
 
         virtual void updateRBDS(const double& dt, const RigidBodyState& RBDS, ForcePtrContainer& forces)    {}
+        virtual void updateRBDSWithCollision(const double& dt, const RigidBodyState& RBDS, ForcePtrContainer& forces, GeometryPtr geom)   {}
 
     protected:
         std::string name;
         void updatePos(const double& dt, const RigidBodyState& RBDS);
+        void updatePosWithCollision(const double& dt, const RigidBodyState& RBDS, GeometryPtr geom);
         void updateVel(const double& dt, const RigidBodyState& RBDS, ForcePtrContainer& forces);
-
-        std::tuple<Vector, Vector> totalForce_and_tau(ForcePtrContainer& forces, const RigidBodyState &RBDS);
     };
 
     typedef std::shared_ptr<RBDSolverBase> RBDSolverPtr;
@@ -37,6 +38,7 @@ namespace pba
     public:
         RBDLeapFrogSolver() {name = "RBDLeapFrog";}
         void updateRBDS(const double& dt, const RigidBodyState& RBDS, ForcePtrContainer& forces);
+        void updateRBDSWithCollision(const double& dt, const RigidBodyState& RBDS, ForcePtrContainer& forces, GeometryPtr geom);
     };
 
     RBDSolverPtr CreateRBDLeapFrogSolver();

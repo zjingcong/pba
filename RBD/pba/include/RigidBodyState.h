@@ -9,6 +9,7 @@
 # include "Matrix.h"
 # include "LinearAlgebra.h"
 # include "Force.h"
+# include <tuple>
 
 namespace pba
 {
@@ -52,8 +53,9 @@ namespace pba
     };
 
     typedef std::shared_ptr<RigidBodyStateData> RigidBodyState;
-
     RigidBodyState CreateRigidBodyState(const std::string& nam = "RigidBodyDataNoName");
+
+    std::tuple<pba::Vector, pba::Vector> totalForce_and_tau(pba::ForcePtrContainer& forces, const pba::RigidBodyState &RBDS);
 
 }
 

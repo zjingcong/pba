@@ -10,7 +10,7 @@ import pba.swig.PbaViewer as pbav
 import pba.swig.PbaThings as things
 
 if len(sys.argv) < 2:
-    sys.argv += ['../../models/ajax.obj']  # default rigid body model: teapot
+    sys.argv += ['../../models/box.obj']  # default rigid body model
 
 viewer = pbav.CreateViewer()
 

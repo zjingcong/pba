@@ -295,6 +295,7 @@ const bool Matrix::operator<=         (const Matrix& v) const
 const Matrix Matrix::inverse() const
 {
    double determinant = det();
+    if (determinant == 0.0) {determinant = 0.0000000000000001;}
    double newmat[3][3];
    for(int i=0;i<3;i++)
    {

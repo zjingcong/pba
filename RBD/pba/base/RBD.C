@@ -18,11 +18,17 @@ void RBDSolverBase::updatePos(const double& dt, const RigidBodyState& RBDS)
     RBDS->set_moment_of_inertia();
 }
 
+void RBDSolverBase::updatePosWithCollision(const double &dt, const RigidBodyState &RBDS,  GeometryPtr geom)
+{
+    updatePos(dt, RBDS);
+    RBDCollision::RBD_Collision(dt, RBDS, geom);
+}
+
 void RBDSolverBase::updateVel(const double &dt, const RigidBodyState& RBDS, ForcePtrContainer& forces)
 {
     Vector total_force;
     Vector tau;
-    std::tie(total_force, tau) = totalForce_and_tau(forces, RBDS);
+    std::tie(total_force, tau) = pba::totalForce_and_tau(forces, RBDS);
     Vector vel_cm = total_force * dt / (RBDS->get_total_mass()) + RBDS->get_vel_cm();
     Matrix I = RBDS->get_moment_of_inertia();
     Vector vel_ang = I.inverse() * tau * dt + RBDS->get_vel_angular();
@@ -31,32 +37,20 @@ void RBDSolverBase::updateVel(const double &dt, const RigidBodyState& RBDS, Forc
     RBDS->set_vel_angular(vel_ang);
 }
 
-
-std::tuple<Vector, Vector> RBDSolverBase::totalForce_and_tau(ForcePtrContainer& forces, const RigidBodyState &RBDS)
-{
-    Vector total_force = Vector(0.0, 0.0, 0.0);
-    Vector tau = Vector(0.0, 0.0, 0.0);
-    for (size_t i = 0; i < RBDS->nb(); ++i)
-    {
-        Vector force_value = Vector(0.0, 0.0, 0.0);
-        for (auto& it: forces)
-        {
-            force_value += it->getForce(RBDS, i);
-        }
-        total_force += force_value;
-        tau += RBDS->vert_rel_pos(i) ^ force_value;
-    }
-
-    return std::make_tuple(total_force, tau);
-}
-
-
 void RBDLeapFrogSolver::updateRBDS(const double& dt, const RigidBodyState& RBDS, ForcePtrContainer& forces)
 {
     // S_lf(dt) = S_x(dt/2)S_v(dt)S_x(dt/2)
     RBDLeapFrogSolver::updatePos(dt / 2, RBDS);
     RBDLeapFrogSolver::updateVel(dt, RBDS, forces);
     RBDLeapFrogSolver::updatePos(dt / 2, RBDS);
+}
+
+void RBDLeapFrogSolver::updateRBDSWithCollision(const double &dt, const RigidBodyState &RBDS,
+                                                ForcePtrContainer &forces, GeometryPtr geom)
+{
+    RBDLeapFrogSolver::updatePosWithCollision(dt / 2, RBDS, geom);
+    RBDLeapFrogSolver::updateVel(dt, RBDS, forces);
+    RBDLeapFrogSolver::updatePosWithCollision(dt / 2, RBDS, geom);
 }
 
 
