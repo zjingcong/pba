@@ -163,7 +163,6 @@ void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector> &vertices, AABB
     }
 
     char lineHeader[128];
-    int index_num[3] = {0, 0, 0};
     while (true)
     {
         // read the first word of the line
@@ -174,7 +173,6 @@ void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector> &vertices, AABB
         // parse the vertices
         if (strcmp(lineHeader, "v") == 0)
         {
-            index_num[0] = 1;
             float x, y, z;
             fscanf(file, "%f %f %f\n", &x, &y, &z);
 
@@ -184,8 +182,6 @@ void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector> &vertices, AABB
             vertices.push_back(Vector(x, y, z));
             vertex_num++;
         }
-        if ( strcmp( lineHeader, "vt" ) == 0 ) {index_num[1] = 1;}
-        if ( strcmp( lineHeader, "vn" ) == 0 ) {index_num[2] = 1;}
     }
 
     // log the model info
