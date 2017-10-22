@@ -38,7 +38,7 @@ namespace pba
     public:
         //! load obj file mesh
         static void LoadObj(std::string obj_path, GeometryPtr geom);
-        static void LoadObj(std::string obj_path, std::vector<Vector>& vertices);
+        static void LoadObj(std::string obj_path, std::vector<Vector>& vertices, AABB& bbox);
         //! load simple box with 12 triangles
         static void LoadBox(const float l, GeometryPtr geom);
     };

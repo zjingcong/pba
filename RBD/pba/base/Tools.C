@@ -144,7 +144,7 @@ void LoadMesh::LoadObj(std::string obj_path, GeometryPtr geom)
 }
 
 
-void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector> &vertices)
+void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector> &vertices, AABB& bbox)
 {
     cout << "Load model " << obj_path << "..." << endl;
     // load model file
@@ -190,6 +190,25 @@ void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector> &vertices)
 
     // log the model info
     cout << "vertex_num: " << vertex_num << endl;
+    // get the model bounding box
+    std::sort(xvec.begin(), xvec.end());
+    float x_min = xvec.front();
+    float x_max = xvec.back();
+    std::sort(yvec.begin(), yvec.end());
+    float y_min = yvec.front();
+    float y_max = yvec.back();
+    std::sort(zvec.begin(), zvec.end());
+    float z_min = zvec.front();
+    float z_max = zvec.back();
+    Vector llc = Vector(x_min, y_min, z_min);
+    Vector urc = Vector(x_max, y_max, z_max);
+    bbox.setLLC(llc);
+    bbox.setURC(urc);
+    cout << "Geometry Bounding Box: " << endl;
+    cout << "     LLC - (" << llc.X() << ", " << llc.Y() << ", " << llc.Z() << ")" << endl;
+    cout << "     URC - (" << urc.X() << ", " << urc.Y() << ", " << urc.Z() << ")" << endl;
+    Vector center = bbox.getCenter();
+    cout << "  Center - (" << center.X() << ", " << center.Y() << ", " << center.Z() << ")" << endl;
 }
 
 

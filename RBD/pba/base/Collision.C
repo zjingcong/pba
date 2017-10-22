@@ -163,44 +163,20 @@ void RBDCollision::RBD_Collision(const double &dt,  const RigidBodyState& RBDS, 
     bool collision_flag = true;
     double tmp_dt = dt;
 
-    int while_num = 0;
     while (collision_flag)
     {
         CollisionData CD;
         collision(tmp_dt, RBDS, geom->get_triangles(), CD);
         if (CD.collision_status)
         {
-//            cout << "collision!" << endl;
-//
-//            // test
-//            cout << "collision data: " << endl;
-//            cout << "id   - " << CD.id << endl;
-//            cout << "dt_i - " << CD.dt_i << endl;
-//            Vector np = CD.triangle->getNorm();
-//            cout << "triangle np - "; np.printValue(); cout << endl;
-//            cout << "while num - " << while_num << endl;
-//
-//            cout << "before handling..." << endl;
-//            Vector v = RBDS->get_vel_cm();
-//            Vector x = RBDS->get_pos_cm();
-//            v.printValue();
-//            x.printValue(); cout << endl;
-
             // handle collision for maximum dt_i
             collisionHandling(RBDS, CD);
             // store collision triangle
             CD.triangle->setCollisionStatus(true);
 
-//            cout << "after handling..." << endl;
-//            v = RBDS->get_vel_cm();
-//            x = RBDS->get_pos_cm();
-//            v.printValue(); x.printValue(); cout << endl;
-
             tmp_dt = CD.dt_i;
         }
         else {collision_flag = false;}
-        while_num++;
-        if (while_num > 20)    {collision_flag = false;}
     }
 }
 
@@ -287,6 +263,8 @@ bool RBDCollision::collisionDetection(const double &dt,  const RigidBodyState& R
         if (fabs((t0 - t1) / dt) < 0.001)   {converged = true;}
         dti = (t0 + t1) / 2.0;
     }
+
+    dti = t1;
 
     // collision detection with triangle
     Vector xi = U * RBDS->pos(p) + RBDS->get_pos_cm() - RBDS->get_vel_cm() * dti;

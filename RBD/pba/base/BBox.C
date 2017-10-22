@@ -22,6 +22,7 @@ AABB::AABB(Vector &llc, Vector &urc)
     LLC = llc;
     URC = urc;
     center = (LLC + URC) * 0.5;
+    vec_length = URC - LLC;
 }
 
 AABB AABB::subDivide(const int i, const int id)

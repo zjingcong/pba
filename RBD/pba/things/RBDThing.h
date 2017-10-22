@@ -51,10 +51,11 @@ namespace pba {
 
         void Init(const std::vector<std::string>& args)
         {
+            float box_len = 6;
             /// load scene
             // load geometry
             geom = CreateGeometry("collisionMesh");
-            LoadMesh::LoadBox(6, geom);
+            LoadMesh::LoadBox(box_len, geom);
             // set geometry color
             for (auto it = geom->get_triangles().begin(); it != geom->get_triangles().end(); ++it)
             {
@@ -65,13 +66,19 @@ namespace pba {
             cout << "-------------------------------------------" << endl;
 
             /// load .obj file for rigid body
+            AABB bbox;
             if (args.size() == 2)
             {
                 std::string scene_file = args[1];
-                LoadMesh::LoadObj(scene_file, verts);
+                LoadMesh::LoadObj(scene_file, verts, bbox);
             }
             else { std::cout << "Please specify rigid body model." << std::endl; exit(0);}
-
+            // scale rigid body to fit box
+            double len = bbox.getVecLength().magnitude();
+            double scale = 1.5 / len;
+            std::cout << "Scale rigid body model: " << scale << std::endl;
+            for (size_t i = 0; i < verts.size(); ++i)   {verts[i] = verts[i] * scale;}
+            cout << "-------------------------------------------" << endl;
 
             /// init rigid body data
             // specify mass
@@ -88,6 +95,7 @@ namespace pba {
             // set random colors
             for (size_t i = 0; i < RBDS->nb(); ++i)
             {RBDS->set_ci(i, Color(0.0, float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), 1.0));}
+            cout << "-------------------------------------------" << endl;
         }
 
         void Reset()
@@ -97,6 +105,7 @@ namespace pba {
             RBDS->set_init(verts, m, v_cm, v_ang);
             std::cout << "Init vel_cm: "; v_cm.printValue(); std::cout << std::endl;
             std::cout << "Init vel_ang: "; v_ang.printValue(); std::cout << std::endl;
+            cout << "-------------------------------------------" << endl;
         }
 
         void solve()
@@ -112,7 +121,7 @@ namespace pba {
             Draw::DrawTriangles(geom);
 
             /// draw rigid body particles
-            glPointSize(5.0f);
+            glPointSize(2.4f);
             glBegin(GL_POINTS);
             for (size_t i = 0; i < RBDS->nb(); ++i)
             {
@@ -149,6 +158,15 @@ namespace pba {
                 case 'T':
                 { dt *= 1.1; std::cout << "time step " << dt << std::endl; break;}
 
+                /// mesh display mode
+                case 'l':
+                {
+                    wireframe = !wireframe;
+                    if (!wireframe)  { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
+                    else    { glPolygonMode( GL_FRONT_AND_BACK, GL_LINE); }
+                    break;
+                }
+
                 /// quit
                 case 27: { exit(0); }
 
@@ -164,6 +182,7 @@ namespace pba {
             std::cout << "w/W     reduce/increase angular velocity magnitude" << endl;
             std::cout << "t/T     reduce/increase time step" << endl;
             std::cout << "g/G     reduce/increase gravity constant" << endl;
+            std::cout << "l       switch between wireframe and normal display mode" << endl;
             std::cout << "Esc     quit" << endl;
         }
 
@@ -183,6 +202,7 @@ namespace pba {
         float vel_cm_mag;   // magnitude of center of mass velocity
         float vel_ang_mag;  // magnitude of angular velocity
         float g;    // gravity constant
+        bool wireframe; // mesh display mode
     };
 
     //! create pbathing
