@@ -1,5 +1,7 @@
 # Rigid Body Dynamics
 >Jingcong Zhang (jingcoz@g.clemson.edu)
+
+
 >2017-10-22
 
 This program assembles a rigid body dynamics system in which the rigid body is initialized to points on the surface of specified geometry.
