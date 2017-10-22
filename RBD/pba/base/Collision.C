@@ -238,13 +238,15 @@ bool RBDCollision::collisionDetection(const double &dt,  const RigidBodyState& R
     double t0 = 0.0;
     double t1 = dt;
     double dti = (t0 + t1) / 2.0;
+    double ff;
     bool converged = false;
     while (!converged)
     {
+        dti = (t0 + t1) / 2.0;
         U = rotation(vel_ang_unit, vel_ang_mag * dti) * RBDS->get_angular_rotation();
         tmp_x = U * RBDS->pos(p) + RBDS->get_pos_cm() - RBDS->get_vel_cm() * dti;
-        double ff = ( tmp_x - triangle->getP0()) * triangle->getNorm();
-        if (ff == 0.0) { converged = true; continue;}
+        ff = ( tmp_x - triangle->getP0()) * triangle->getNorm();
+        if (ff == 0.0) { converged = true;  continue;}
 
         if (ff * f0 < 0.0)
         {
@@ -256,10 +258,8 @@ bool RBDCollision::collisionDetection(const double &dt,  const RigidBodyState& R
             t0 = dti;
         }
         if (fabs((t0 - t1) / dt) < 0.001)   {converged = true;}
-        dti = (t0 + t1) / 2.0;
     }
-
-    dti = t1;
+    if (ff * f0 > 0.0)  {dti = t1;}
 
     // collision detection with triangle
     Vector xi = U * RBDS->pos(p) + RBDS->get_pos_cm() - RBDS->get_vel_cm() * dti;
