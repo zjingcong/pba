@@ -20,7 +20,8 @@ namespace pba
         RigidBodyStateData(const std::string& nam = "RigidBodyDataNoName");
         ~RigidBodyStateData()   {}
 
-        void set_init(const std::vector<Vector>& x, const std::vector<double>& m, const Vector& v_cm, const Vector& v_ang);
+        void Init(const std::vector<Vector> &x, const std::vector<double> &m, const Vector &v_cm, const Vector &v_ang);
+        void Reset(const Vector &v_cm, const Vector &v_ang);
 
         const Vector vert_rel_pos(const size_t p) const;
         const Vector vert_pos(const size_t p) const;
@@ -46,9 +47,10 @@ namespace pba
         Matrix angular_rotation;
         Vector vel_cm;
         Vector vel_angular;
+        Vector init_pos_cm;
 
         void set_total_mass();
-        void set_pos_cm();
+        void set_pos_cm(const std::vector<Vector>& x);
         void set_pi(const std::vector<Vector>& x);
     };
 

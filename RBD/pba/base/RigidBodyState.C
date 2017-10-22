@@ -15,14 +15,15 @@ RigidBodyStateData::RigidBodyStateData(const std::string &nam): DynamicalStateDa
     nb_items = 0;
     name = nam;
     total_mass = 0.0;
-    moment_of_inertia = unitMatrix();
     pos_cm = Vector(0.0, 0.0, 0.0);
     angular_rotation = unitMatrix();
     vel_cm = Vector(0.0, 0.0, 0.0);
     vel_angular = Vector(0.0, 0.0, 0.0);
+    init_pos_cm = pos_cm;
 }
 
-void RigidBodyStateData::set_init(const std::vector<Vector>& x, const std::vector<double>& m, const Vector& v_cm, const Vector& v_ang)
+void RigidBodyStateData::Init(const std::vector<Vector> &x, const std::vector<double> &m, const Vector &v_cm,
+                              const Vector &v_ang)
 {
     // init nb_item
     assert(x.size() == m.size());
@@ -35,10 +36,20 @@ void RigidBodyStateData::set_init(const std::vector<Vector>& x, const std::vecto
     }
     // RB init
     set_total_mass();
-    set_pos_cm();
+    set_pos_cm(x);
     vel_cm = v_cm;
     vel_angular = v_ang;
     set_pi(x);
+    angular_rotation = unitMatrix();
+    init_pos_cm = pos_cm;
+}
+
+void RigidBodyStateData::Reset(const Vector &v_cm, const Vector &v_ang)
+{
+    pos_cm = init_pos_cm;
+    vel_cm = v_cm;
+    vel_angular = v_ang;
+    angular_rotation = unitMatrix();
 }
 
 const Vector RigidBodyStateData::vert_rel_pos(const size_t p) const
@@ -85,12 +96,12 @@ void RigidBodyStateData::set_total_mass()
     total_mass = m;
 }
 
-void RigidBodyStateData::set_pos_cm()
+void RigidBodyStateData::set_pos_cm(const std::vector<Vector>& x)
 {
     Vector l = Vector(0.0, 0.0, 0.0);
     for (size_t i = 0; i < nb_items; ++i)
     {
-        l += (mass(i) * pos(i));
+        l += (mass(i) * x[i]);
     }
     pos_cm = l / total_mass;    // run after set_total_mass()
 }

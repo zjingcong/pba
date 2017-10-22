@@ -2,7 +2,7 @@
 // Created by jingcoz on 10/20/17.
 //
 
-// This program assemble a rigid body dynamics system in which the rigid body is initialized to points on the surface of specified geometry
+// This program assembles a rigid body dynamics system in which the rigid body is initialized to points on the surface of specified geometry
 // - be able to read an obj file and initialize the particle positions at the vertices of the obj file.
 // - contain the RBD object within a cube that the RBD object collides with.
 // - The RBD object should start near (0,0,0) with an initial center of mass velocity and angular velocity.
@@ -40,7 +40,7 @@ namespace pba {
                 substep(1)
         {
             dt = 1.0/24;
-
+            // rigid body data
             RBDS = CreateRigidBodyState("RBDS");
             // force
             gravity = CreateGravity(g);
@@ -64,7 +64,7 @@ namespace pba {
             {
                 TrianglePtr triangle = *it;
                 triangle->setColor(
-                        Color(float(drand48() * 0.5 + 0.5), 0.0, float(drand48() * 0.5 + 0.5), 1.0));   // set random colors
+                        Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));   // set random colors
             }
             cout << "-------------------------------------------" << endl;
 
@@ -80,7 +80,7 @@ namespace pba {
             
             // scale rigid body to fit box
             double len = bbox.getVecLength().magnitude();
-            double scale = 10.0 / (box_len * len);
+            double scale = 13.0 / (box_len * len);
             std::cout << "Scale rigid body model: " << scale << std::endl;
             for (size_t i = 0; i < verts.size(); ++i)   {verts[i] = verts[i] * scale;}
 
@@ -92,11 +92,12 @@ namespace pba {
             // init rigid body state data
             Vector v_cm = Vector(1.0, -1.0, 1.0).unitvector() * vel_cm_mag;
             Vector v_ang = Vector(1.0, 1.0, 1.0).unitvector() * vel_ang_mag;
-            RBDS->set_init(verts, m, v_cm, v_ang);
+            RBDS->Init(verts, m, v_cm, v_ang);
 
             // set random colors
             for (size_t i = 0; i < RBDS->nb(); ++i)
             {RBDS->set_ci(i, Color(0.0, float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), 1.0));}
+
             cout << "-------------------------------------------" << endl;
         }
 
@@ -104,7 +105,7 @@ namespace pba {
         {
             Vector v_cm = Vector(1.0, -1.0, 1.0) * vel_cm_mag;
             Vector v_ang = Vector(0.1, 0.1, 0.1) * vel_ang_mag;
-            RBDS->set_init(verts, m, v_cm, v_ang);
+            RBDS->Reset(v_cm, v_ang);
             printAttri();
             cout << "-------------------------------------------" << endl;
         }
@@ -128,7 +129,7 @@ namespace pba {
             Draw::DrawTriangles(geom);
 
             /// draw rigid body particles
-            glPointSize(2.4f);
+            glPointSize(2.8f);
             glBegin(GL_POINTS);
             for (size_t i = 0; i < RBDS->nb(); ++i)
             {
