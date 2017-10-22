@@ -35,8 +35,9 @@ namespace pba {
         RigidBodyDynamicThing(const std::string nam = "RBDThing"):
                 PbaThingyDingy(nam),
                 vel_cm_mag(1.0),
-                vel_ang_mag(1.0),
-                g(0.98)
+                vel_ang_mag(0.1),
+                g(0.98),
+                substep(1)
         {
             dt = 1.0/24;
 
@@ -46,6 +47,8 @@ namespace pba {
             forces.push_back(gravity);
             // solver
             solver = CreateRBDLeapFrogSolver();
+            subSolver = CreateRBDSubSolver();
+            subSolver->setSolver(solver);
         }
         ~RigidBodyDynamicThing()    {}
 
@@ -61,7 +64,7 @@ namespace pba {
             {
                 TrianglePtr triangle = *it;
                 triangle->setColor(
-                        Color(float(drand48()), float(drand48()), float(drand48()), 1.0));   // set random colors
+                        Color(float(drand48() * 0.5 + 0.5), 0.0, float(drand48() * 0.5 + 0.5), 1.0));   // set random colors
             }
             cout << "-------------------------------------------" << endl;
 
@@ -73,12 +76,13 @@ namespace pba {
                 LoadMesh::LoadObj(scene_file, verts, bbox);
             }
             else { std::cout << "Please specify rigid body model." << std::endl; exit(0);}
+            cout << "-------------------------------------------" << endl;
+            
             // scale rigid body to fit box
             double len = bbox.getVecLength().magnitude();
-            double scale = 1.5 / len;
+            double scale = 10.0 / (box_len * len);
             std::cout << "Scale rigid body model: " << scale << std::endl;
             for (size_t i = 0; i < verts.size(); ++i)   {verts[i] = verts[i] * scale;}
-            cout << "-------------------------------------------" << endl;
 
             /// init rigid body data
             // specify mass
@@ -86,11 +90,9 @@ namespace pba {
             std::cout << "Set default mass for each particles: " << 1.0 << std::endl;
 
             // init rigid body state data
-            Vector v_cm = Vector(1.0, -1.0, 1.0) * vel_cm_mag;
-            Vector v_ang = Vector(0.1, 0.1, 0.1) * vel_ang_mag;
+            Vector v_cm = Vector(1.0, -1.0, 1.0).unitvector() * vel_cm_mag;
+            Vector v_ang = Vector(1.0, 1.0, 1.0).unitvector() * vel_ang_mag;
             RBDS->set_init(verts, m, v_cm, v_ang);
-            std::cout << "Init vel_cm: "; v_cm.printValue(); std::cout << std::endl;
-            std::cout << "Init vel_ang: "; v_ang.printValue(); std::cout << std::endl;
 
             // set random colors
             for (size_t i = 0; i < RBDS->nb(); ++i)
@@ -103,16 +105,21 @@ namespace pba {
             Vector v_cm = Vector(1.0, -1.0, 1.0) * vel_cm_mag;
             Vector v_ang = Vector(0.1, 0.1, 0.1) * vel_ang_mag;
             RBDS->set_init(verts, m, v_cm, v_ang);
-            std::cout << "Init vel_cm: "; v_cm.printValue(); std::cout << std::endl;
-            std::cout << "Init vel_ang: "; v_ang.printValue(); std::cout << std::endl;
+            printAttri();
             cout << "-------------------------------------------" << endl;
         }
 
         void solve()
         {
+            // clean collision status
+            geom->cleanTrianglesCollisionStatus();
+            // update force
             gravity->update_parms("g", g);
             // solver->updateRBDS(dt, RBDS, forces); // no collision
-            solver->updateRBDSWithCollision(dt, RBDS, forces, geom); // collision
+            // solver->updateRBDSWithCollision(dt, RBDS, forces, geom); // collision
+            // subsolver
+            subSolver->setSubstep(substep);
+            subSolver->updateRBDSWithCollision(dt, RBDS, forces, geom); // subsolver
         }
 
         void Display()
@@ -137,6 +144,13 @@ namespace pba {
 
         void Keyboard(unsigned char key, int x, int y)
         {
+            if (key >= '1' && key <= '9')
+            {
+                substep = int(key) - 48;
+                std::cout << "Set sub step: " << substep << std::endl;
+                return;
+            }
+
             switch (key)
             {
                 /// velocities magnitude control
@@ -162,8 +176,8 @@ namespace pba {
                 case 'l':
                 {
                     wireframe = !wireframe;
-                    if (!wireframe)  { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
-                    else    { glPolygonMode( GL_FRONT_AND_BACK, GL_LINE); }
+                    if (!wireframe)  { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); std::cout << "Display mode: normal" << std::endl;}
+                    else    { glPolygonMode( GL_FRONT_AND_BACK, GL_LINE); std::cout << "Display mode: wireframe" << std::endl;}
                     break;
                 }
 
@@ -177,13 +191,14 @@ namespace pba {
 
         void Usage()
         {
-            std::cout << "=== PbaThing ===" << endl;
-            std::cout << "v/V     reduce/increase center of mass velocity magnitude" << endl;
-            std::cout << "w/W     reduce/increase angular velocity magnitude" << endl;
-            std::cout << "t/T     reduce/increase time step" << endl;
-            std::cout << "g/G     reduce/increase gravity constant" << endl;
-            std::cout << "l       switch between wireframe and normal display mode" << endl;
-            std::cout << "Esc     quit" << endl;
+            std::cout << "=== PbaThing ===" << std::endl;
+            std::cout << "v/V     reduce/increase center of mass velocity magnitude" << std::endl;
+            std::cout << "w/W     reduce/increase angular velocity magnitude" << std::endl;
+            std::cout << "t/T     reduce/increase time step" << std::endl;
+            std::cout << "g/G     reduce/increase gravity constant" << std::endl;
+            std::cout << "l       switch between wireframe and normal display mode" << std::endl;
+            std::cout << "1-9     specify sub step" << std::endl;
+            std::cout << "Esc     quit" << std::endl;
         }
 
 
@@ -193,6 +208,7 @@ namespace pba {
         ForcePtr gravity;
         RBDSolverPtr solver;
         GeometryPtr geom;
+        RBDSubSolverPtr subSolver;
 
         //! rigid body init data
         std::vector<Vector> verts;
@@ -203,6 +219,15 @@ namespace pba {
         float vel_ang_mag;  // magnitude of angular velocity
         float g;    // gravity constant
         bool wireframe; // mesh display mode
+        int substep;
+
+        void printAttri()
+        {
+            std::cout << "vel_cm_mag:  " << vel_cm_mag << endl;
+            std::cout << "vel_ang_mag: " << vel_ang_mag << endl;
+            std::cout << "g:           " << g << endl;
+            std::cout << "substep:     " << substep << endl;
+        }
     };
 
     //! create pbathing

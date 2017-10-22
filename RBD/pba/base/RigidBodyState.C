@@ -26,7 +26,6 @@ void RigidBodyStateData::set_init(const std::vector<Vector>& x, const std::vecto
 {
     // init nb_item
     assert(x.size() == m.size());
-    cout << "Init rigid body state data..." << endl;
     add(x.size());
     // init mass
     for (size_t i = 0; i < nb_items; ++i)
@@ -40,7 +39,6 @@ void RigidBodyStateData::set_init(const std::vector<Vector>& x, const std::vecto
     vel_cm = v_cm;
     vel_angular = v_ang;
     set_pi(x);
-    cout << "Complete rigid body state data initialization." << endl;
 }
 
 const Vector RigidBodyStateData::vert_rel_pos(const size_t p) const

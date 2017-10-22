@@ -37,6 +37,10 @@ void RBDSolverBase::updateVel(const double &dt, const RigidBodyState& RBDS, Forc
     RBDS->set_vel_angular(vel_ang);
 }
 
+
+//! ------------------------------------------------------------------------------------------------------------
+
+
 void RBDLeapFrogSolver::updateRBDS(const double& dt, const RigidBodyState& RBDS, ForcePtrContainer& forces)
 {
     // S_lf(dt) = S_x(dt/2)S_v(dt)S_x(dt/2)
@@ -57,4 +61,20 @@ void RBDLeapFrogSolver::updateRBDSWithCollision(const double &dt, const RigidBod
 pba::RBDSolverPtr pba::CreateRBDLeapFrogSolver()
 {
     return RBDSolverPtr(new RBDLeapFrogSolver);
+}
+
+
+//! ------------------------------------------------------------------------------------------------------------
+
+void RBDSubSolver::updateRBDSWithCollision(const double &dt, const RigidBodyState &RBDS, ForcePtrContainer &forces,
+                                           GeometryPtr geom)
+{
+    assert(solver != nullptr);
+    double sub_dt = dt / substep;
+    for (int i = 0; i < substep; ++i) { solver->updateRBDSWithCollision(sub_dt, RBDS, forces, geom); }
+}
+
+pba::RBDSubSolverPtr pba::CreateRBDSubSolver()
+{
+    return RBDSubSolverPtr(new RBDSubSolver);
 }

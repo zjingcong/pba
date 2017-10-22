@@ -75,8 +75,6 @@ void TriangleCollision::triangleCollision(const double& dt, DynamicalState DS, G
 
 void TriangleCollision::triangleCollisionWithKdTree(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs)
 {
-    // clean collision status
-    geom->cleanTrianglesCollisionStatus();
     // loop over particles
     for (size_t i = 0; i < DS->nb(); ++i)
     {
@@ -158,11 +156,8 @@ void TriangleCollision::collisionHandling(const double& dt, DynamicalState DS, c
 
 void RBDCollision::RBD_Collision(const double &dt,  const RigidBodyState& RBDS, pba::GeometryPtr geom)
 {
-    // clean collision status
-    geom->cleanTrianglesCollisionStatus();
     bool collision_flag = true;
     double tmp_dt = dt;
-
     while (collision_flag)
     {
         CollisionData CD;

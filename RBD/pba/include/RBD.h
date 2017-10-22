@@ -43,6 +43,26 @@ namespace pba
 
     RBDSolverPtr CreateRBDLeapFrogSolver();
 
+
+    class RBDSubSolver
+    {
+    public:
+        RBDSubSolver(): solver(nullptr), substep(1)  {}
+        ~RBDSubSolver() {}
+
+        void setSolver(const RBDSolverPtr& s) {solver = s;}
+        void setSubstep(const int& sub_step)   {substep = sub_step;}
+
+        void updateRBDSWithCollision(const double& dt, const RigidBodyState& RBDS, ForcePtrContainer& forces, GeometryPtr geom);
+
+    private:
+        RBDSolverPtr solver;
+        int substep;
+    };
+
+    typedef std::shared_ptr<RBDSubSolver> RBDSubSolverPtr;
+    RBDSubSolverPtr CreateRBDSubSolver();
+
 }
 
 #endif //PBA_RBD_H
