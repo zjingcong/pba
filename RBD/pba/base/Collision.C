@@ -237,7 +237,7 @@ bool RBDCollision::collisionDetection(const double &dt,  const RigidBodyState& R
     // get converged
     double t0 = 0.0;
     double t1 = dt;
-    double dti = (t0 + t1) / 2.0;
+    double dti;
     double ff;
     bool converged = false;
     while (!converged)
@@ -299,6 +299,7 @@ void RBDCollision::collisionHandling(const RigidBodyState &RBDS, const Collision
     Matrix I_inverse = I.inverse();
     Vector np = CD.triangle->getNorm();
     Vector q = I_inverse * (RBDS->vert_rel_pos(p) ^ np);
+
     Vector vel_cm = RBDS->get_vel_cm();
     double total_mass = RBDS->get_total_mass();
     double A0 = 2.0 * vel_cm * np + q * I * vel_ang + vel_ang * I * q;

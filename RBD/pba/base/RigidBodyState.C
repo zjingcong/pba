@@ -22,8 +22,7 @@ RigidBodyStateData::RigidBodyStateData(const std::string &nam): DynamicalStateDa
     init_pos_cm = pos_cm;
 }
 
-void RigidBodyStateData::Init(const std::vector<Vector> &x, const std::vector<double> &m, const Vector &v_cm,
-                              const Vector &v_ang)
+void RigidBodyStateData::Init(const std::vector<Vector> &x, const std::vector<double> &m, const Vector &v_cm, const Vector &v_ang)
 {
     // init nb_item
     assert(x.size() == m.size());
@@ -83,6 +82,25 @@ void RigidBodyStateData::set_moment_of_inertia()
     }
 }
 
+std::tuple<pba::Vector, pba::Vector> RigidBodyStateData::totalForce_and_tau(pba::ForcePtrContainer &forces)
+{
+    Vector total_force = Vector(0.0, 0.0, 0.0);
+    Vector tau = Vector(0.0, 0.0, 0.0);
+    std::shared_ptr<RigidBodyStateData> A = shared_from_this();
+    for (size_t i = 0; i < nb_items; ++i)
+    {
+        Vector force_value = Vector(0.0, 0.0, 0.0);
+        for (auto& it: forces)
+        {
+            force_value += it->getForce(shared_from_this(), i);
+        }
+        total_force += force_value;
+        tau += vert_rel_pos(i) ^ force_value;
+    }
+
+    return std::make_tuple(total_force, tau);
+}
+
 
 // ---------------------------------------------------------------------------------------------------
 
@@ -119,23 +137,4 @@ void RigidBodyStateData::set_pi(const std::vector<Vector>& x)
 pba::RigidBodyState pba::CreateRigidBodyState(const std::string &nam)
 {
     return pba::RigidBodyState(new RigidBodyStateData(nam));
-}
-
-
-std::tuple<pba::Vector, pba::Vector> pba::totalForce_and_tau(pba::ForcePtrContainer& forces, const pba::RigidBodyState &RBDS)
-{
-    Vector total_force = Vector(0.0, 0.0, 0.0);
-    Vector tau = Vector(0.0, 0.0, 0.0);
-    for (size_t i = 0; i < RBDS->nb(); ++i)
-    {
-        Vector force_value = Vector(0.0, 0.0, 0.0);
-        for (auto& it: forces)
-        {
-            force_value += it->getForce(RBDS, i);
-        }
-        total_force += force_value;
-        tau += RBDS->vert_rel_pos(i) ^ force_value;
-    }
-
-    return std::make_tuple(total_force, tau);
 }

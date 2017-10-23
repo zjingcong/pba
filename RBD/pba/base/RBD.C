@@ -28,7 +28,7 @@ void RBDSolverBase::updateVel(const double &dt, const RigidBodyState& RBDS, Forc
 {
     Vector total_force;
     Vector tau;
-    std::tie(total_force, tau) = pba::totalForce_and_tau(forces, RBDS);
+    std::tie(total_force, tau) = RBDS->totalForce_and_tau(forces);
     Vector vel_cm = total_force * dt / (RBDS->get_total_mass()) + RBDS->get_vel_cm();
     Matrix I = RBDS->get_moment_of_inertia();
     Vector vel_ang = I.inverse() * tau * dt + RBDS->get_vel_angular();

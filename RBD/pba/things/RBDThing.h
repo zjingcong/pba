@@ -57,16 +57,15 @@ namespace pba {
             float box_len = 6;
             /// load scene
             // load geometry
-            geom = CreateGeometry("collisionMesh");
+            geom = CreateGeometry("collisionCube");
             LoadMesh::LoadBox(box_len, geom);
             // set geometry color
             for (auto it = geom->get_triangles().begin(); it != geom->get_triangles().end(); ++it)
             {
                 TrianglePtr triangle = *it;
-                triangle->setColor(
-                        Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));   // set random colors
+                triangle->setColor(Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));   // set random colors
             }
-            cout << "-------------------------------------------" << endl;
+            std::cout << "-------------------------------------------" << std::endl;
 
             /// load .obj file for rigid body
             AABB bbox;
@@ -76,7 +75,7 @@ namespace pba {
                 LoadMesh::LoadObj(scene_file, verts, bbox);
             }
             else { std::cout << "Please specify rigid body model." << std::endl; exit(0);}
-            cout << "-------------------------------------------" << endl;
+            std::cout << "-------------------------------------------" << std::endl;
             
             // scale rigid body to fit box
             double len = bbox.getVecLength().magnitude();
@@ -98,7 +97,7 @@ namespace pba {
             for (size_t i = 0; i < RBDS->nb(); ++i)
             {RBDS->set_ci(i, Color(0.0, float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), 1.0));}
 
-            cout << "-------------------------------------------" << endl;
+            std::cout << "-------------------------------------------" << std::endl;
         }
 
         void Reset()
@@ -107,19 +106,17 @@ namespace pba {
             Vector v_ang = Vector(0.1, 0.1, 0.1) * vel_ang_mag;
             RBDS->Reset(v_cm, v_ang);
             printAttri();
-            cout << "-------------------------------------------" << endl;
+            std::cout << "-------------------------------------------" << std::endl;
         }
 
         void solve()
         {
             // clean collision status
             geom->cleanTrianglesCollisionStatus();
-            // update force
-            gravity->update_parms("g", g);
+            // leap frog solver
             // solver->updateRBDS(dt, RBDS, forces); // no collision
             // solver->updateRBDSWithCollision(dt, RBDS, forces, geom); // collision
             // subsolver
-            subSolver->setSubstep(substep);
             subSolver->updateRBDSWithCollision(dt, RBDS, forces, geom); // subsolver
         }
 
@@ -149,6 +146,7 @@ namespace pba {
             {
                 substep = int(key) - 48;
                 std::cout << "Set sub step: " << substep << std::endl;
+                subSolver->setSubstep(substep);
                 return;
             }
 
@@ -163,9 +161,9 @@ namespace pba {
 
                 /// gravity control
                 case 'g':
-                { g /= 1.1; std::cout << "gravity constant: " << g << std::endl; break; }
+                { g /= 1.1; gravity->update_parms("g", g);  std::cout << "gravity constant: " << g << std::endl; break; }
                 case 'G':
-                { g *= 1.1; std::cout << "gravity constant: " << g << std::endl; break; }
+                { g *= 1.1; gravity->update_parms("g", g);  std::cout << "gravity constant: " << g << std::endl; break; }
 
                 /// timestep control
                 case 't':
@@ -224,10 +222,11 @@ namespace pba {
 
         void printAttri()
         {
-            std::cout << "vel_cm_mag:  " << vel_cm_mag << endl;
-            std::cout << "vel_ang_mag: " << vel_ang_mag << endl;
-            std::cout << "g:           " << g << endl;
-            std::cout << "substep:     " << substep << endl;
+            std::cout << "vel_cm_mag:  " << vel_cm_mag << std::endl;
+            std::cout << "vel_ang_mag: " << vel_ang_mag << std::endl;
+            std::cout << "time step:   " << dt << std::endl;
+            std::cout << "g:           " << g << std::endl;
+            std::cout << "substep:     " << substep << std::endl;
         }
     };
 

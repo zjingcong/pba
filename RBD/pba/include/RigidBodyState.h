@@ -14,7 +14,7 @@
 namespace pba
 {
 
-    class RigidBodyStateData: public DynamicalStateData
+    class RigidBodyStateData: public DynamicalStateData, public std::enable_shared_from_this<RigidBodyStateData>
     {
     public:
         RigidBodyStateData(const std::string& nam = "RigidBodyDataNoName");
@@ -26,6 +26,7 @@ namespace pba
         const Vector vert_rel_pos(const size_t p) const;
         const Vector vert_pos(const size_t p) const;
         void set_moment_of_inertia();
+        std::tuple<pba::Vector, pba::Vector> totalForce_and_tau(pba::ForcePtrContainer& forces);
 
         const double& get_total_mass() const    { return total_mass;}
         const Vector& get_pos_cm() const    { return pos_cm;}
@@ -56,8 +57,6 @@ namespace pba
 
     typedef std::shared_ptr<RigidBodyStateData> RigidBodyState;
     RigidBodyState CreateRigidBodyState(const std::string& nam = "RigidBodyDataNoName");
-
-    std::tuple<pba::Vector, pba::Vector> totalForce_and_tau(pba::ForcePtrContainer& forces, const pba::RigidBodyState &RBDS);
 
 }
 
