@@ -17,8 +17,8 @@ args = pbav.StringArray()
 for s in sys.argv:
 	args.push_back(s)
 
-unittest = things.UnitTest()
-viewer.AddThing(unittest)
+cloth = things.ClothInHole()
+viewer.AddThing(cloth)
 
 viewer.Init(args)
 viewer.MainLoop()

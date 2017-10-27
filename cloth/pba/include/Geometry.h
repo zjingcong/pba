@@ -31,6 +31,7 @@ namespace pba
 
         void add_triangle(TrianglePtr tri);
         void add_triangle(const Vector& p0, const Vector& p1, const Vector& p2);
+
         void setBBox(AABB aabb) {bbox.setLLC(aabb.getLLC()); bbox.setURC(aabb.getURC());}
         void setBBox(Vector& llc, Vector& urc)  {bbox.setLLC(llc); bbox.setURC(urc);}
 
