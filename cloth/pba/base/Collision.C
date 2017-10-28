@@ -45,8 +45,6 @@ void TriangleCollision::collisionWithinTriangles(const double& dt, DynamicalStat
 
 void TriangleCollision::triangleCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs)
 {
-    // clean collision status
-    geom->cleanTrianglesCollisionStatus();
     // loop over particles
     size_t i;
     // #pragma omp parallel for num_threads(4) private(i) schedule(dynamic, 256)

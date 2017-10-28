@@ -32,12 +32,22 @@ namespace pba
         ClothInHoleThing(const std::string nam = "ClothInHoleThing"):
                 PbaThingyDingy(nam),
                 size(4.0),
-                plane_div(11),     // be odd number
-                cloth_div(10),
-                g(0.98)
+                plane_div(15),     // be odd number
+                cloth_div(50),
+                hole_division(5),
+                time_step(0),
+                g(0.98),
+                Ks(10),
+                Kf(10),
+                Cr(0.3),
+                Cs(1.0),
+                pause(false)
         {
-            SB = CreateSoftBodyState("ClothStateData");
             dt = 1.0/24;
+            // cloth
+            SB = CreateSoftBodyState("ClothStateData");
+            SB->update_parms("Ks", Ks);
+            SB->update_parms("Kf", Kf);
             // forces
             gravity = CreateGravity(SB, g);
             clothInner = CreateSoftBodyInnerForce(SB);
@@ -53,31 +63,38 @@ namespace pba
             /// load plane with hole
             // create plane
             geom = CreateGeometry("collisionPlane");
-            LoadMesh::LoadPlane(Vector(0.0, -2.0, 0.0), size, plane_div, geom);
+            LoadMesh::LoadPlane(Vector(0.0, -2.0, 0.0), size + 0.000001, plane_div, geom);
             // create hole
-            createHole(3);
+            createHole(hole_division);
             // set random colors
             for (auto& it: geom->get_triangles())
             { it->setColor(Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));}
 
             /// load cloth
-            std::vector<Vector> verts;
-            std::vector<std::pair<size_t, size_t >> edge_pairs;
-            createGridPlane(Vector(0.0, 2.0, 0.0), size, cloth_div, verts, edge_pairs);
+            createGridPlane(Vector(0.0, -1.5, 0.0), size, cloth_div, verts, edge_pairs);
             SB->Init(verts);
             SB->set_softEdges(edge_pairs);
+            std::cout << "connected pairs: " << edge_pairs.size() << std::endl;
 
             std::cout << "-------------------------------------------" << std::endl;
         }
 
         void Reset()
         {
-
+            time_step = 0;
+            geom->cleanTrianglesCollisionStatus();
+            SB->Reset(verts);
         }
 
         void solve()
         {
-            solver->updateDS(dt, SB, forces);
+            time_step++;
+            // clean collision status
+            geom->cleanTrianglesCollisionStatus();
+            // solve
+            SB->update_innerForce();
+            // solver->updateDS(dt, SB, forces);
+            solver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);
         }
 
         void Display()
@@ -89,7 +106,7 @@ namespace pba
             // draw vertices
             glPointSize(3.0f);
             glBegin(GL_POINTS);
-            glColor3f(1.0, 1.0, 1.0);   // vert color
+            glColor3f(0.5, 0.8, 0.8);   // vert color
             for (size_t i = 0; i < SB->nb(); ++i)
             {
                 Vector pos = SB->pos(i);
@@ -112,6 +129,7 @@ namespace pba
 
         void Keyboard(unsigned char key, int x, int y)
         {
+            PbaThingyDingy::Keyboard(key, x, y);
             switch (key)
             {
                 /// gravity control
@@ -120,11 +138,33 @@ namespace pba
                 case 'G':
                 { g *= 1.1; gravity->update_parms("g", g);  std::cout << "gravity constant: " << g << std::endl; break; }
 
-                /// timestep control
-                case 't':
-                { dt /= 1.1; std::cout << "time step " << dt << std::endl; break;}
-                case 'T':
-                { dt *= 1.1; std::cout << "time step " << dt << std::endl; break;}
+                /// cloth force control
+                // Ks
+                case 's':
+                { Ks /= 1.1; SB->update_parms("Ks", Ks);  std::cout << "Ks: " << Ks << std::endl; break; }
+                case 'S':
+                { Ks *= 1.1; SB->update_parms("Ks", Ks);  std::cout << "Ks: " << Ks << std::endl; break; }
+                // Kf
+                case 'k':
+                { Kf /= 1.1; SB->update_parms("Kf", Kf);  std::cout << "Kf: " << Kf << std::endl; break; }
+                case 'K':
+                { Kf *= 1.1; SB->update_parms("Kf", Kf);  std::cout << "Kf: " << Kf << std::endl; break; }
+
+                /// collision control
+                // Cr
+                case 'c':
+                { Cr /= 1.1;    std::cout << "Cr: " << Cr << std::endl; break; }
+                case 'C':
+                { Cr *= 1.1;    Cr = (Cr > 1.0) ? float(1.0): Cr;  std::cout << "Cr: " << Cr << std::endl; break; }
+                // Cs
+                case 'x':
+                { Cs /= 1.1;    std::cout << "Cs: " << Cs << std::endl; break; }
+                case 'X':
+                { Cs *= 1.1;    Cs = (Cs > 1.0) ? float(1.0): Cs;   std::cout << "Cs: " << Cs << std::endl; break; }
+
+                /// print current time step
+                case ' ':
+                { std::cout << "Current time step: " << time_step << std::endl; break;}
 
                 /// quit
                 case 27: { exit(0); }
@@ -136,14 +176,24 @@ namespace pba
 
         void Usage()
         {
-
+            PbaThingyDingy::Usage();
+            std::cout << "s/S     reduce/increase Ks" << std::endl;
+            std::cout << "k/K     reduce/increase Kf" << std::endl;
+            std::cout << "c/C     reduce/increase Cr" << std::endl;
+            std::cout << "x/X     reduce/increase Cs" << std::endl;
+            std::cout << "g/G     reduce/increase gravity constant" << std::endl;
+            std::cout << "1-9     specify sub step" << std::endl;
+            std::cout << "Esc     quit" << std::endl;
         }
 
     private:
-        // cloth and plane
+        // cloth
         SoftBodyState SB;
-        GeometryPtr geom;
         double size;
+        std::vector<Vector> verts;
+        std::vector<std::pair<size_t, size_t >> edge_pairs;
+        // collision plane
+        GeometryPtr geom;
         // forces
         ForcePtrContainer forces;
         ForcePtr gravity;
@@ -151,10 +201,18 @@ namespace pba
         // solver
         SolverPtr solver;
 
-        /// keyboard controls
         int plane_div;
         int cloth_div;
+        int hole_division;
+        int time_step;
+
+        /// keyboard controls
         float g;    // gravity constant
+        float Ks;
+        float Kf;
+        float Cr;
+        float Cs;
+        bool pause;
 
         void createHole(const int& division_num)
         {

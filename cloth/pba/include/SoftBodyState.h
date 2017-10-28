@@ -23,17 +23,20 @@ namespace pba
         ~SoftBodyStateData()    {}
 
         void Init(const std::vector<Vector>& verts);
+        void Reset(const std::vector<Vector>& verts);
         void set_softEdges(const std::vector<std::pair<size_t, size_t>>& pairs);
 
+        void update_parms(const std::string &key, const float &value)  {parms.at(key) = value;}
+
+        const float get_parms(const std::string &key) const {return parms.at(key);}
         std::vector<SoftEdge>& get_connectedPairs() { return connected_pairs;}
         const Vector innerForce(const size_t& p);
 
-        void update_structForce();
+        void update_innerForce();
 
     private:
         std::vector<SoftEdge> connected_pairs;
-        double Ks;
-        double Kf;
+        std::map<std::string, float> parms;
 
         Vector get_structForce(const size_t& i, const size_t& j, const double& L);
 
