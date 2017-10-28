@@ -14,7 +14,7 @@
 namespace pba
 {
 
-    class RigidBodyStateData: public DynamicalStateData, public std::enable_shared_from_this<RigidBodyStateData>
+    class RigidBodyStateData: public DynamicalStateData
     {
     public:
         RigidBodyStateData(const std::string& nam = "RigidBodyDataNoName");

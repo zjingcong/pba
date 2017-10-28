@@ -28,7 +28,7 @@ Vector Boid::guide(const size_t i)
         Vector d = locator - boidDS->pos(i);
         Vector vel = boidDS->vel(i);
         double Kv = vision(d, vel);
-        guiding_force += (guidingForces->at(p)->getForce(boidDS, i)) * Kv;
+        guiding_force += (guidingForces->at(p)->getForce(i)) * Kv;
     }
     Vector accel_g = guiding_force / boidDS->mass(i);
 

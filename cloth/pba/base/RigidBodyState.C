@@ -13,7 +13,6 @@ using namespace std;
 RigidBodyStateData::RigidBodyStateData(const std::string &nam): DynamicalStateData(nam)
 {
     nb_items = 0;
-    name = nam;
     total_mass = 0.0;
     pos_cm = Vector(0.0, 0.0, 0.0);
     angular_rotation = unitMatrix();
@@ -86,13 +85,12 @@ std::tuple<pba::Vector, pba::Vector> RigidBodyStateData::totalForce_and_tau(pba:
 {
     Vector total_force = Vector(0.0, 0.0, 0.0);
     Vector tau = Vector(0.0, 0.0, 0.0);
-    std::shared_ptr<RigidBodyStateData> A = shared_from_this();
     for (size_t i = 0; i < nb_items; ++i)
     {
         Vector force_value = Vector(0.0, 0.0, 0.0);
         for (auto& it: forces)
         {
-            force_value += it->getForce(shared_from_this(), i);
+            force_value += it->getForce(i);
         }
         total_force += force_value;
         tau += vert_rel_pos(i) ^ force_value;

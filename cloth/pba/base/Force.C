@@ -7,7 +7,7 @@
 using namespace pba;
 using namespace std;
 
-const Vector Gravity::getForce(DynamicalState DS, const size_t p)
+const Vector Gravity::getForce(const size_t& p)
 {
     Vector y_unit(0, 1, 0);
     float mass = DS->mass(p);
@@ -17,7 +17,7 @@ const Vector Gravity::getForce(DynamicalState DS, const size_t p)
 }
 
 
-const Vector BoidInnerForce::getForce(DynamicalState DS, const size_t p)
+const Vector BoidInnerForce::getForce(const size_t& p)
 {
     Vector total_accel = boid->get_total_accel(p);
     force = total_accel * DS->mass(p);
@@ -26,7 +26,7 @@ const Vector BoidInnerForce::getForce(DynamicalState DS, const size_t p)
 }
 
 
-const Vector Spring::getForce(DynamicalState DS, const size_t p)
+const Vector Spring::getForce(const size_t& p)
 {
     float k = Spring::floatParms.at("k");
     Vector x0 = Spring::vectorParms.at("x0");
@@ -37,7 +37,7 @@ const Vector Spring::getForce(DynamicalState DS, const size_t p)
 }
 
 
-const Vector MagneticForce::getForce(DynamicalState DS, const size_t p)
+const Vector MagneticForce::getForce(const size_t& p)
 {
     Vector x = DS->pos(p);
     Vector xm = MagneticForce::vectorParms.at("xm");
@@ -51,22 +51,22 @@ const Vector MagneticForce::getForce(DynamicalState DS, const size_t p)
 
 //! --------------------------- Create Force Share Ptrs ------------------------------------
 
-pba::ForcePtr pba::CreateGravity(const float &gconstant)
+pba::ForcePtr pba::CreateGravity(DynamicalState ds, const float &gconstant)
 {
-    return ForcePtr(new Gravity(gconstant));
+    return ForcePtr(new Gravity(ds, gconstant));
 }
 
-pba::ForcePtr pba::CreateBoidInnerForce(BoidPtr &b)
+pba::ForcePtr pba::CreateBoidInnerForce(DynamicalState ds, BoidPtr &b)
 {
-    return ForcePtr(new BoidInnerForce(b));
+    return ForcePtr(new BoidInnerForce(ds, b));
 }
 
-pba::ForcePtr pba::CreateSpring(const Vector &x0, const float &kconstant)
+pba::ForcePtr pba::CreateSpring(DynamicalState ds, const Vector &x0, const float &kconstant)
 {
-    return ForcePtr(new Spring(x0, kconstant));
+    return ForcePtr(new Spring(ds, x0, kconstant));
 }
 
-pba::ForcePtr pba::CreateMagneticForce(const Vector &xm, const float &b)
+pba::ForcePtr pba::CreateMagneticForce(DynamicalState ds, const Vector &xm, const float &b)
 {
-    return ForcePtr(new MagneticForce(xm, b));
+    return ForcePtr(new MagneticForce(ds, xm, b));
 }

@@ -20,7 +20,7 @@ namespace pba
     class ForceBase
     {
     public:
-        ForceBase(): name("unknown")    {}
+        ForceBase(): name("unknown")    {force = Vector(0.0, 0.0, 0.0);}
         virtual ~ForceBase()    {}
 
         const std::string& Name() const { return name; }
@@ -30,7 +30,7 @@ namespace pba
         void update_parms(const std::string &key, const float &value)  {floatParms.at(key) = value;}
         void update_parms(const std::string &key, const Vector &value)  {vectorParms.at(key) = value;}
 
-        virtual const Vector getForce(DynamicalState DS, const size_t p) {return force;}
+        virtual const Vector getForce(const size_t& p) {return force;}
 
     protected:
         Vector force;
@@ -49,26 +49,30 @@ namespace pba
     class Gravity: public ForceBase
     {
     public:
-        Gravity(const float& gconstant)
+        Gravity(DynamicalState& ds, const float& gconstant): DS(ds)
         {
             name = "gravity";
             floatParms = {{"g", gconstant}}; // gravity floatParms: gravity constant
         }
         ~Gravity()  {}
 
-        const Vector getForce(DynamicalState DS, const size_t p);
+        const Vector getForce(const size_t& p);
+
+    private:
+        DynamicalState DS;
     };
 
 
     class BoidInnerForce: public ForceBase
     {
     public:
-        BoidInnerForce(BoidPtr& b): boid(b) { name = "boid_inner_force"; }
+        BoidInnerForce(DynamicalState& ds, BoidPtr& b): DS(ds), boid(b) { name = "boid_inner_force"; }
         ~BoidInnerForce()   {}
 
-        const Vector getForce(DynamicalState DS, const size_t p);
+        const Vector getForce(const size_t& p);
 
     private:
+        DynamicalState DS;
         BoidPtr& boid;
     };
 
@@ -76,7 +80,7 @@ namespace pba
     class Spring: public ForceBase
     {
     public:
-        Spring(const Vector& x0, const float& kconstant)
+        Spring(DynamicalState& ds, const Vector& x0, const float& kconstant): DS(ds)
         {
             name = "spring";
             floatParms = {{"k", kconstant}};
@@ -84,14 +88,17 @@ namespace pba
         }
         ~Spring()   {}
 
-        const Vector getForce(DynamicalState DS, const size_t p);
+        const Vector getForce(const size_t& p);
+
+    private:
+        DynamicalState DS;
     };
 
 
     class MagneticForce: public ForceBase
     {
     public:
-        MagneticForce(const Vector& xm, const float& b)
+        MagneticForce(DynamicalState& ds, const Vector& xm, const float& b): DS(ds)
         {
             name = "magnetic_force";
             floatParms = {{"B", b}};
@@ -99,15 +106,18 @@ namespace pba
         }
         ~MagneticForce()    {}
 
-        const Vector getForce(DynamicalState DS, const size_t p);
+        const Vector getForce(const size_t& p);
+
+    private:
+        DynamicalState DS;
     };
 
 
     /// set up forces shared ptrs
-    ForcePtr CreateGravity(const float& gconstant);
-    ForcePtr CreateBoidInnerForce(BoidPtr& b);
-    ForcePtr CreateSpring(const Vector& x0, const float& kconstant);
-    ForcePtr CreateMagneticForce(const Vector& xm, const float& b);
+    ForcePtr CreateGravity(DynamicalState ds, const float& gconstant);
+    ForcePtr CreateBoidInnerForce(DynamicalState ds, BoidPtr& b);
+    ForcePtr CreateSpring(DynamicalState ds, const Vector& x0, const float& kconstant);
+    ForcePtr CreateMagneticForce(DynamicalState ds, const Vector& xm, const float& b);
 }
 
 # include "Boid.h"

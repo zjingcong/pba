@@ -45,7 +45,7 @@ void SolverBase::updateVel(const double& dt, DynamicalState DS, ForcePtrContaine
         Vector force_value = Vector(0.0, 0.0, 0.0);
         for (auto& it: forces)
         {
-            force_value += it->getForce(DS, i);
+            force_value += it->getForce(i);
         }
         Vector vel = DS->vel(i) + force_value * dt / mass;
         DS->set_vel(i, vel);
