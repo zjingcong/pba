@@ -7,6 +7,7 @@
 
 # include <string>
 # include <iostream>
+# include <cassert>
 # include "DynamicalState.h"
 # include "Force.h"
 # include "Collision.h"
@@ -82,6 +83,28 @@ namespace pba
     };
 
     SolverPtr CreateSixOrderSolver();
+
+
+/// ------------------------------------ Subsolver ---------------------------------------------------
+
+    class SubSolver
+    {
+    public:
+        SubSolver(): solver(nullptr), substep(1) {}
+        ~SubSolver()    {}
+
+        void setSolver(const SolverPtr& s) {solver = s;}
+        void setSubstep(const int& sub_step)   {substep = sub_step;}
+
+        void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs);
+
+    private:
+        SolverPtr solver;
+        int substep;
+    };
+
+    typedef std::shared_ptr<SubSolver> SubSolverPtr;
+    SubSolverPtr CreateSubSolver();
 
 }
 
