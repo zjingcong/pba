@@ -20,6 +20,7 @@ void Draw::DrawTriangles(GeometryPtr geom)
     for (auto it = geom->get_triangles().cbegin(); it != geom->get_triangles().cend(); ++it)
     {
         TrianglePtr tri = *it;
+        if (tri == nullptr) {continue;}
         if (tri->getVisibility())
         {
             // set collision face color
@@ -261,9 +262,9 @@ void LoadMesh::LoadPlane(const Vector& center, const double &size, const int &di
     double grid_size = size / division;
     double l_x = center.X() - size * 0.5;
     double l_z = center.Z() - size * 0.5;
-    for (int m = 0; m < division; ++m)  // x
+    for (int m = 0; m < division; ++m)  // z
     {
-        for (int n = 0; n < division; ++n)  // z
+        for (int n = 0; n < division; ++n)  // x
         {
             Vector p00 = Vector(l_x + m * grid_size, center.Y(), l_z + n * grid_size);
             Vector p01 = Vector(l_x + (m + 1) * grid_size, center.Y(), l_z + (n + 1) * grid_size);

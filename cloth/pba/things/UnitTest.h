@@ -43,7 +43,7 @@ namespace pba {
             // rigid body data
             RBDS = CreateRigidBodyState("RBDS");
             // force
-            gravity = CreateGravity(g);
+            gravity = CreateGravity(RBDS, g);
             forces.push_back(gravity);
             // solver
             solver = CreateRBDLeapFrogSolver();

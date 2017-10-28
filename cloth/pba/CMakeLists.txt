@@ -34,7 +34,7 @@ set(SOURCE_FILES
         include/Tools.h
         include/Triangle.h
         include/Vector.h
-        things/UnitTest.h include/RigidBodyState.h base/RigidBodyState.C include/RBD.h base/RBD.C things/ClothThing.h)
+        things/UnitTest.h include/RigidBodyState.h base/RigidBodyState.C include/RBD.h base/RBD.C things/ClothThing.h include/SoftBodyState.h base/SoftBodyState.C include/SBD.h base/SBD.C)
 
 include_directories(include/)
 

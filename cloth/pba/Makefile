@@ -15,7 +15,9 @@ OFILES = base/PbaViewer.o \
          base/KdTree.o \
          base/Boid.o \
          base/RigidBodyState.o \
-         base/RBD.o
+         base/RBD.o \
+         base/SoftBodyState.o \
+         base/SBD.o
 
 
 THINGS = things/UnitTest.h \
