@@ -10,6 +10,7 @@
 # include <algorithm>
 # include "SBD.h"
 # include "Solver.h"
+# include "SoftBodyState.h"
 
 # ifdef __APPLE__
 # include <OpenGL/gl.h>   // OpenGL itself.
@@ -19,7 +20,6 @@
 # include <GL/gl.h>   // OpenGL itself.
 # include <GL/glu.h>  // GLU support library.
 # include <GL/glut.h> // GLUT support library.
-#include <SoftBodyState.h>
 
 # endif
 
@@ -37,10 +37,11 @@ namespace pba
                 hole_division(5),
                 time_step(0),
                 g(0.98),
-                Ks(10),
-                Kf(10),
+                Ks(100),
+                Kf(100),
                 Cr(0.3),
                 Cs(1.0),
+                substep(1),
                 pause(false)
         {
             dt = 1.0/24;
@@ -54,7 +55,11 @@ namespace pba
             forces.push_back(gravity);
             forces.push_back(clothInner);
             // solvers
-            solver = CreateLeapFrogSolver();
+            // solver = CreateLeapFrogSolver(); // leap frog solver
+            solver = CreateSixOrderSolver();    // sixth order solver
+            subSolver = CreateSubSolver();
+            subSolver->setSolver(solver);
+            subSolver->setSubstep(substep);
         }
         ~ClothInHoleThing() {}
 
@@ -93,8 +98,10 @@ namespace pba
             geom->cleanTrianglesCollisionStatus();
             // solve
             SB->update_innerForce();
-            // solver->updateDS(dt, SB, forces);
-            solver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);
+            // solver->updateDS(dt, SB, forces);    // no collision
+            // solver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs); // collision
+            // subsolver
+            subSolver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);
         }
 
         void Display()
@@ -129,7 +136,16 @@ namespace pba
 
         void Keyboard(unsigned char key, int x, int y)
         {
+            if (key >= '1' && key <= '9')
+            {
+                substep = int(key) - 48;
+                std::cout << "Set sub step: " << substep << std::endl;
+                subSolver->setSubstep(substep);
+                return;
+            }
+
             PbaThingyDingy::Keyboard(key, x, y);
+
             switch (key)
             {
                 /// gravity control
@@ -200,6 +216,7 @@ namespace pba
         ForcePtr clothInner;
         // solver
         SolverPtr solver;
+        SubSolverPtr subSolver;
 
         int plane_div;
         int cloth_div;
@@ -212,6 +229,7 @@ namespace pba
         float Kf;
         float Cr;
         float Cs;
+        int substep;
         bool pause;
 
         void createHole(const int& division_num)

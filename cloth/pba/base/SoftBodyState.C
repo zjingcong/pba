@@ -63,8 +63,8 @@ void SoftBodyStateData::update_innerForce()
         size_t i = it.i;
         size_t j = it.j;
         Vector structForce = get_structForce(i, j, it.L);
-        set_attr("inner", i, innerForce(i) + structForce);
-        set_attr("inner", j, innerForce(j) - structForce);
+        set_attr("inner", i, structForce);
+        set_attr("inner", j, -structForce);
     }
 }
 
