@@ -32,19 +32,18 @@ namespace pba
         ClothInHoleThing(const std::string nam = "ClothInHoleThing"):
                 PbaThingyDingy(nam),
                 size(4.0),
-                plane_div(15),     // be odd number
+                plane_div(5),     // be odd number
                 cloth_div(50),
-                hole_division(5),
+                hole_division(1),
                 time_step(0),
                 g(0.98),
                 Ks(100),
                 Kf(100),
                 Cr(0.3),
                 Cs(1.0),
-                substep(1),
-                pause(false)
+                substep(1)
         {
-            dt = 1.0/24;
+            dt = 1.0/240;
             // cloth
             SB = CreateSoftBodyState("ClothStateData");
             SB->update_parms("Ks", Ks);
@@ -230,7 +229,6 @@ namespace pba
         float Cr;
         float Cs;
         int substep;
-        bool pause;
 
         void createHole(const int& division_num)
         {

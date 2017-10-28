@@ -58,19 +58,25 @@ const Vector SoftBodyStateData::innerForce(const size_t& p)
 
 void SoftBodyStateData::update_innerForce()
 {
+    // reset inner force
+    for (size_t l = 0; l < nb_items; ++l) { set_attr("inner", l, Vector(0.0, 0.0, 0.0)); }
+    // calculate inner force
     for (auto& it: connected_pairs)
     {
         size_t i = it.i;
         size_t j = it.j;
-        Vector structForce = get_structForce(i, j, it.L);
-        set_attr("inner", i, structForce);
-        set_attr("inner", j, -structForce);
+        Vector structForce = get_structForce(it);
+        set_attr("inner", i, innerForce(i) + structForce);
+        set_attr("inner", j, innerForce(j) - structForce);
     }
 }
 
 
-Vector SoftBodyStateData::get_structForce(const size_t& i, const size_t& j, const double& L)
+Vector SoftBodyStateData::get_structForce(const SoftEdge& e)
 {
+    size_t i = e.i;
+    size_t j = e.j;
+    double L = e.L;
     Vector d_ij = (pos(j) - pos(i)).unitvector();
     // spring force
     Vector spring = parms.at("Ks") * ((pos(i) - pos(j)).magnitude() - L) * d_ij;

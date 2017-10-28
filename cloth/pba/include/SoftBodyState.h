@@ -38,7 +38,7 @@ namespace pba
         std::vector<SoftEdge> connected_pairs;
         std::map<std::string, float> parms;
 
-        Vector get_structForce(const size_t& i, const size_t& j, const double& L);
+        Vector get_structForce(const SoftEdge& e);
 
     };
 
