@@ -283,7 +283,10 @@ void LoadMesh::LoadPlane(const Vector& center, const double &size, const int &di
     // p02-p01   p12
     //////////////////
     Vector llc = Vector(l_x, center.Y() - 0.0001, l_z);
-    Vector urc = Vector(center.X() + size * 0.5, center.Y() - 0.0001 + 0.0001, center.Z() + size * 0.5);
+    Vector urc = Vector(center.X() + size * 0.5, center.Y() + 0.0001 + 0.0001, center.Z() + size * 0.5);
     geom->setBBox(llc, urc);
     cout << "Load plane success." << endl;
+    cout << "Geometry Bounding Box: " << endl;
+    cout << "     LLC - (" << llc.X() << ", " << llc.Y() << ", " << llc.Z() << ")" << endl;
+    cout << "     URC - (" << urc.X() << ", " << urc.Y() << ", " << urc.Z() << ")" << endl;
 }

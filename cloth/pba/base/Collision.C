@@ -47,7 +47,6 @@ void TriangleCollision::triangleCollision(const double& dt, DynamicalState DS, G
 {
     // loop over particles
     size_t i;
-    // #pragma omp parallel for num_threads(4) private(i) schedule(dynamic, 256)
     for (i = 0; i < DS->nb(); ++i)
     {
         // loop until no collisions

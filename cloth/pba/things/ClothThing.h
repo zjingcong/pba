@@ -31,17 +31,18 @@ namespace pba
     public:
         ClothInHoleThing(const std::string nam = "ClothInHoleThing"):
                 PbaThingyDingy(nam),
-                size(4.0),
-                plane_div(5),     // be odd number
-                cloth_div(50),
-                hole_division(1),
+                size(5.4),
+                plane_div(11),     // be odd number
+                cloth_div(20),
+                hole_division(5),
                 time_step(0),
                 g(0.98),
                 Ks(100),
                 Kf(100),
                 Cr(0.3),
                 Cs(1.0),
-                substep(1)
+                substep(1),
+                onKdtree(false)
         {
             dt = 1.0/240;
             // cloth
@@ -68,6 +69,7 @@ namespace pba
             // create plane
             geom = CreateGeometry("collisionPlane");
             LoadMesh::LoadPlane(Vector(0.0, -2.0, 0.0), size + 0.000001, plane_div, geom);
+            geom->build_trianglesTree(6);   // build geom kdTree
             // create hole
             createHole(hole_division);
             // set random colors
@@ -75,7 +77,7 @@ namespace pba
             { it->setColor(Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));}
 
             /// load cloth
-            createGridPlane(Vector(0.0, -1.5, 0.0), size, cloth_div, verts, edge_pairs);
+            createGridPlane(Vector(0.0, -1.8, 0.0), 2.0, cloth_div, verts, edge_pairs);
             SB->Init(verts);
             SB->set_softEdges(edge_pairs);
             std::cout << "connected pairs: " << edge_pairs.size() << std::endl;
@@ -97,10 +99,11 @@ namespace pba
             geom->cleanTrianglesCollisionStatus();
             // solve
             SB->update_innerForce();
-            // solver->updateDS(dt, SB, forces);    // no collision
-            // solver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs); // collision
+             if (!onKdtree)  {solver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);}
+             else {solver->updateDSWithCollisionWithKdTree(dt, SB, forces, geom, Cr, Cs);}
             // subsolver
-            subSolver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);
+//            if (!onKdtree)  {subSolver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);}
+//            else {subSolver->updateDSWithCollisionWithKdtree(dt, SB, forces, geom, Cr, Cs);}
         }
 
         void Display()
@@ -181,6 +184,15 @@ namespace pba
                 case ' ':
                 { std::cout << "Current time step: " << time_step << std::endl; break;}
 
+                /// kdtree
+                case 'a':
+                {
+                    onKdtree = !onKdtree;
+                    if (onKdtree)   {std::cout << "TURN ON Kdtree" << std::endl;}
+                    else    {std::cout << "TURN OFF Kdtree" << std::endl;}
+                    break;
+                }
+
                 /// quit
                 case 27: { exit(0); }
 
@@ -192,13 +204,13 @@ namespace pba
         void Usage()
         {
             PbaThingyDingy::Usage();
-            std::cout << "s/S     reduce/increase Ks" << std::endl;
-            std::cout << "k/K     reduce/increase Kf" << std::endl;
-            std::cout << "c/C     reduce/increase Cr" << std::endl;
-            std::cout << "x/X     reduce/increase Cs" << std::endl;
-            std::cout << "g/G     reduce/increase gravity constant" << std::endl;
-            std::cout << "1-9     specify sub step" << std::endl;
-            std::cout << "Esc     quit" << std::endl;
+            std::cout << "s/S          reduce/increase Ks" << std::endl;
+            std::cout << "k/K          reduce/increase Kf" << std::endl;
+            std::cout << "c/C          reduce/increase Cr" << std::endl;
+            std::cout << "x/X          reduce/increase Cs" << std::endl;
+            std::cout << "g/G          reduce/increase gravity constant" << std::endl;
+            std::cout << "1-9          specify sub step" << std::endl;
+            std::cout << "Esc          quit" << std::endl;
         }
 
     private:
@@ -229,6 +241,7 @@ namespace pba
         float Cr;
         float Cs;
         int substep;
+        bool onKdtree;
 
         void createHole(const int& division_num)
         {
@@ -261,6 +274,9 @@ namespace pba
                     Vector p = Vector(l_x + m * grid_size, center.Y(), l_z + n * grid_size);
                     verts.push_back(p);
                     size_t id = m + n * (division + 1);
+
+                    /// create connected pairs
+                    // add horizontal and vertical pairs
                     if (m != division)
                     {
                         std::pair<size_t , size_t > pair_h = std::make_pair(id, id + 1);
@@ -269,6 +285,12 @@ namespace pba
                     if (n != division)
                     {
                         std::pair<size_t , size_t > pair_v = std::make_pair(id, id + division + 1);
+                        edge_pairs.push_back(pair_v);
+                    }
+                    // add diagonal pairs
+                    if (m != division && n != division)
+                    {
+                        std::pair<size_t , size_t > pair_v = std::make_pair(id, id + division + 2);
                         edge_pairs.push_back(pair_v);
                     }
                 }

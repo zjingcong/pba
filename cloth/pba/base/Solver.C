@@ -129,6 +129,14 @@ void SubSolver::updateDSWithCollision(const double& dt, DynamicalState DS, Force
     for (int i = 0; i < substep; ++i) { solver->updateDSWithCollision(sub_dt, DS, forces, geom, Cr, Cs); }
 }
 
+void SubSolver::updateDSWithCollisionWithKdtree(const double &dt, DynamicalState DS, ForcePtrContainer forces,
+                                                GeometryPtr geom, const double &Cr, const double &Cs)
+{
+    assert(solver != nullptr);
+    double sub_dt = dt / substep;
+    for (int i = 0; i < substep; ++i) { solver->updateDSWithCollisionWithKdTree(sub_dt, DS, forces, geom, Cr, Cs); }
+}
+
 
 pba::SubSolverPtr pba::CreateSubSolver()
 {

@@ -97,6 +97,7 @@ namespace pba
         void setSubstep(const int& sub_step)   {substep = sub_step;}
 
         void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs);
+        void updateDSWithCollisionWithKdtree(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs);
 
     private:
         SolverPtr solver;
