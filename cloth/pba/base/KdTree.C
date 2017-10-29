@@ -15,9 +15,11 @@ void KdTree::build(AABB bbox, std::vector<pba::TrianglePtr> tris, int l)
     left = NULL;
     right = NULL;
 
+    cout << "Build level " << level << "..." << endl;
+
     // end conditions
-    if(tris.empty()) { return; }
-    if (l == depth) { triangles = tris; return; }
+    if(tris.empty()) { cout << "    - Level " << level << " triangles: " << 0 << endl; return; }
+    if (l == depth) { triangles = tris; cout << "   - Level " << level << " triangles: " << triangles.size() << endl; return; }
 
     // compute
     int direction = level % 3;
@@ -43,8 +45,6 @@ void KdTree::build(AABB bbox, std::vector<pba::TrianglePtr> tris, int l)
     right = new KdTree(depth);
     left->build(aabb_left, triangles_left, level + 1);
     right->build(aabb_right, triangles_right, level + 1);
-
-    cout << "Build level " << level << " success." << endl;
 }
 
 std::vector<TrianglePtr> KdTree::search(const Vector& origin, const Vector& target)

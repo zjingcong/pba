@@ -33,13 +33,14 @@ namespace pba
                 PbaThingyDingy(nam),
                 size(5.4),
                 plane_div(11),     // be odd number
-                cloth_div(20),
-                hole_division(5),
+                cloth_div(50),
+                hole_division(3),
                 time_step(0),
+                kdtree_level(6),
                 g(0.98),
                 Ks(100),
                 Kf(100),
-                Cr(0.3),
+                Cr(1.0),
                 Cs(1.0),
                 substep(1),
                 onKdtree(false)
@@ -69,15 +70,16 @@ namespace pba
             // create plane
             geom = CreateGeometry("collisionPlane");
             LoadMesh::LoadPlane(Vector(0.0, -2.0, 0.0), size + 0.000001, plane_div, geom);
-            geom->build_trianglesTree(6);   // build geom kdTree
             // create hole
             createHole(hole_division);
+            geom->build_trianglesTree(kdtree_level);   // build geom kdTree
             // set random colors
             for (auto& it: geom->get_triangles())
             { it->setColor(Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));}
 
             /// load cloth
-            createGridPlane(Vector(0.0, -1.8, 0.0), 2.0, cloth_div, verts, edge_pairs);
+            std::vector<std::pair<size_t, size_t>> edge_pairs;
+            createGridPlane(Vector(0.0, -1.8, 0.0), size, cloth_div, verts, edge_pairs);
             SB->Init(verts);
             SB->set_softEdges(edge_pairs);
             std::cout << "connected pairs: " << edge_pairs.size() << std::endl;
@@ -99,17 +101,17 @@ namespace pba
             geom->cleanTrianglesCollisionStatus();
             // solve
             SB->update_innerForce();
-             if (!onKdtree)  {solver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);}
-             else {solver->updateDSWithCollisionWithKdTree(dt, SB, forces, geom, Cr, Cs);}
+            // if (!onKdtree)  {solver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);}
+            // else {solver->updateDSWithCollisionWithKdTree(dt, SB, forces, geom, Cr, Cs);}
             // subsolver
-//            if (!onKdtree)  {subSolver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);}
-//            else {subSolver->updateDSWithCollisionWithKdtree(dt, SB, forces, geom, Cr, Cs);}
+            if (!onKdtree)  {subSolver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);}
+            else {subSolver->updateDSWithCollisionWithKdtree(dt, SB, forces, geom, Cr, Cs);}
         }
 
         void Display()
         {
             /// draw plane
-            Draw::DrawTriangles(geom);
+            Draw::DrawTriangles(geom, false);
 
             /// draw cloth
             // draw vertices
@@ -209,6 +211,7 @@ namespace pba
             std::cout << "c/C          reduce/increase Cr" << std::endl;
             std::cout << "x/X          reduce/increase Cs" << std::endl;
             std::cout << "g/G          reduce/increase gravity constant" << std::endl;
+            std::cout << "a            turn on/off kdtree" << std::endl;
             std::cout << "1-9          specify sub step" << std::endl;
             std::cout << "Esc          quit" << std::endl;
         }
@@ -218,7 +221,6 @@ namespace pba
         SoftBodyState SB;
         double size;
         std::vector<Vector> verts;
-        std::vector<std::pair<size_t, size_t >> edge_pairs;
         // collision plane
         GeometryPtr geom;
         // forces
@@ -233,6 +235,7 @@ namespace pba
         int cloth_div;
         int hole_division;
         int time_step;
+        int kdtree_level;
 
         /// keyboard controls
         float g;    // gravity constant
@@ -262,7 +265,7 @@ namespace pba
 
         void createGridPlane(const Vector& center, const double &size, const int &division,
                              std::vector<Vector>& verts,
-                             std::vector<std::pair<size_t, size_t >>& edge_pairs)
+                             std::vector< std::pair<size_t, size_t> > &edge_pairs)
         {
             double grid_size = size / division;
             double l_x = center.X() - size * 0.5;

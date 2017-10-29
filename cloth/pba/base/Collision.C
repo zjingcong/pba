@@ -17,19 +17,18 @@ void TriangleCollision::collisionWithinTriangles(const double& dt, DynamicalStat
     int collision_num = 0;
 
     // loop over triangles
-    for (auto it = triangles.cbegin(); it != triangles.cend(); ++it)
+    for (auto& it: triangles)
     {
         // collision detection
-        TrianglePtr triangle = *it;
         double dti;
         Vector xi;
-        if (collisionDetection(dt, DS, i, triangle, dti, xi))
+        if (collisionDetection(dt, DS, i, it, dti, xi))
         {
             collision_num++;
             if (std::fabs(dti) > std::fabs(max_dti))
             {
                 max_dti = dti;
-                collision_triangle = triangle;
+                collision_triangle = it;
                 max_xi = xi;
             }
         }
