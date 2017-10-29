@@ -29,7 +29,7 @@ namespace pba
     {
     public:
         //! draw triangles for verts, face_indices and face_colors
-        static void DrawTriangles(GeometryPtr geom);
+        static void DrawTriangles(GeometryPtr geom, bool showCollision = true);
     };
 
 

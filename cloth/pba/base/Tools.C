@@ -14,7 +14,7 @@ using namespace pba;
 using namespace std;
 
 
-void Draw::DrawTriangles(GeometryPtr geom)
+void Draw::DrawTriangles(GeometryPtr geom, bool showCollision)
 {
     glBegin(GL_TRIANGLES);
     for (auto it = geom->get_triangles().cbegin(); it != geom->get_triangles().cend(); ++it)
@@ -23,12 +23,12 @@ void Draw::DrawTriangles(GeometryPtr geom)
         if (tri == nullptr) {continue;}
         if (tri->getVisibility())
         {
-            // set collision face color
-            if (tri->getCollisionStatus())   {glColor3f(0.9, 0.9, 0.9);}
-            else
+            Color color = tri->getColor();
+            glColor3f( color.red(), color.green(), color.blue());
+            if (showCollision)
             {
-                Color color = tri->getColor();
-                glColor3f( color.red(), color.green(), color.blue());
+                // set collision face color
+                if (tri->getCollisionStatus())   {glColor3f(0.9, 0.9, 0.9);}
             }
 
             Vector v0 = tri->getP0();
