@@ -78,11 +78,9 @@ namespace pba
             { it->setColor(Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));}
 
             /// load cloth
-            std::vector<std::pair<size_t, size_t>> edge_pairs;
-            createGridPlane(Vector(0.0, -1.8, 0.0), size, cloth_div, verts, edge_pairs);
-            SB->Init(verts);
-            SB->set_softEdges(edge_pairs);
-            std::cout << "connected pairs: " << edge_pairs.size() << std::endl;
+            createGridPlane(SB, Vector(0.0, -1.8, 0.0), size, cloth_div);
+            createConnectedPairs(SB, cloth_div);
+            std::cout << "connected pairs: " << SB->get_connectedPairs().size() << std::endl;
 
             std::cout << "-------------------------------------------" << std::endl;
         }
@@ -91,7 +89,7 @@ namespace pba
         {
             time_step = 0;
             geom->cleanTrianglesCollisionStatus();
-            SB->Reset(verts);
+            SB->Reset();
         }
 
         void solve()
@@ -100,7 +98,7 @@ namespace pba
             // clean collision status
             geom->cleanTrianglesCollisionStatus();
             // solve
-            SB->update_innerForce();
+            SB->Update();
             // if (!onKdtree)  {solver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);}
             // else {solver->updateDSWithCollisionWithKdTree(dt, SB, forces, geom, Cr, Cs);}
             // subsolver
@@ -220,7 +218,6 @@ namespace pba
         // cloth
         SoftBodyState SB;
         double size;
-        std::vector<Vector> verts;
         // collision plane
         GeometryPtr geom;
         // forces
@@ -263,10 +260,9 @@ namespace pba
             geom->get_triangles().erase(std::remove(geom->get_triangles().begin(), geom->get_triangles().end(), nullptr), geom->get_triangles().end());
         }
 
-        void createGridPlane(const Vector& center, const double &size, const int &division,
-                             std::vector<Vector>& verts,
-                             std::vector< std::pair<size_t, size_t> > &edge_pairs)
+        void createGridPlane(SoftBodyState sb, const Vector& center, const double &size, const int &division)
         {
+            std::vector<Vector> verts;
             double grid_size = size / division;
             double l_x = center.X() - size * 0.5;
             double l_z = center.Z() - size * 0.5;
@@ -276,26 +272,24 @@ namespace pba
                 {
                     Vector p = Vector(l_x + m * grid_size, center.Y(), l_z + n * grid_size);
                     verts.push_back(p);
-                    size_t id = m + n * (division + 1);
+                }
+            }
+            SB->Init(verts);
+        }
 
+        void createConnectedPairs(SoftBodyState sb, const int& division)
+        {
+            for (int m = 0; m <= division; ++m)  // x
+            {
+                for (int n = 0; n <= division; ++n)  // z
+                {
+                    size_t id = m + n * (division + 1);
                     /// create connected pairs
                     // add horizontal and vertical pairs
-                    if (m != division)
-                    {
-                        std::pair<size_t , size_t > pair_h = std::make_pair(id, id + 1);
-                        edge_pairs.push_back(pair_h);
-                    }
-                    if (n != division)
-                    {
-                        std::pair<size_t , size_t > pair_v = std::make_pair(id, id + division + 1);
-                        edge_pairs.push_back(pair_v);
-                    }
+                    if (m != division) { sb->add_softEdges(id, id + 1); }
+                    if (n != division) { sb->add_softEdges(id, id + division + 1); }
                     // add diagonal pairs
-                    if (m != division && n != division)
-                    {
-                        std::pair<size_t , size_t > pair_v = std::make_pair(id, id + division + 2);
-                        edge_pairs.push_back(pair_v);
-                    }
+                    if (m != division && n != division) { sb->add_softEdges(id, id + division + 2); }
                 }
             }
         }

@@ -16,15 +16,26 @@ namespace pba
         double L;
     };
 
+    struct SoftTriangle
+    {
+        size_t i;   // P0
+        size_t j;   // P1
+        size_t k;   // P2
+        double Area;
+    };
+
     class SoftBodyStateData: public DynamicalStateData
     {
     public:
         SoftBodyStateData(const std::string& nam = "SoftBodyDataNoName");
         ~SoftBodyStateData()    {}
 
-        void Init(const std::vector<Vector>& verts);
-        void Reset(const std::vector<Vector>& verts);
-        void set_softEdges(const std::vector<std::pair<size_t, size_t>>& pairs);
+        void Init(const std::vector<Vector>& vertices);
+        void Reset();
+        void Update();
+
+        void add_softEdges(size_t i, size_t j);
+        void add_softTriangles(size_t i, size_t j, size_t k);
 
         void update_parms(const std::string &key, const float &value)  {parms.at(key) = value;}
 
@@ -32,13 +43,14 @@ namespace pba
         std::vector<SoftEdge>& get_connectedPairs() { return connected_pairs;}
         const Vector innerForce(const size_t& p);
 
-        void update_innerForce();
-
     private:
+        std::vector<Vector> verts;  // init vertices
         std::vector<SoftEdge> connected_pairs;
+        std::vector<SoftTriangle> triangle_areas;
         std::map<std::string, float> parms;
 
         Vector get_structForce(const SoftEdge& e);
+        void get_areaForce(const SoftTriangle& t, Vector& f0, Vector& f1, Vector& f2);
 
     };
 

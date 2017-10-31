@@ -286,6 +286,7 @@ void LoadMesh::LoadPlane(const Vector& center, const double &size, const int &di
     Vector urc = Vector(center.X() + size * 0.5, center.Y() + 0.0001 + 0.0001, center.Z() + size * 0.5);
     geom->setBBox(llc, urc);
     cout << "Load plane success." << endl;
+    cout << "Triangles number: " << geom->get_triangles().size() << endl;
     cout << "Geometry Bounding Box: " << endl;
     cout << "     LLC - (" << llc.X() << ", " << llc.Y() << ", " << llc.Z() << ")" << endl;
     cout << "     URC - (" << urc.X() << ", " << urc.Y() << ", " << urc.Z() << ")" << endl;
