@@ -39,9 +39,10 @@ namespace pba
 
         void update_parms(const std::string &key, const float &value)  {parms.at(key) = value;}
 
-        const float get_parms(const std::string &key) const {return parms.at(key);}
-        std::vector<SoftEdge>& get_connectedPairs() { return connected_pairs;}
         const Vector innerForce(const size_t& p);
+        const float get_parms(const std::string &key) const {return parms.at(key);}
+        const std::vector<SoftEdge>& get_connectedPairs() { return connected_pairs;}
+        const std::vector<SoftTriangle>& get_triangleAreas()  { return triangle_areas;}
 
     private:
         std::vector<Vector> verts;  // init vertices
