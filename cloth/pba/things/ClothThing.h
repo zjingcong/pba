@@ -31,23 +31,40 @@ namespace pba
     public:
         ClothInHoleThing(const std::string nam = "ClothInHoleThing"):
                 PbaThingyDingy(nam),
+                // parms setting 1
+//                size(5.4),
+//                plane_div(13),
+//                cloth_div(26),
+//                hole_division(1),
+//                time_step(0),
+//                kdtree_level(5),
+//                g(9.8),
+//                Ks(110),
+//                Kf(9.5),
+//                As(0.01),
+//                Af(0.01),
+//                Cr(0.1),
+//                Cs(1.0),
+//                substep(1),
+//                onKdtree(true)
+                // parms setting 2
                 size(5.4),
-                plane_div(11),     // be odd number
-                cloth_div(50),
-                hole_division(3),
+                plane_div(15),
+                cloth_div(45),
+                hole_division(1),
                 time_step(0),
-                kdtree_level(8),
-                g(4.98),
-                Ks(100),
-                Kf(100),
+                kdtree_level(5),
+                g(9.8),
+                Ks(60),
+                Kf(15),
                 As(0.01),
                 Af(0.01),
-                Cr(1.0),
+                Cr(0.1),
                 Cs(1.0),
-                substep(9),
+                substep(1),
                 onKdtree(true)
         {
-            dt = 1.0/240;
+            dt = 1.0/55.8;
             // cloth
             SB = CreateSoftBodyState("ClothStateData");
             SB->update_parms("Ks", Ks);
@@ -73,20 +90,20 @@ namespace pba
             /// load plane with hole
             // create plane
             geom = CreateGeometry("collisionPlane");
-            LoadMesh::LoadPlane(Vector(0.0, -2.0, 0.0), size + 0.000001, plane_div, geom);
+            LoadMesh::LoadPlane(Vector(0.0, -2.0, 0.0), size + 0.0000000001, plane_div, geom);
             // create hole
             createHole(hole_division);
             geom->build_trianglesTree(kdtree_level);   // build geom kdTree
             // set random colors
             for (auto& it: geom->get_triangles())
-            { it->setColor(Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));}
+            { it->setColor(Color(0.55, 0.55, 0.55, 1.0));}
             std::cout << "Hole size: " << size * hole_division / plane_div << std::endl;
 
             /// load cloth
-            createGridPlane(SB, Vector(0.0, -1.8, 0.0), size, cloth_div);
+            createGridPlane(SB, Vector(0.0, -1.95, 0.0), size, cloth_div);
             createConnectedPairs(SB, cloth_div);
             std::cout << "connected pairs: " << SB->get_connectedPairs().size() << std::endl;
-            createTriangleAreas(SB, cloth_div);
+//            createTriangleAreas(SB, cloth_div);
             std::cout << "triangle areas: " << SB->get_triangleAreas().size() << std::endl;
 
             std::cout << "-------------------------------------------" << std::endl;
@@ -107,8 +124,6 @@ namespace pba
             geom->cleanTrianglesCollisionStatus();
             // solve
             SB->Update();
-            // if (!onKdtree)  {solver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);}
-            // else {solver->updateDSWithCollisionWithKdTree(dt, SB, forces, geom, Cr, Cs);}
             // subsolver
             if (!onKdtree)  {subSolver->updateDSWithCollision(dt, SB, forces, geom, Cr, Cs);}
             else {subSolver->updateDSWithCollisionWithKdtree(dt, SB, forces, geom, Cr, Cs);}
@@ -224,7 +239,7 @@ namespace pba
                     if (m != division) { sb->add_softEdges(id, id + 1); }
                     if (n != division) { sb->add_softEdges(id, id + division + 1); }
                     // add diagonal pairs
-                    if (m != division && n != division) { sb->add_softEdges(id, id + division + 2); }
+                    // if (m != division && n != division) { sb->add_softEdges(id, id + division + 2); }
                 }
             }
         }

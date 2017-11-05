@@ -282,8 +282,8 @@ void LoadMesh::LoadPlane(const Vector& center, const double &size, const int &di
     //  | \      \ |
     // p02-p01   p12
     //////////////////
-    Vector llc = Vector(l_x, center.Y() - 0.0001, l_z);
-    Vector urc = Vector(center.X() + size * 0.5, center.Y() + 0.0001 + 0.0001, center.Z() + size * 0.5);
+    Vector llc = Vector(l_x - 0.0001, center.Y() - 0.0001, l_z - 0.0001);
+    Vector urc = Vector(center.X() + size * 0.5 + 0.0001, center.Y() + 0.0001, center.Z() + size * 0.5 + 0.0001);
     geom->setBBox(llc, urc);
     cout << "Load plane success." << endl;
     cout << "Triangles number: " << geom->get_triangles().size() << endl;
