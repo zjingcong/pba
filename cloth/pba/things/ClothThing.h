@@ -47,24 +47,43 @@ namespace pba
 //                Cs(1.0),
 //                substep(1),
 //                onKdtree(true)
+
                 // parms setting 2
+//                size(5.4),
+//                plane_div(15),
+//                cloth_div(45),
+//                hole_division(1),
+//                time_step(0),
+//                kdtree_level(5),
+//                g(9.8),
+//                Ks(60),
+//                Kf(15),
+//                As(0.01),
+//                Af(0.01),
+//                Cr(0.1),
+//                Cs(1.0),
+//                substep(1),
+//                onKdtree(true)
+
+                // parms setting 3
                 size(5.4),
-                plane_div(15),
-                cloth_div(45),
+                plane_div(17),
+                cloth_div(26),
                 hole_division(1),
                 time_step(0),
                 kdtree_level(5),
                 g(9.8),
-                Ks(60),
-                Kf(15),
-                As(0.01),
-                Af(0.01),
+                Ks(80),
+                Kf(8),
+                As(80),
+                Af(2),
                 Cr(0.1),
                 Cs(1.0),
                 substep(1),
                 onKdtree(true)
         {
-            dt = 1.0/55.8;
+//            dt = 1.0/55.8;
+            dt = 1.0/53;
             // cloth
             SB = CreateSoftBodyState("ClothStateData");
             SB->update_parms("Ks", Ks);
@@ -103,7 +122,7 @@ namespace pba
             createGridPlane(SB, Vector(0.0, -1.95, 0.0), size, cloth_div);
             createConnectedPairs(SB, cloth_div);
             std::cout << "connected pairs: " << SB->get_connectedPairs().size() << std::endl;
-//            createTriangleAreas(SB, cloth_div);
+            createTriangleAreas(SB, cloth_div);
             std::cout << "triangle areas: " << SB->get_triangleAreas().size() << std::endl;
 
             std::cout << "-------------------------------------------" << std::endl;
