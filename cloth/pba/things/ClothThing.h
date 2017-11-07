@@ -31,7 +31,7 @@ namespace pba
     public:
         ClothInHoleThing(const std::string nam = "ClothInHoleThing"):
                 PbaThingyDingy(nam),
-                // parms setting 1
+                // parms setting 1(only connected pairs)
 //                size(5.4),
 //                plane_div(13),
 //                cloth_div(26),
@@ -48,42 +48,25 @@ namespace pba
 //                substep(1),
 //                onKdtree(true)
 
-                // parms setting 2
-//                size(5.4),
-//                plane_div(15),
-//                cloth_div(45),
-//                hole_division(1),
-//                time_step(0),
-//                kdtree_level(5),
-//                g(9.8),
-//                Ks(60),
-//                Kf(15),
-//                As(0.01),
-//                Af(0.01),
-//                Cr(0.1),
-//                Cs(1.0),
-//                substep(1),
-//                onKdtree(true)
-
-                // parms setting 3
+                // parms setting 2(area force)
                 size(5.4),
-                plane_div(17),
+                plane_div(21),
                 cloth_div(26),
                 hole_division(1),
                 time_step(0),
-                kdtree_level(5),
+                kdtree_level(6),
                 g(9.8),
                 Ks(80),
                 Kf(8),
                 As(80),
-                Af(2),
+                Af(4),
                 Cr(0.1),
                 Cs(1.0),
                 substep(1),
                 onKdtree(true)
         {
 //            dt = 1.0/55.8;
-            dt = 1.0/53;
+            dt = 1.0/54;
             // cloth
             SB = CreateSoftBodyState("ClothStateData");
             SB->update_parms("Ks", Ks);
