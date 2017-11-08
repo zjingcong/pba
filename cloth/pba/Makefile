@@ -20,8 +20,7 @@ OFILES = base/PbaViewer.o \
          base/SBD.o
 
 
-THINGS = things/UnitTest.h \
-         things/ClothThing.h
+THINGS = things/ClothThing.h
 
 
 ROOTDIR = .

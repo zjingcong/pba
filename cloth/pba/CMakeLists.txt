@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.8)
 project(pba)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -15,6 +15,10 @@ set(SOURCE_FILES
         base/Matrix.C
         base/PbaThing.C
         base/PbaViewer.C
+        base/RBD.C
+        base/RigidBodyState.C
+        base/SBD.C
+        base/SoftBodyState.C
         base/Solver.C
         base/Tools.C
         base/Triangle.C
@@ -30,11 +34,16 @@ set(SOURCE_FILES
         include/Matrix.h
         include/PbaThing.h
         include/PbaViewer.h
+        include/RBD.h
+        include/RigidBodyState.h
+        include/SBD.h
+        include/SoftBodyState.h
         include/Solver.h
         include/Tools.h
         include/Triangle.h
         include/Vector.h
-        things/UnitTest.h include/RigidBodyState.h base/RigidBodyState.C include/RBD.h base/RBD.C things/ClothThing.h include/SoftBodyState.h base/SoftBodyState.C include/SBD.h base/SBD.C)
+        things/ClothThing.h
+        )
 
 include_directories(include/)
 

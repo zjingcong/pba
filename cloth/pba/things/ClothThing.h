@@ -31,33 +31,15 @@ namespace pba
     public:
         ClothInHoleThing(const std::string nam = "ClothInHoleThing"):
                 PbaThingyDingy(nam),
-                // parms setting 1(only connected pairs)
-//                size(5.4),
-//                plane_div(13),
-//                cloth_div(26),
-//                hole_division(1),
-//                time_step(0),
-//                kdtree_level(5),
-//                g(9.8),
-//                Ks(110),
-//                Kf(9.5),
-//                As(0.01),
-//                Af(0.01),
-//                Cr(0.1),
-//                Cs(1.0),
-//                substep(1),
-//                onKdtree(true)
-
-                // parms setting 2(area force)
                 size(5.4),
-                plane_div(21),
-                cloth_div(26),
+                plane_div(7),
+                cloth_div(20),
                 hole_division(1),
                 time_step(0),
-                kdtree_level(6),
+                kdtree_level(3),
                 g(9.8),
-                Ks(80),
-                Kf(8),
+                Ks(70),
+                Kf(5),
                 As(80),
                 Af(4),
                 Cr(0.1),
@@ -65,14 +47,9 @@ namespace pba
                 substep(1),
                 onKdtree(true)
         {
-//            dt = 1.0/55.8;
-            dt = 1.0/54;
+            dt = 1.0/45;
             // cloth
             SB = CreateSoftBodyState("ClothStateData");
-            SB->update_parms("Ks", Ks);
-            SB->update_parms("Kf", Kf);
-            SB->update_parms("As", As);
-            SB->update_parms("Af", Af);
             // forces
             gravity = CreateGravity(SB, g);
             clothInner = CreateSoftBodyInnerForce(SB);
@@ -89,6 +66,10 @@ namespace pba
 
         void Init(const std::vector<std::string>& args)
         {
+            /// load preset attributes
+            if (args[1] == "0")   {preset_0();}
+            if (args[1] == "1")   {preset_1();}
+
             /// load plane with hole
             // create plane
             geom = CreateGeometry("collisionPlane");
@@ -102,11 +83,21 @@ namespace pba
             std::cout << "Hole size: " << size * hole_division / plane_div << std::endl;
 
             /// load cloth
-            createGridPlane(SB, Vector(0.0, -1.95, 0.0), size, cloth_div);
-            createConnectedPairs(SB, cloth_div);
-            std::cout << "connected pairs: " << SB->get_connectedPairs().size() << std::endl;
-            createTriangleAreas(SB, cloth_div);
-            std::cout << "triangle areas: " << SB->get_triangleAreas().size() << std::endl;
+            SB->update_parms("Ks", Ks);
+            SB->update_parms("Kf", Kf);
+            SB->update_parms("As", As);
+            SB->update_parms("Af", Af);
+            createGridPlane(SB, Vector(0.0, -1.5, 0.0), size, cloth_div);
+            if (std::find(args.begin(), args.end(), "p") != args.end())
+            {
+                createConnectedPairs(SB, cloth_div);
+                std::cout << "connected pairs: " << SB->get_connectedPairs().size() << std::endl;
+            }
+            if (std::find(args.begin(), args.end(), "a") != args.end())
+            {
+                createTriangleAreas(SB, cloth_div);
+                std::cout << "triangle areas: " << SB->get_triangleAreas().size() << std::endl;
+            }
 
             std::cout << "-------------------------------------------" << std::endl;
         }
@@ -191,6 +182,7 @@ namespace pba
             std::cout << "Cr: " << Cr << std::endl;
             std::cout << "Cs: " << Cs << std::endl;
             std::cout << "substep: " << substep << std::endl;
+            std::cout << "timestep: " << dt << std::endl;
         }
 
         /////////////////////////////////// build plane ///////////////////////////////////
@@ -315,6 +307,35 @@ namespace pba
             }
             glEnd();
         }
+
+        /////////////////////////////////// preset values ///////////////////////////////////
+        void preset_0()
+        {
+            plane_div = 11;
+            cloth_div = 24;
+            hole_division = 1;
+            time_step = 0;
+            kdtree_level = 5;
+            Ks = 100;
+            Kf = 9.5;
+            As = 0.0;
+            Af = 0.0;
+            dt = 1.0/56;
+        }
+
+        void preset_1()
+        {
+            plane_div = 19;
+            cloth_div = 26;
+            hole_division = 1;
+            time_step = 0;
+            kdtree_level = 6;
+            Ks = 80;
+            Kf = 8;
+            As = 80;
+            Af = 4;
+            dt = 1.0/55;
+        }
     };
 
     pba::PbaThing ClothInHole() { return PbaThing(new pba::ClothInHoleThing()); }
@@ -342,45 +363,45 @@ namespace pba
             case 'G':
             { g *= 1.1; gravity->update_parms("g", g);  std::cout << "gravity constant: " << g << std::endl; break; }
 
-                /// cloth force control
-                // Ks
+            /// cloth force control
+            // Ks
             case 's':
             { Ks /= 1.1; SB->update_parms("Ks", Ks);  std::cout << "Ks: " << Ks << std::endl; break; }
             case 'S':
             { Ks *= 1.1; SB->update_parms("Ks", Ks);  std::cout << "Ks: " << Ks << std::endl; break; }
-                // Kf
+            // Kf
             case 'k':
             { Kf /= 1.1; SB->update_parms("Kf", Kf);  std::cout << "Kf: " << Kf << std::endl; break; }
             case 'K':
             { Kf *= 1.1; SB->update_parms("Kf", Kf);  std::cout << "Kf: " << Kf << std::endl; break; }
-                // As
+            // As
             case 'z':
             { As /= 1.1; SB->update_parms("As", As);  std::cout << "As: " << As << std::endl; break; }
             case 'Z':
             { As *= 1.1; SB->update_parms("As", As);  std::cout << "As: " << As << std::endl; break; }
-                // Af
+            // Af
             case 'v':
             { Af /= 1.1; SB->update_parms("Af", Af);  std::cout << "Af: " << Af << std::endl; break; }
             case 'V':
             { Af *= 1.1; SB->update_parms("Af", Af);  std::cout << "Af: " << Af << std::endl; break; }
 
-                /// collision control
-                // Cr
+            /// collision control
+            // Cr
             case 'c':
             { Cr /= 1.1;    std::cout << "Cr: " << Cr << std::endl; break; }
             case 'C':
             { Cr *= 1.1;    Cr = (Cr > 1.0) ? float(1.0): Cr;  std::cout << "Cr: " << Cr << std::endl; break; }
-                // Cs
+            // Cs
             case 'x':
             { Cs /= 1.1;    std::cout << "Cs: " << Cs << std::endl; break; }
             case 'X':
             { Cs *= 1.1;    Cs = (Cs > 1.0) ? float(1.0): Cs;   std::cout << "Cs: " << Cs << std::endl; break; }
 
-                /// print current time step
+            /// print current time step
             case ' ':
             { std::cout << "Current time step: " << time_step << std::endl; break;}
 
-                /// kdtree
+            /// kdtree
             case 'a':
             {
                 onKdtree = !onKdtree;
@@ -389,7 +410,7 @@ namespace pba
                 break;
             }
 
-                /// quit
+            /// quit
             case 27: { exit(0); }
 
             default:
