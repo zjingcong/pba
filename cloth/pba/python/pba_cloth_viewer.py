@@ -13,9 +13,9 @@ import pba.swig.PbaThings as things
 def get_argvs():
 	parser = argparse.ArgumentParser(description="Cloth simulation presets.")
 	parser.add_argument('-p', '--preset', type=int, dest='preset', default=3,
-						help='Input preset id. \nTo reach the goal, preset two cloth attributes: \n0 - only soft edges; \n1 - soft edges and soft triangles.')
+						help='Input preset id. To reach the goal, preset two cloth attributes: 0 - only soft edges; 1 - soft edges and soft triangles.')
 	parser.add_argument('-s', '--setting', type=str, dest='setting', default='p',
-						help='Input cloth setting: \na-add soft triangles; p-add soft edges.')
+						help='Input cloth setting: a-add soft triangles; p-add soft edges.')
 	args = parser.parse_args()
 	return args
 
