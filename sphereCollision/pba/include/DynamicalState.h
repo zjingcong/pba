@@ -118,6 +118,8 @@ class DynamicalStateData
 
     void merge( const DynamicalStateData& g );
 
+    void clear();
+
     const std::string& Name() const { return name; }
 
     const double time() const { return t; }

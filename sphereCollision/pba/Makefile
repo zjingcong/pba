@@ -22,7 +22,8 @@ OFILES = base/PbaViewer.o \
          base/SphereDynamics.o
 
 
-THINGS = things/SpheresThing.h
+THINGS = things/SpheresThing.h \
+         things/TriangleCollisionThing.h
 
 
 ROOTDIR = .

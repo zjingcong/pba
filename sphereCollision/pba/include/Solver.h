@@ -27,28 +27,32 @@ namespace pba
         //! get solver name
         const std::string& Name() const { return name; }
 
+        //! set collision
+        void setCollision(CollisionPtr& coll)    {collision = coll;}
+
         //! update vel and pos in DS, update time in DS
-        void updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces) { _updateDS(dt, DS, forces); DS->update_time(dt);}
+        void updateDS(const double& dt, DynamicalState& DS, ForcePtrContainer forces) { _updateDS(dt, DS, forces); DS->update_time(dt);}
         //! update vel and pos in DS with collision, update time in DS
-        void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs);
+        void updateDSWithCollision(const double& dt, DynamicalState& DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs);
         //! update vel and pos in DS with collision, update time in DS, using KdTree for the geometry
-        void updateDSWithCollisionWithKdTree(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs);
+        void updateDSWithCollisionWithKdTree(const double& dt, DynamicalState& DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs);
 
     protected:
-        virtual void _updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces) {}
-        virtual void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree)   {}
+        virtual void _updateDS(const double& dt, DynamicalState& DS, ForcePtrContainer forces) {}
+        virtual void _updateDSWithCollision(const double& dt, DynamicalState& DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree)   {}
 
         //! partial solver: update position
-        void updatePos(const double& dt, DynamicalState DS);
+        void updatePos(const double& dt, DynamicalState& DS);
         //! partial solver: update velocity
-        void updateVel(const double& dt, DynamicalState DS, ForcePtrContainer forces);
+        void updateVel(const double& dt, DynamicalState& DS, ForcePtrContainer forces);
         //! partial solver: update position with collision
-        void updatePosWithCollision(const double& dt, DynamicalState DS, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
+        void updatePosWithCollision(const double& dt, DynamicalState& DS, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
 
         std::string name;
+        CollisionPtr collision;
 
     private:
-        void updateSinglePos(const double& dt, DynamicalState DS, size_t i);
+        void updateSinglePos(const double& dt, DynamicalState& DS, size_t i);
     };
 
     typedef std::shared_ptr<SolverBase> SolverPtr;
@@ -63,8 +67,8 @@ namespace pba
         ~LeapFrogSolver()   {}
 
     protected:
-        void _updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces);
-        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
+        void _updateDS(const double& dt, DynamicalState& DS, ForcePtrContainer forces);
+        void _updateDSWithCollision(const double& dt, DynamicalState& DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
     };
 
     SolverPtr CreateLeapFrogSolver();
@@ -78,8 +82,8 @@ namespace pba
         ~SixOrderSolver()   {}
 
     protected:
-        void _updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces);
-        void _updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
+        void _updateDS(const double& dt, DynamicalState& DS, ForcePtrContainer forces);
+        void _updateDSWithCollision(const double& dt, DynamicalState& DS, ForcePtrContainer forces, GeometryPtr geom, const double& Cr, const double& Cs, bool onkdTree);
     };
 
     SolverPtr CreateSixOrderSolver();

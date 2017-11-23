@@ -62,7 +62,7 @@ std::vector<TrianglePtr> KdTree::search(const Vector& origin, const Vector& targ
     return triangles_left;
 }
 
-pba::CollisionData KdTree::searchCollision(double& dt, DynamicalState DS, size_t i, const Vector& origin, const Vector& target)
+pba::CollisionData KdTree::searchCollision(CollisionPtr collision, double& dt, DynamicalState DS, size_t i, const Vector& origin, const Vector& target)
 {
     int intersect_result = aabb.intersect(origin, target);
     CollisionData collisionData;
@@ -70,12 +70,12 @@ pba::CollisionData KdTree::searchCollision(double& dt, DynamicalState DS, size_t
 
     if ((left == NULL && right == NULL) || (level == depth))
     {
-        TriangleCollision::collisionWithinTriangles(dt, DS, i, triangles, collisionData);
+        collision->collisionWithinTriangles(dt, i, triangles, collisionData);
         return collisionData;
     }
 
-    CollisionData collisionData_left = left->searchCollision(dt, DS, i, origin, target);
-    CollisionData collisionData_right = right->searchCollision(dt, DS, i, origin, target);
+    CollisionData collisionData_left = left->searchCollision(collision, dt, DS, i, origin, target);
+    CollisionData collisionData_right = right->searchCollision(collision, dt, DS, i, origin, target);
     collisionData.collision_status = collisionData_left.collision_status + collisionData_right.collision_status;
     if (std::fabs(collisionData_left.dt_i) > std::fabs(collisionData_right.dt_i))
     {

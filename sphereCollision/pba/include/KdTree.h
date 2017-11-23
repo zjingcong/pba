@@ -13,7 +13,8 @@
 namespace pba
 {
     struct CollisionData;
-    class TriangleCollision;
+    class CollisionBase;
+    typedef std::shared_ptr<CollisionBase> CollisionPtr;
 }
 
 # include <string>
@@ -35,7 +36,7 @@ namespace pba
         int getDepth() const { return depth;}
 
         void build(AABB bbox, std::vector<pba::TrianglePtr> tris, int l = 0);
-        pba::CollisionData searchCollision(double& dt, DynamicalState DS, size_t i, const Vector& origin, const Vector& target);
+        pba::CollisionData searchCollision(CollisionPtr collision, double& dt, DynamicalState DS, size_t i, const Vector& origin, const Vector& target);
         std::vector<TrianglePtr> search(const Vector& origin, const Vector& target);
 
     private:

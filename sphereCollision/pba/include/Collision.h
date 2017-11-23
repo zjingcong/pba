@@ -25,26 +25,53 @@ namespace pba
                 id(0),
                 dt_i(0.0),
                 x_i(Vector(0.0, 0.0, 0.0)),
-                triangle(NULL),
+                triangle(nullptr),
                 collision_status(false) {}
     };
 
-    class TriangleCollision
+
+    class CollisionBase: public std::enable_shared_from_this<CollisionBase>
     {
     public:
+        CollisionBase() {}
+        ~CollisionBase()    {}
+
+        virtual void collisionWithinTriangles(const double& dt, const size_t i, std::vector<TrianglePtr> triangles, CollisionData& CD)    {};
+        virtual void collision(const double& dt, pba::GeometryPtr geom, const double& Cr, const double& Cs) {};
+        virtual void collisionWithKdTree(const double& dt, pba::GeometryPtr geom, const double& Cr, const double& Cs)   {};
+
+    protected:
+        virtual void collisionDetection(const double& dt, const size_t p, TrianglePtr triangle, CollisionData& CD)  {};
+        virtual void collisionHandling(const double& dt, const size_t p, const CollisionData& CD, const double& Cr, const double& Cs)   {};
+    };
+
+    typedef std::shared_ptr<CollisionBase> CollisionPtr;
+
+
+    class ParticleCollision: public CollisionBase
+    {
+    public:
+        ParticleCollision(DynamicalState& ds): DS(ds)    {}
+        ~ParticleCollision()    {}
+
         //! collision detection within a list of triangles
-        static void collisionWithinTriangles(const double& dt, DynamicalState DS, size_t i, std::vector<TrianglePtr> triangles, CollisionData& CD);
+        void collisionWithinTriangles(const double& dt, const size_t i, std::vector<TrianglePtr> triangles, CollisionData& CD);
         //! collision detection and handling per geometry
-        static void triangleCollision(const double& dt, DynamicalState DS, pba::GeometryPtr geom, const double& Cr, const double& Cs);
+        void collision(const double &dt, pba::GeometryPtr geom, const double &Cr, const double &Cs);
         //! collision detection and handling per KdTree stored geometry
-        static void triangleCollisionWithKdTree(const double& dt, DynamicalState DS, pba::GeometryPtr geom, const double& Cr, const double& Cs);
+        void collisionWithKdTree(const double &dt, pba::GeometryPtr geom, const double &Cr, const double &Cs);
 
     private:
+        DynamicalState DS;
+
         //! collision detection per triangle
-        static bool collisionDetection(const double& dt, DynamicalState DS, const size_t p, TrianglePtr triangle, double& dt_i, Vector& x_i);
+        void collisionDetection(const double& dt, const size_t p, TrianglePtr triangle, CollisionData& CD);
         //! collision handling per triangle
-        static void collisionHandling(const double& dt, DynamicalState DS, const size_t p, const CollisionData& CD, const double& Cr, const double& Cs);
+        void collisionHandling(const double& dt, const size_t p, const CollisionData& CD, const double& Cr, const double& Cs);
     };
+
+    CollisionPtr CreateParticleCollision(DynamicalState& ds);
+
 
     class RBDCollision
     {

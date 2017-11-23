@@ -8,11 +8,11 @@
 namespace pba
 {
 
-    class SphereCollision
-    {
-    public:
-        SphereCollision()
-    };
+//    class SphereCollision
+//    {
+//    public:
+//        SphereCollision()
+//    };
 
 }
 
