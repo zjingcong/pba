@@ -95,6 +95,9 @@ namespace pba {
             /// init sim
             // init dynamical state
             emitParticles(num);
+            collision->setGeom(geom);
+            collision->setCr(Cr);
+            collision->setCs(Cs);
         }
 
         void Reset()
@@ -119,8 +122,8 @@ namespace pba {
             }
 
             // update dynamical state
-            if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, forces, geom, Cr, Cs);}
-            else    {solver->updateDSWithCollision(dt, DS, forces, geom, Cr, Cs);} // collision
+            if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, forces);}
+            else    {solver->updateDSWithCollision(dt, DS, forces);} // collision
         }
 
         void Display()
@@ -178,20 +181,22 @@ namespace pba {
 
                 /// collision coefficients control
                 case 'c':   // Cr
-                { Cr /= 1.1;    std::cout << "coefficient of restitution Cr: " << Cr << std::endl;  break; }
+                { Cr /= 1.1;    collision->setCr(Cr);   std::cout << "coefficient of restitution Cr: " << Cr << std::endl;  break; }
                 case 'C':
                 {
                     Cr *= 1.1;
                     if (Cr >= 1.0)  {Cr = 1.0;}
+                    collision->setCr(Cr);
                     std::cout << "coefficient of restitution Cr: " << Cr << std::endl;
                     break;
                 }
                 case 's':   // Cs
-                { Cs /= 1.1;    std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;  break; }
+                { Cs /= 1.1;    collision->setCs(Cs);   std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;  break; }
                 case 'S':
                 {
                     Cs *= 1.1;
                     if (Cs >= 1.0)  {Cs = 1.0;}
+                    collision->setCs(Cs);
                     std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;
                     break;
                 }

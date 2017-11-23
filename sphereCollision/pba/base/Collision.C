@@ -42,7 +42,7 @@ void ParticleCollision::collisionWithinTriangles(const double& dt, const size_t 
     CD.dt_i = max_dti;
 }
 
-void ParticleCollision::collision(const double &dt, GeometryPtr geom, const double &Cr, const double &Cs)
+void ParticleCollision::collision(const double &dt)
 {
     // loop over particles
     size_t i;
@@ -59,7 +59,7 @@ void ParticleCollision::collision(const double &dt, GeometryPtr geom, const doub
             if (collision_flag)
             {
                 // handle collision for maximum dt_i
-                ParticleCollision::collisionHandling(tmp_dt, i, CD, Cr, Cs);
+                ParticleCollision::collisionHandling(tmp_dt, i, CD);
                 // store collision triangle
                 CD.triangle->setCollisionStatus(true);
                 // update dt (use maximum dti as new dt for next collision detection)
@@ -69,7 +69,7 @@ void ParticleCollision::collision(const double &dt, GeometryPtr geom, const doub
     }
 }
 
-void ParticleCollision::collisionWithKdTree(const double &dt, GeometryPtr geom, const double &Cr, const double &Cs)
+void ParticleCollision::collisionWithKdTree(const double &dt)
 {
     // loop over particles
     for (size_t i = 0; i < DS->nb(); ++i)
@@ -87,7 +87,7 @@ void ParticleCollision::collisionWithKdTree(const double &dt, GeometryPtr geom, 
             if (collision_flag)
             {
                 // handle collision for maximum dt_i
-                ParticleCollision::collisionHandling(tmp_dt, i, CD, Cr, Cs);
+                ParticleCollision::collisionHandling(tmp_dt, i, CD);
                 // store collision triangle
                 CD.triangle->setCollisionStatus(true);
                 // update dt (use maximum dti as new dt for next collision detection)
@@ -135,7 +135,7 @@ void ParticleCollision::collisionDetection(const double& dt, const size_t p, Tri
 }
 
 
-void ParticleCollision::collisionHandling(const double& dt, const size_t p, const CollisionData& CD, const double& Cr, const double& Cs)
+void ParticleCollision::collisionHandling(const double& dt, const size_t p, const CollisionData& CD)
 {
     // calculate vel_r and new pos
     Vector vel = DS->vel(p);
