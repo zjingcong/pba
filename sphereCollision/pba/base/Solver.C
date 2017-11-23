@@ -9,25 +9,25 @@ using namespace pba;
 
 //! ------------------------------------ SolverBase -------------------------------------------------
 
-void SolverBase::updateDSWithCollision(const double& dt, DynamicalState& DS, ForcePtrContainer forces)
+void SolverBase::updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces)
 {
     _updateDSWithCollision(dt, DS, forces, false);
     DS->update_time(dt);
 }
 
-void SolverBase::updateDSWithCollisionWithKdTree(const double& dt, DynamicalState& DS, ForcePtrContainer forces)
+void SolverBase::updateDSWithCollisionWithKdTree(const double& dt, DynamicalState DS, ForcePtrContainer forces)
 {
     _updateDSWithCollision(dt, DS, forces, true);
     DS->update_time(dt);
 }
 
-void SolverBase::updateSinglePos(const double& dt, DynamicalState& DS, size_t i)
+void SolverBase::updateSinglePos(const double& dt, DynamicalState DS, size_t i)
 {
     Vector pos = DS->pos(i) + dt * DS->vel(i);
     DS->set_pos(i, pos);
 }
 
-void SolverBase::updatePos(const double& dt, DynamicalState& DS)
+void SolverBase::updatePos(const double& dt, DynamicalState DS)
 {
     size_t i;
     for (i = 0; i < DS->nb(); ++i)
@@ -36,7 +36,7 @@ void SolverBase::updatePos(const double& dt, DynamicalState& DS)
     }
 }
 
-void SolverBase::updateVel(const double& dt, DynamicalState& DS, ForcePtrContainer forces)
+void SolverBase::updateVel(const double& dt, DynamicalState DS, ForcePtrContainer forces)
 {
     size_t i;
     for (i = 0; i < DS->nb(); ++i)
@@ -52,7 +52,7 @@ void SolverBase::updateVel(const double& dt, DynamicalState& DS, ForcePtrContain
     }
 }
 
-void SolverBase::updatePosWithCollision(const double& dt, DynamicalState& DS, bool onkdTree)
+void SolverBase::updatePosWithCollision(const double& dt, DynamicalState DS, bool onkdTree)
 {
     updatePos(dt, DS);
     if (onkdTree)   { collision->collisionWithKdTree(dt);}
@@ -62,7 +62,7 @@ void SolverBase::updatePosWithCollision(const double& dt, DynamicalState& DS, bo
 
 //! ------------------------------------ LeapFrog -------------------------------------------------
 
-void LeapFrogSolver::_updateDS(const double& dt, DynamicalState& DS, ForcePtrContainer forces)
+void LeapFrogSolver::_updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces)
 {
     // S_lf(dt) = S_x(dt/2)S_v(dt)S_x(dt/2)
     LeapFrogSolver::updatePos(dt / 2, DS);
@@ -70,7 +70,7 @@ void LeapFrogSolver::_updateDS(const double& dt, DynamicalState& DS, ForcePtrCon
     LeapFrogSolver::updatePos(dt / 2, DS);
 }
 
-void LeapFrogSolver::_updateDSWithCollision(const double& dt, DynamicalState& DS, ForcePtrContainer forces, bool onkdTree)
+void LeapFrogSolver::_updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, bool onkdTree)
 {
     LeapFrogSolver::updatePosWithCollision(dt / 2, DS, onkdTree);
     LeapFrogSolver::updateVel(dt, DS, forces);
@@ -86,7 +86,7 @@ pba::SolverPtr pba::CreateLeapFrogSolver()
 
 //! ------------------------------------ SixthOrder -------------------------------------------------
 
-void SixOrderSolver::_updateDS(const double& dt, DynamicalState& DS, ForcePtrContainer forces)
+void SixOrderSolver::_updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces)
 {
     double a = 1.0 / (4.0 - std::pow(4, 1.0/3.0));
     double b = 1 - 4 * a;
@@ -100,7 +100,7 @@ void SixOrderSolver::_updateDS(const double& dt, DynamicalState& DS, ForcePtrCon
     LeapFrogSolver::_updateDS(dt_a, DS, forces);
 }
 
-void SixOrderSolver::_updateDSWithCollision(const double& dt, DynamicalState& DS, ForcePtrContainer forces, bool onkdTree)
+void SixOrderSolver::_updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces, bool onkdTree)
 {
     double a = 1.0 / (4.0 - std::pow(4, 1.0/3.0));
     double b = 1 - 4 * a;

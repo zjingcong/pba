@@ -16,10 +16,12 @@ OFILES = base/PbaViewer.o \
          base/Boid.o \
          base/RigidBodyState.o \
          base/RBD.o \
+         base/RBDCollision.o \
          base/SoftBodyState.o \
          base/SBD.o \
          base/SphereState.o \
-         base/SphereDynamics.o
+         base/SphereDynamics.o \
+         base/SphereCollision.o
 
 
 THINGS = things/SpheresThing.h \

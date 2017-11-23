@@ -90,7 +90,7 @@ namespace pba {
                 TrianglePtr triangle = *it;
                 triangle->setColor(Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));   // set random colors
             }
-            cout << "-------------------------------------------" << endl;
+            std::cout << "-------------------------------------------" << std::endl;
 
             /// init sim
             // init dynamical state
@@ -230,16 +230,16 @@ namespace pba {
 
         void Usage()
         {
-            std::cout << "=== PbaThing ===" << endl;
-            std::cout << "c/C     reduce/increase collision coefficient of restitution" << endl;
-            std::cout << "s/S     reduce/increase collision coefficient of stickiness" << endl;
-            std::cout << "g/G     reduce/increase magnitude of gravity" << endl;
-            std::cout << "e       start/stop emitting more particles" << endl;
-            std::cout << "t/T     reduce/increase animation time step" << endl;
-            std::cout << "q       switch solvers between Leap Frog and Sixth Order" << endl;
-            std::cout << "w       switch wireframe/normal display mode" << endl;
-            std::cout << "k       turn on/off KdTree" << endl;
-            std::cout << "Esc     quit" << endl;
+            std::cout << "=== PbaThing ===" << std::endl;
+            std::cout << "c/C     reduce/increase collision coefficient of restitution" << std::endl;
+            std::cout << "s/S     reduce/increase collision coefficient of stickiness" << std::endl;
+            std::cout << "g/G     reduce/increase magnitude of gravity" << std::endl;
+            std::cout << "e       start/stop emitting more particles" << std::endl;
+            std::cout << "t/T     reduce/increase animation time step" << std::endl;
+            std::cout << "q       switch solvers between Leap Frog and Sixth Order" << std::endl;
+            std::cout << "w       switch wireframe/normal display mode" << std::endl;
+            std::cout << "k       turn on/off KdTree" << std::endl;
+            std::cout << "Esc     quit" << std::endl;
         }
 
     private:
@@ -302,7 +302,7 @@ namespace pba {
         void addForce()
         {
             gravity = CreateGravity(DS, g); // add gravity
-            cout << "- Add force " << gravity->Name() << endl;
+            std::cout << "- Add force " << gravity->Name() << std::endl;
             forces.push_back(gravity);
         }
     };

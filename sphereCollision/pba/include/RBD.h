@@ -9,7 +9,7 @@
 # include "RigidBodyState.h"
 # include "LinearAlgebra.h"
 # include "Force.h"
-# include "Collision.h"
+# include "RBDCollision.h"
 # include <tuple>
 
 namespace pba

@@ -7,8 +7,6 @@
 
 # include "DynamicalState.h"
 # include "Geometry.h"
-# include "RigidBodyState.h"
-# include "Matrix.h"
 
 namespace pba
 {
@@ -55,7 +53,7 @@ namespace pba
         GeometryPtr geom;
 
         virtual void collisionDetection(const double& dt, const size_t p, TrianglePtr triangle, CollisionData& CD)  {};
-        virtual void collisionHandling(const double& dt, const size_t p, const CollisionData& CD)   {};
+        virtual void collisionHandling(const size_t p, const CollisionData& CD)   {};
     };
 
     typedef std::shared_ptr<CollisionBase> CollisionPtr;
@@ -64,15 +62,16 @@ namespace pba
     class ParticleCollision: public CollisionBase
     {
     public:
-        ParticleCollision(DynamicalState& ds): DS(ds)    {}
+        ParticleCollision(DynamicalState ds): DS(ds)    {}
         ~ParticleCollision()    {}
 
-        //! collision detection within a list of triangles
-        void collisionWithinTriangles(const double& dt, const size_t i, std::vector<TrianglePtr> triangles, CollisionData& CD);
         //! collision detection and handling per geometry
         void collision(const double &dt);
         //! collision detection and handling per KdTree stored geometry
         void collisionWithKdTree(const double &dt);
+
+        //! collision detection within a list of triangles
+        void collisionWithinTriangles(const double& dt, const size_t i, std::vector<TrianglePtr> triangles, CollisionData& CD);
 
     private:
         DynamicalState DS;
@@ -80,22 +79,11 @@ namespace pba
         //! collision detection per triangle
         void collisionDetection(const double& dt, const size_t p, TrianglePtr triangle, CollisionData& CD);
         //! collision handling per triangle
-        void collisionHandling(const double& dt, const size_t p, const CollisionData& CD);
+        void collisionHandling(const size_t p, const CollisionData& CD);
     };
 
-    CollisionPtr CreateParticleCollision(DynamicalState& ds);
+    CollisionPtr CreateParticleCollision(DynamicalState ds);
 
-
-    class RBDCollision
-    {
-    public:
-        static void RBD_Collision(const double& dt, const RigidBodyState& RBDS, pba::GeometryPtr geom);
-
-    private:
-        static bool collisionDetection(const double& dt, const RigidBodyState& RBDS, const size_t& p, TrianglePtr triangle, double& dt_i);
-        static void collisionHandling(const RigidBodyState& RBDS, const CollisionData& CD);
-        static void collision(const double &dt, const RigidBodyState &RBDS, std::vector<TrianglePtr> triangles, CollisionData &CD);
-    };
 }
 
 # endif //PBA_COLLISION_H
