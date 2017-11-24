@@ -31,7 +31,7 @@ namespace pba
         void setCollision(CollisionPtr coll)    {collision = coll;}
 
         //! update vel and pos in DS, update time in DS
-        void updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces) { _updateDS(dt, DS, forces); DS->update_time(dt);}
+        void updateDS(const double& dt, DynamicalState DS, ForcePtrContainer forces);
         //! update vel and pos in DS with collision, update time in DS
         void updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces);
         //! update vel and pos in DS with collision, update time in DS, using KdTree for the geometry

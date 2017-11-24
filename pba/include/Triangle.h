@@ -26,6 +26,7 @@ namespace pba
         const pba::Vector& getP2() const { return P2;}
         const pba::Vector& getE1() const { return e1;}
         const pba::Vector& getE2() const { return e2;}
+        const pba::Vector& getE3() const { return e3;}
         const pba::Vector& getNorm() const { return norm;}
         const pba::Color& getColor() const { return color;}
         bool getCollisionStatus() const { return isCollision;}
@@ -37,6 +38,7 @@ namespace pba
         pba::Vector P2;
         pba::Vector e1;
         pba::Vector e2;
+        pba::Vector e3;
         pba::Vector norm;
         pba::Color color;
         bool isCollision;

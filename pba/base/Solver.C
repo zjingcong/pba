@@ -9,6 +9,12 @@ using namespace pba;
 
 //! ------------------------------------ SolverBase -------------------------------------------------
 
+void SolverBase::updateDS(const double &dt, DynamicalState DS, ForcePtrContainer forces)
+{
+    _updateDS(dt, DS, forces);
+    DS->update_time(dt);
+}
+
 void SolverBase::updateDSWithCollision(const double& dt, DynamicalState DS, ForcePtrContainer forces)
 {
     _updateDSWithCollision(dt, DS, forces, false);

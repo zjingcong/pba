@@ -30,7 +30,11 @@ namespace pba
         //! collision handling per triangle
         void collisionHandling(const size_t p, const CollisionData& CD);
 
-        bool isInTriangle(TrianglePtr triangle, const Vector& xi);
+        void triPlaneIntersectionTest(const double &dt, const size_t p, TrianglePtr triangle, CollisionData &CD);
+        void edgeIntersectionTest(const double &dt, const size_t p, const Vector& P0, const Vector& P1, CollisionData &CD);
+
+        bool inTriangleTest(TrianglePtr triangle, const Vector &xi);
+        bool timeTest(const double& dti, const double& dt);
     };
 
     CollisionPtr CreateSphereCollision(SphereState ds);

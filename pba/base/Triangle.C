@@ -12,5 +12,6 @@ Triangle::Triangle(const pba::Vector& p0, const pba::Vector& p1, const pba::Vect
 {
     e1 = P1 - P0;
     e2 = P2 - P0;
+    e3 = P2 - P1;
     norm = (e2^e1).unitvector();
 }
