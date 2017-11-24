@@ -1,2 +1,0 @@
-# pba
-Physically Based Animation
