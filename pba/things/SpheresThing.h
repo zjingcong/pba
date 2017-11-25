@@ -151,10 +151,10 @@ namespace pba
             {
                 size_t id = nb + i;
                 sphereDS->set_id(id, int(id));
-                sphereDS->set_radius(id, 0.1);
+                sphereDS->set_radius(id, 0.1 * (drand48() + 0.5));  // random radius
                 sphereDS->set_pos(id, Vector((drand48() - 0.5), drand48(), (drand48() - 0.5)));  // random position
-                sphereDS->set_vel(id, 0.5 * Vector((drand48() - 0.5), 0.0, (drand48() - 0.5)));  // random velocity
-                sphereDS->set_ci(id, Color(0.0, float(drand48() * 0.4 + 0.6), float(drand48() * 0.4 + 0.6), 1.0));    // random color
+                sphereDS->set_vel(id, 1.2 * Vector((drand48() - 0.5), 0.0, (drand48() - 0.5)));  // random velocity
+                sphereDS->set_ci(id, Color(0.0, float(drand48() * 0.5 + 0.5), float(drand48() * 0.5 + 0.5), 1.0));    // random color
             }
             std::cout << "current spheres number: " << sphereDS->nb() << std::endl;
         }

@@ -124,6 +124,13 @@ void SphereCollision::collisionDetection(const double &dt, const size_t p, Trian
     edgeIntersectionTest(dt, p, P0, P1, CD);
     edgeIntersectionTest(dt, p, P0, P2, CD);
     edgeIntersectionTest(dt, p, P1, P2, CD);
+    if (CD.collision_status)    { return;}
+
+    // sphere-triangleVertex intersection test
+    CD.dt_i = 0.0;
+    vertIntersectionTest(dt, p, P0, CD);
+    vertIntersectionTest(dt, p, P1, CD);
+    vertIntersectionTest(dt, p, P2, CD);
 }
 
 void SphereCollision::collisionHandling(const size_t p, const CollisionData &CD)
@@ -219,7 +226,38 @@ void SphereCollision::edgeIntersectionTest(const double &dt, const size_t p, con
         CD.collision_status = true;
         CD.dt_i = dti;
     }
-    else    { if (fabs(dti) > fabs(CD.dt_i)) { CD.dt_i = dti; }}    // find the ealiest intersection
+    // find the ealiest intersection
+    else    { if (fabs(dti) > fabs(CD.dt_i)) { CD.dt_i = dti; }}
+}
+
+void SphereCollision::vertIntersectionTest(const double &dt, const size_t p, const Vector &P, CollisionData &CD)
+{
+    Vector center = sphereDS->pos(p);
+    float radius = sphereDS->radius(p);
+    Vector vel = sphereDS->vel(p);
+
+    double tmp = vel * (center - P);
+    double vel_sq = vel * vel;
+    double dt_delta = pow(tmp, 2.0) - vel_sq * ((center - P) * (center - P) - radius * radius);
+    if (dt_delta < 0.0) { return;}  // quadratic for dt has no real roots
+
+    double dt0 = (tmp + pow(dt_delta, 0.5)) / vel_sq;
+    double dt1 = (tmp - pow(dt_delta, 0.5)) / vel_sq;
+
+    // time test
+    double dti = 0.0;
+    bool dt0_test = timeTest(dt0, dt);
+    bool dt1_test = timeTest(dt1, dt);
+    if (!dt0_test && !dt1_test) { return;}
+    dti = (fabs(dt0) * dt0_test > fabs(dt1) * dt1_test) ? dt0 : dt1;
+
+    if (!CD.collision_status)
+    {
+        CD.collision_status = true;
+        CD.dt_i = dti;
+    }
+    // find the ealiest intersection
+    else    { if (fabs(dti) > fabs(CD.dt_i)) { CD.dt_i = dti; }}
 }
 
 
