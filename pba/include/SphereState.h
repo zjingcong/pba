@@ -17,10 +17,15 @@ namespace pba
         ~SphereStateData()  {}
 
         const float& radius(const size_t p) const;
+        const int& isCollision(const size_t p) const;
         void set_radius(const size_t p, const float& r);
+        void set_isCollision(const size_t p, const int& flag);
+
+        void clean_collision_flags();
 
     protected:
         std::map< std::string, DSAttribute<float> >::iterator radiuses;
+        std::map< std::string, DSAttribute<int> >::iterator collision_flags;
 
         void re_find_main_attrs();
     };

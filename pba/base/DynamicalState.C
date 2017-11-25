@@ -22,12 +22,12 @@ DynamicalStateData::DynamicalStateData(const std::string& nam) :
   name (nam)
 {
    // create standard set of attributes:
-   //   id1, pos, vel, accel, ci, mass
+   //   id, pos, vel, accel, ci, mass
    vector_attributes["pos"] = DSAttribute<Vector>( "pos", Vector(0,0,0) );
    vector_attributes["vel"] = DSAttribute<Vector>( "vel", Vector(0,0,0) );
    vector_attributes["accel"] = DSAttribute<Vector>( "accel", Vector(0,0,0) );
    float_attributes["mass"] = DSAttribute<float>( "mass", 1.0 );
-   int_attributes["id1"] = DSAttribute<int>( "id1", -1 );
+   int_attributes["id"] = DSAttribute<int>( "id", -1 );
    color_attributes["ci"] = DSAttribute<Color>( "ci", Color(1,1,1,0) );
    re_find_main_attrs();
 }
@@ -67,7 +67,7 @@ void DynamicalStateData::create_attr( const std::string& nam, const int& def )
 {
    if( int_attributes.find(nam) != int_attributes.end() ){ return; }
    int_attributes[nam] = DSAttribute<int>( nam, def );
-   int_attributes[nam].expand_to( int_attributes["id1"].size() );
+   int_attributes[nam].expand_to( int_attributes["id"].size() );
    re_find_main_attrs();
 }
 
@@ -75,7 +75,7 @@ void DynamicalStateData::create_attr( const std::string& nam, const float& def )
 {
    if( float_attributes.find(nam) != float_attributes.end() ){ return; }
    float_attributes[nam] = DSAttribute<float>( nam, def );
-   float_attributes[nam].expand_to( int_attributes["id1"].size() );
+   float_attributes[nam].expand_to( int_attributes["id"].size() );
    re_find_main_attrs();
 }
 
@@ -83,7 +83,7 @@ void DynamicalStateData::create_attr( const std::string& nam, const Vector& def 
 {
    if( vector_attributes.find(nam) != vector_attributes.end() ){ return; }
    vector_attributes[nam] = DSAttribute<Vector>( nam, def );
-   vector_attributes[nam].expand_to( int_attributes["id1"].size() );
+   vector_attributes[nam].expand_to( int_attributes["id"].size() );
    re_find_main_attrs();
 }
 
@@ -91,7 +91,7 @@ void DynamicalStateData::create_attr( const std::string& nam, const Color& def )
 {
    if( color_attributes.find(nam) != color_attributes.end() ){ return; }
    color_attributes[nam] = DSAttribute<Color>( nam, def );
-   color_attributes[nam].expand_to( int_attributes["id1"].size() );
+   color_attributes[nam].expand_to( int_attributes["id"].size() );
    re_find_main_attrs();
 }
 
@@ -425,7 +425,7 @@ void DynamicalStateData::re_find_main_attrs()
    {
       std::cout << "ERROR could not find masses\n";
    }
-   ids = int_attributes.find( "id1" );
+   ids = int_attributes.find( "id" );
    if( ids == int_attributes.end() )
    {
       std::cout << "ERROR could not find ids\n";

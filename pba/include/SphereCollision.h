@@ -37,10 +37,17 @@ namespace pba
         void collision(const double &dt);
         void collisionWithKdTree(const double &dt);
 
+        const double& get_sphere_Cr() const { return sphere_Cr;}
+        const double& get_sphere_Cs() const { return sphere_Cs;}
+        void set_sphere_Cr(const double& cr)    {sphere_Cr = cr;}
+        void set_sphere_Cs(const double& cs)    {sphere_Cs = cs;}
+
         void collisionWithinTriangles(const double& dt, const size_t i, std::vector<TrianglePtr> triangles, CollisionData& CD);
 
     private:
         SphereState sphereDS;
+        double sphere_Cr;
+        double sphere_Cs;
         std::vector<std::vector<bool>> detection_flags;
 
         void triCollision(const double &dt);
@@ -50,7 +57,7 @@ namespace pba
 
         void sphereCollision(const double& dt);
         void sphereCollisionDetection(const double& dt, const size_t i, const size_t j, SphereCollisionData& sphereCD);
-        void sphereCollisionHandling(const size_t i, const size_t j, SphereCollisionData& sphereCD);
+        void sphereCollisionHandling(const size_t i, SphereCollisionData& sphereCD);
 
         void triPlaneIntersectionTest(const double &dt, const size_t p, TrianglePtr triangle, CollisionData &CD);
         void edgeIntersectionTest(const double &dt, const size_t p, const Vector& P0, const Vector& P1, CollisionData &CD);

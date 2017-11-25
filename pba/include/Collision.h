@@ -37,11 +37,11 @@ namespace pba
                 Cs(1.0) {}
         ~CollisionBase()    {}
 
-        const double& getCr() const { return Cr;}
-        const double& getCs() const { return Cs;}
-        void setCr(const double& cr)    {Cr = cr;}
-        void setCs(const double& cs)    {Cs = cs;}
-        void setGeom(GeometryPtr g)  {geom = g;}
+        const double& get_Cr() const { return Cr;}
+        const double& get_Cs() const { return Cs;}
+        void set_Cr(const double &cr)    {Cr = cr;}
+        void set_Cs(const double &cs)    {Cs = cs;}
+        void set_geom(GeometryPtr g)  {geom = g;}
 
         virtual void init()   {}
         virtual void collisionWithinTriangles(const double& dt, const size_t i, std::vector<TrianglePtr> triangles, CollisionData& CD)    {};

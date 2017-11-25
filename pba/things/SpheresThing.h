@@ -33,7 +33,7 @@ namespace pba
     public:
         SpheresThing(const std::string nam = "SpheresInWellThing") :
                 PbaThingyDingy(nam),
-                kdtree_level(6),
+                kdtree_level(7),
                 spheres_num(10),
                 solver_id(LEAP_FROG),
                 g(0.48),
@@ -76,9 +76,9 @@ namespace pba
 
             // set collision
             collision->init();
-            collision->setGeom(geom);
-            collision->setCr(Cr);
-            collision->setCs(Cs);
+            collision->set_geom(geom);
+            collision->set_Cr(Cr);
+            collision->set_Cs(Cs);
             solver_list[LEAP_FROG]->setCollision(collision);
             solver_list[SIX_ORDER]->setCollision(collision);
             std::cout << "-------------------------------------------" << std::endl;
@@ -96,8 +96,9 @@ namespace pba
         {
             // clean collision status
             geom->cleanTrianglesCollisionStatus();
+            sphereDS->clean_collision_flags();
             // add spheres
-            if (emit_spheres)   {add_spheres(1);}
+            if (emit_spheres)   {add_spheres(1);    collision->init();}
             // update dynamical state
             if (on_KdTree)   {solver->updateDSWithCollisionWithKdTree(dt, sphereDS, forces);}
             else    {solver->updateDSWithCollision(dt, sphereDS, forces);}
@@ -147,9 +148,9 @@ namespace pba
             {
                 size_t id = nb + i;
                 sphereDS->set_id(id, int(id));
-                sphereDS->set_radius(id, 0.1 * (drand48() + 0.5));  // random radius
+                sphereDS->set_radius(id, 0.1 * (drand48() + 1.2));  // random radius
                 sphereDS->set_pos(id, Vector((drand48() - 0.5), drand48(), (drand48() - 0.5)));  // random position
-                sphereDS->set_vel(id, 1.2 * Vector((drand48() - 0.5), 0.0, (drand48() - 0.5)));  // random velocity
+                sphereDS->set_vel(id, 0.8 * Vector((drand48() - 0.5), 0.0, (drand48() - 0.5)));  // random velocity
                 sphereDS->set_ci(id, Color(0.0, float(drand48() * 0.5 + 0.5), float(drand48() * 0.5 + 0.5), 1.0));    // random color
             }
             std::cout << "current spheres number: " << sphereDS->nb() << std::endl;
@@ -162,6 +163,7 @@ namespace pba
                 float radius = sphereDS->radius(i);
                 Vector pos = sphereDS->pos(i);
                 Color color = sphereDS->ci(i);
+                if (sphereDS->isCollision(i) == 1)  {color = Color(1.0, 1.0, 1.0, 1.0);}
 
                 glColor3f(color.X(), color.Y(), color.Z());
                 glPushMatrix ();
@@ -197,14 +199,18 @@ namespace pba
             /// collision control
             // Cr
             case 'c':
-            { Cr /= 1.1;    collision->setCr(Cr);   std::cout << "Cr: " << Cr << std::endl; break; }
+            { Cr /= 1.1;
+                collision->set_Cr(Cr);   std::cout << "Cr: " << Cr << std::endl; break; }
             case 'C':
-            { Cr *= 1.1;    Cr = (Cr > 1.0) ? float(1.0): Cr;  collision->setCr(Cr);    std::cout << "Cr: " << Cr << std::endl; break; }
+            { Cr *= 1.1;    Cr = (Cr > 1.0) ? float(1.0): Cr;
+                collision->set_Cr(Cr);    std::cout << "Cr: " << Cr << std::endl; break; }
                 // Cs
             case 's':
-            { Cs /= 1.1;    collision->setCs(Cs);   std::cout << "Cs: " << Cs << std::endl; break; }
+            { Cs /= 1.1;
+                collision->set_Cs(Cs);   std::cout << "Cs: " << Cs << std::endl; break; }
             case 'S':
-            { Cs *= 1.1;    Cs = (Cs > 1.0) ? float(1.0): Cs;   collision->setCs(Cs);   std::cout << "Cs: " << Cs << std::endl; break; }
+            { Cs *= 1.1;    Cs = (Cs > 1.0) ? float(1.0): Cs;
+                collision->set_Cs(Cs);   std::cout << "Cs: " << Cs << std::endl; break; }
 
             /// kdtree
             case 'a':

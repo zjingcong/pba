@@ -8,7 +8,11 @@ using namespace std;
 using namespace pba;
 
 
-SphereCollision::SphereCollision(SphereState ds): sphereDS(ds) {}
+SphereCollision::SphereCollision(SphereState ds):
+        sphereDS(ds),
+        sphere_Cr(1.0),
+        sphere_Cs(1.0)
+{}
 
 void SphereCollision::init()
 {
@@ -25,10 +29,14 @@ void SphereCollision::init()
 void SphereCollision::collision(const double &dt)
 {
     triCollision(dt);
+    sphereCollision(dt);
+    triCollision(dt);
 }
 
 void SphereCollision::collisionWithKdTree(const double &dt)
 {
+    triCollisionWithKdTree(dt);
+    sphereCollision(dt);
     triCollisionWithKdTree(dt);
 }
 
@@ -185,18 +193,39 @@ void SphereCollision::sphereCollision(const double &dt)
     // loop over spheres
     for (size_t i = 0; i < spbere_nb; ++i)
     {
-        SphereCollisionData sphereCD;
+        double max_dti = 0.0;
+        size_t coll_sphere = 0;
+        bool collision_flag = true;
+        SphereCollisionData sphereCollisionData;
+        int collision_num = 0;
         for (size_t j = 0; j < spbere_nb; ++j)  // TODO: advanced-use grid data structure and loop over neighbor spheres
         {
+            SphereCollisionData sphereCD;
             if (!detection_flags[i][j])
             {
                 sphereCollisionDetection(dt, i, j, sphereCD);
-                detection_flags[i][j] = true;
+//                detection_flags[i][j] = true;
+//                detection_flags[j][i] = true;
                 if (sphereCD.collision_status)
                 {
-                    sphereCollisionHandling(i, j, sphereCD);
+                    collision_num++;
+                    if (fabs(sphereCD.dt_i) > fabs(max_dti))
+                    {
+                        max_dti = sphereCD.dt_i;
+                        coll_sphere = sphereCD.id2;
+                    }
                 }
             }
+            if (collision_num == 0) {collision_flag = false;}
+        }
+
+        sphereCollisionData.id1 = i;
+        sphereCollisionData.id2 = coll_sphere;
+        sphereCollisionData.collision_status = collision_flag;
+        sphereCollisionData.dt_i = max_dti;
+        if (sphereCollisionData.collision_status)
+        {
+            sphereCollisionHandling(i, sphereCollisionData);
         }
     }
 }
@@ -235,10 +264,13 @@ void SphereCollision::sphereCollisionDetection(const double &dt, const size_t i,
 
     sphereCD.collision_status = true;
     sphereCD.dt_i = dti;
+    sphereDS->set_isCollision(i, 1);
+    sphereDS->set_isCollision(j, 1);
 }
 
-void SphereCollision::sphereCollisionHandling(const size_t i, const size_t j, SphereCollisionData &sphereCD)
+void SphereCollision::sphereCollisionHandling(const size_t i, SphereCollisionData &sphereCD)
 {
+    size_t j = sphereCD.id2;
     Vector s1 = sphereDS->pos(i);
     Vector s2 = sphereDS->pos(j);
     Vector v1 = sphereDS->vel(i);
@@ -259,7 +291,7 @@ void SphereCollision::sphereCollisionHandling(const size_t i, const size_t j, Sp
     Vector v_cm = (m1 * v1 + m2 * v2) / total_mass;
     Vector v_rel = v2 - v1; // related velocity
     Vector norm = (s1 - s2).unitvector();
-    Vector v_ref_rel = Cs * (v_rel) - (Cr + Cs) * norm * (norm * v_rel);
+    Vector v_ref_rel = sphere_Cs * (v_rel) - (sphere_Cr + sphere_Cs) * norm * (norm * v_rel);
     Vector v1_ref = v_cm - (m2 * v_ref_rel) / total_mass;
     Vector v2_ref = v_cm - (m1 * v_ref_rel) / total_mass;
     new_s1 = s1 + v1_ref * dti;
