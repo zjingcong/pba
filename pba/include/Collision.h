@@ -31,16 +31,17 @@ namespace pba
     class CollisionBase: public std::enable_shared_from_this<CollisionBase>
     {
     public:
-        CollisionBase():
-                // default elastic reflection
-                Cr(1.0),
-                Cs(1.0) {}
+        CollisionBase()
+        {
+            // default: elastic collision
+            float_parms = {{"Cr", 1.0},
+                           {"Cs", 1.0}};
+        }
         ~CollisionBase()    {}
 
-        const double& get_Cr() const { return Cr;}
-        const double& get_Cs() const { return Cs;}
-        void set_Cr(const double &cr)    {Cr = cr;}
-        void set_Cs(const double &cs)    {Cs = cs;}
+        const float get_floatParms(const std::string &key) const {return float_parms.at(key);}
+
+        void set_parms(const std::string &key, const float &value)  {float_parms.at(key) = value;}
         void set_geom(GeometryPtr g)  {geom = g;}
 
         virtual void init()   {}
@@ -49,8 +50,7 @@ namespace pba
         virtual void collisionWithKdTree(const double& dt)   {};
 
     protected:
-        double Cr;
-        double Cs;
+        std::map<std::string, float> float_parms; // force floatParms
         GeometryPtr geom;
 
         virtual void collisionDetection(const double& dt, const size_t p, TrianglePtr triangle, CollisionData& CD)  {};

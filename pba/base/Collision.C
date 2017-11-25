@@ -143,6 +143,8 @@ void ParticleCollision::collisionHandling(const size_t p, const CollisionData& C
     Vector norm = CD.triangle->getNorm();
     Vector tmp = norm * (norm * vel);
     Vector vel_perp = vel - tmp;
+    float Cs = float_parms.at("Cs");
+    float Cr = float_parms.at("Cr");
     Vector vel_r = Cs * vel_perp - Cr * tmp;
 
     // update dynamical state

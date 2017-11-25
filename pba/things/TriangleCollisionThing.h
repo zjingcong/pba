@@ -109,8 +109,8 @@ namespace pba {
             // init dynamical state
             emitParticles(num);
             collision->set_geom(geom);
-            collision->set_Cr(Cr);
-            collision->set_Cs(Cs);
+            collision->set_parms("Cr", Cr);
+            collision->set_parms("Cs", Cs);
         }
 
         void Reset()
@@ -195,23 +195,23 @@ namespace pba {
                 /// collision coefficients control
                 case 'c':   // Cr
                 { Cr /= 1.1;
-                    collision->set_Cr(Cr);   std::cout << "coefficient of restitution Cr: " << Cr << std::endl;  break; }
+                    collision->set_parms("Cr", Cr);   std::cout << "coefficient of restitution Cr: " << Cr << std::endl;  break; }
                 case 'C':
                 {
                     Cr *= 1.1;
                     if (Cr >= 1.0)  {Cr = 1.0;}
-                    collision->set_Cr(Cr);
+                    collision->set_parms("Cr", Cr);
                     std::cout << "coefficient of restitution Cr: " << Cr << std::endl;
                     break;
                 }
                 case 's':   // Cs
                 { Cs /= 1.1;
-                    collision->set_Cs(Cs);   std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;  break; }
+                    collision->set_parms("Cs", Cs);   std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;  break; }
                 case 'S':
                 {
                     Cs *= 1.1;
                     if (Cs >= 1.0)  {Cs = 1.0;}
-                    collision->set_Cs(Cs);
+                    collision->set_parms("Cs", Cs);
                     std::cout << "coefficient of stickiness  Cs: " << Cs << std::endl;
                     break;
                 }

@@ -39,6 +39,8 @@ namespace pba
                 g(0.48),
                 Cr(1.0),
                 Cs(1.0),
+                sphere_Cr(1.0),
+                sphere_Cs(1.0),
                 on_KdTree(false),
                 emit_spheres(false),
                 wireframe(false)
@@ -56,6 +58,11 @@ namespace pba
 
         void Init(const std::vector<std::string> &args)
         {
+            /// cmdline parser
+            if (args.size() == 2)   // get init sphere num
+            {
+            }
+
             /// load geometry
             LoadMesh::LoadObj("../../models/well.obj", geom);
             // set geometry color
@@ -77,8 +84,10 @@ namespace pba
             // set collision
             collision->init();
             collision->set_geom(geom);
-            collision->set_Cr(Cr);
-            collision->set_Cs(Cs);
+            collision->set_parms("Cr", Cr);
+            collision->set_parms("Cs", Cs);
+            collision->set_parms("sphere_Cr", sphere_Cr);
+            collision->set_parms("sphere_Cs", sphere_Cs);
             solver_list[LEAP_FROG]->setCollision(collision);
             solver_list[SIX_ORDER]->setCollision(collision);
             std::cout << "-------------------------------------------" << std::endl;
@@ -136,6 +145,8 @@ namespace pba
         float g;
         float Cr;
         float Cs;
+        float sphere_Cr;
+        float sphere_Cs;
         bool on_KdTree;
         bool emit_spheres;
         bool wireframe;
@@ -163,7 +174,7 @@ namespace pba
                 float radius = sphereDS->radius(i);
                 Vector pos = sphereDS->pos(i);
                 Color color = sphereDS->ci(i);
-                if (sphereDS->isCollision(i) == 1)  {color = Color(1.0, 1.0, 1.0, 1.0);}
+                if (sphereDS->isCollision(i) == 1)  {color = Color(1.0, 0.2, 0.2, 1.0);}    // collision sphere color
 
                 glColor3f(color.X(), color.Y(), color.Z());
                 glPushMatrix ();
@@ -200,17 +211,17 @@ namespace pba
             // Cr
             case 'c':
             { Cr /= 1.1;
-                collision->set_Cr(Cr);   std::cout << "Cr: " << Cr << std::endl; break; }
+                collision->set_parms("Cr", Cr); std::cout << "Cr: " << Cr << std::endl; break; }
             case 'C':
             { Cr *= 1.1;    Cr = (Cr > 1.0) ? float(1.0): Cr;
-                collision->set_Cr(Cr);    std::cout << "Cr: " << Cr << std::endl; break; }
+                collision->set_parms("Cr", Cr); std::cout << "Cr: " << Cr << std::endl; break; }
                 // Cs
             case 's':
             { Cs /= 1.1;
-                collision->set_Cs(Cs);   std::cout << "Cs: " << Cs << std::endl; break; }
+                collision->set_parms("Cs", Cs); std::cout << "Cs: " << Cs << std::endl; break; }
             case 'S':
             { Cs *= 1.1;    Cs = (Cs > 1.0) ? float(1.0): Cs;
-                collision->set_Cs(Cs);   std::cout << "Cs: " << Cs << std::endl; break; }
+                collision->set_parms("Cs", Cs); std::cout << "Cs: " << Cs << std::endl; break; }
 
             /// kdtree
             case 'a':

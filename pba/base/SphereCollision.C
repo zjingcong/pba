@@ -9,10 +9,11 @@ using namespace pba;
 
 
 SphereCollision::SphereCollision(SphereState ds):
-        sphereDS(ds),
-        sphere_Cr(1.0),
-        sphere_Cs(1.0)
-{}
+        sphereDS(ds)
+{
+    float_parms.insert({"sphere_Cr", 1.0});
+    float_parms.insert({"sphere_Cs", 1.0});
+}
 
 void SphereCollision::init()
 {
@@ -177,6 +178,8 @@ void SphereCollision::triCollisionHandling(const size_t p, const CollisionData &
     // calculate refected velocity and position
     Vector vel = sphereDS->vel(p);
     Vector n = CD.triangle->getNorm();
+    float Cs = float_parms.at("Cs");
+    float Cr = float_parms.at("Cr");
     Vector vel_r = Cs * vel - (Cs + Cr) * n * (n * vel);
     Vector pos_r = sphereDS->pos(p) + vel_r * CD.dt_i;
 
@@ -193,39 +196,46 @@ void SphereCollision::sphereCollision(const double &dt)
     // loop over spheres
     for (size_t i = 0; i < spbere_nb; ++i)
     {
-        double max_dti = 0.0;
-        size_t coll_sphere = 0;
-        bool collision_flag = true;
+        double tmp_dt = dt;
         SphereCollisionData sphereCollisionData;
-        int collision_num = 0;
-        for (size_t j = 0; j < spbere_nb; ++j)  // TODO: advanced-use grid data structure and loop over neighbor spheres
+        sphereCollisionData.collision_status = true;
+
+        while (sphereCollisionData.collision_status)
         {
-            SphereCollisionData sphereCD;
-            if (!detection_flags[i][j])
+            double max_dti = 0.0;
+            size_t coll_sphere = 0;
+            int collision_num = 0;
+            bool collision_flag = true;
+            for (size_t j = 0; j < spbere_nb; ++j)  // TODO: advanced-use grid data structure and loop over neighbor spheres
             {
-                sphereCollisionDetection(dt, i, j, sphereCD);
+                SphereCollisionData sphereCD;
+                if (!detection_flags[i][j])
+                {
+                    sphereCollisionDetection(tmp_dt, i, j, sphereCD);
 //                detection_flags[i][j] = true;
 //                detection_flags[j][i] = true;
-                if (sphereCD.collision_status)
-                {
-                    collision_num++;
-                    if (fabs(sphereCD.dt_i) > fabs(max_dti))
+                    if (sphereCD.collision_status)
                     {
-                        max_dti = sphereCD.dt_i;
-                        coll_sphere = sphereCD.id2;
+                        collision_num++;
+                        if (fabs(sphereCD.dt_i) > fabs(max_dti))
+                        {
+                            max_dti = sphereCD.dt_i;
+                            coll_sphere = sphereCD.id2;
+                        }
                     }
                 }
+                if (collision_num == 0) {collision_flag = false;}
             }
-            if (collision_num == 0) {collision_flag = false;}
-        }
 
-        sphereCollisionData.id1 = i;
-        sphereCollisionData.id2 = coll_sphere;
-        sphereCollisionData.collision_status = collision_flag;
-        sphereCollisionData.dt_i = max_dti;
-        if (sphereCollisionData.collision_status)
-        {
-            sphereCollisionHandling(i, sphereCollisionData);
+            sphereCollisionData.id1 = i;
+            sphereCollisionData.id2 = coll_sphere;
+            sphereCollisionData.collision_status = collision_flag;
+            sphereCollisionData.dt_i = max_dti;
+            if (sphereCollisionData.collision_status)
+            {
+                sphereCollisionHandling(i, sphereCollisionData);
+                tmp_dt = sphereCollisionData.dt_i;
+            }
         }
     }
 }
@@ -291,6 +301,8 @@ void SphereCollision::sphereCollisionHandling(const size_t i, SphereCollisionDat
     Vector v_cm = (m1 * v1 + m2 * v2) / total_mass;
     Vector v_rel = v2 - v1; // related velocity
     Vector norm = (s1 - s2).unitvector();
+    float sphere_Cr = float_parms.at("sphere_Cr");
+    float sphere_Cs = float_parms.at("sphere_Cs");
     Vector v_ref_rel = sphere_Cs * (v_rel) - (sphere_Cr + sphere_Cs) * norm * (norm * v_rel);
     Vector v1_ref = v_cm - (m2 * v_ref_rel) / total_mass;
     Vector v2_ref = v_cm - (m1 * v_ref_rel) / total_mass;
