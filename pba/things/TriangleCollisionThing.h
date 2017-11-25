@@ -21,6 +21,7 @@
 # include "Tools.h"
 # include "Geometry.h"
 # include "Collision.h"
+# include "SphereCollision.h"
 
 # ifdef __APPLE__
 #include <OpenGL/gl.h>   // OpenGL itself.
@@ -69,6 +70,18 @@ namespace pba {
 
         void Init(const std::vector<std::string>& args)
         {
+            // test
+            SphereCollisionData sphereCD;
+            std::cout << "sphereCD constructor1: " << sphereCD.id1 << std::endl;
+            sphereCD.detect_flag = true;
+            std::cout << "set sphereCD detect flag: " << sphereCD.detect_flag << std::endl;
+            sphereCD.reset_detect_flag();
+            std::cout << "reset sphereCD detect flag: " << sphereCD.detect_flag << std::endl;
+
+            SphereCollisionData sphereCD1(1);
+            std::cout << "sphereCD constructor1: " << sphereCD1.id1 << std::endl;
+
+
             /// load scene
             // load geometry
             geom = CreateGeometry("CollisionGeo");
@@ -111,19 +124,19 @@ namespace pba {
 
         void solve()
         {
-            // clean collision status
-            geom->cleanTrianglesCollisionStatus();
-            // emit particles
-            if (addParticles)
-            {
-                size_t increase_num = 10;
-                emitParticles(increase_num);
-                std::cout << "particles number: " << DS->nb() << std::endl;
-            }
-
-            // update dynamical state
-            if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, forces);}
-            else    {solver->updateDSWithCollision(dt, DS, forces);} // collision
+//            // clean collision status
+//            geom->cleanTrianglesCollisionStatus();
+//            // emit particles
+//            if (addParticles)
+//            {
+//                size_t increase_num = 10;
+//                emitParticles(increase_num);
+//                std::cout << "particles number: " << DS->nb() << std::endl;
+//            }
+//
+//            // update dynamical state
+//            if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, forces);}
+//            else    {solver->updateDSWithCollision(dt, DS, forces);} // collision
         }
 
         void Display()

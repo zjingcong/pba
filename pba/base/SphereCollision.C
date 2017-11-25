@@ -7,58 +7,29 @@
 using namespace std;
 using namespace pba;
 
+
+SphereCollision::SphereCollision(SphereState ds): sphereDS(ds) {}
+
+void SphereCollision::init()
+{
+    size_t sphere_nb = sphereDS->nb();
+    // init sphere collision detection flags
+    detection_flags.resize(sphere_nb);
+    for (size_t i = 0; i < sphere_nb; ++i)
+    {
+        detection_flags[i].resize(sphere_nb);
+        for (size_t j = 0; j < sphere_nb; ++j) { detection_flags[i][j] = (i == j); }
+    }
+}
+
 void SphereCollision::collision(const double &dt)
 {
-    // loop over spheres
-    for (size_t i = 0; i < sphereDS->nb(); ++i)
-    {
-        // loop until no collisions
-        bool collision_flag = true;
-        double tmp_dt = dt;
-        while (collision_flag)
-        {
-            CollisionData CD;
-            collisionWithinTriangles(tmp_dt, i, geom->get_triangles(), CD);
-            collision_flag = CD.collision_status;
-            if (collision_flag)
-            {
-                // handle collision for maximum dt_i
-                collisionHandling(i, CD);
-                // store collision triangle
-                CD.triangle->setCollisionStatus(true);
-                // update dt (use maximum dti as new dt for next collision detection)
-                tmp_dt = CD.dt_i;
-            }
-        }
-    }
+    triCollision(dt);
 }
 
 void SphereCollision::collisionWithKdTree(const double &dt)
 {
-    // loop over spheres
-    for (size_t i = 0; i < sphereDS->nb(); ++i)
-    {
-        bool collision_flag = true;
-        double tmp_dt = dt;
-        while (collision_flag)
-        {
-            // search triangles
-            Vector vec1 = sphereDS->pos(i);
-            Vector vec0 = vec1 - sphereDS->vel(i) * tmp_dt;
-            CollisionData CD = geom->getKdTree()->searchCollision(shared_from_this(), tmp_dt, sphereDS, i, vec0, vec1);
-            collision_flag = CD.collision_status;
-
-            if (collision_flag)
-            {
-                // handle collision for maximum dt_i
-                collisionHandling(i, CD);
-                // store collision triangle
-                CD.triangle->setCollisionStatus(true);
-                // update dt (use maximum dti as new dt for next collision detection)
-                tmp_dt = CD.dt_i;
-            }
-        }
-    }
+    triCollisionWithKdTree(dt);
 }
 
 
@@ -76,7 +47,7 @@ void SphereCollision::collisionWithinTriangles(const double &dt, const size_t i,
     {
         // collision detection
         CollisionData collisionData;
-        collisionDetection(dt, i, it, collisionData);
+        triCollisionDetection(dt, i, it, collisionData);
         if (collisionData.collision_status)
         {
             collision_num++;
@@ -97,7 +68,63 @@ void SphereCollision::collisionWithinTriangles(const double &dt, const size_t i,
     CD.dt_i = max_dti;
 }
 
-void SphereCollision::collisionDetection(const double &dt, const size_t p, TrianglePtr triangle, CollisionData &CD)
+//! ---------------------------------------- collision between sphere and triangle -----------------------------------
+
+void SphereCollision::triCollision(const double &dt)
+{
+    // loop over spheres
+    for (size_t i = 0; i < sphereDS->nb(); ++i)
+    {
+        // loop until no collisions
+        bool collision_flag = true;
+        double tmp_dt = dt;
+        while (collision_flag)
+        {
+            CollisionData CD;
+            collisionWithinTriangles(tmp_dt, i, geom->get_triangles(), CD);
+            collision_flag = CD.collision_status;
+            if (collision_flag)
+            {
+                // handle collision for maximum dt_i
+                triCollisionHandling(i, CD);
+                // store collision triangle
+                CD.triangle->setCollisionStatus(true);
+                // update dt (use maximum dti as new dt for next collision detection)
+                tmp_dt = CD.dt_i;
+            }
+        }
+    }
+}
+
+void SphereCollision::triCollisionWithKdTree(const double &dt)
+{
+    // loop over spheres
+    for (size_t i = 0; i < sphereDS->nb(); ++i)
+    {
+        bool collision_flag = true;
+        double tmp_dt = dt;
+        while (collision_flag)
+        {
+            // search triangles
+            Vector vec1 = sphereDS->pos(i);
+            Vector vec0 = vec1 - sphereDS->vel(i) * tmp_dt;
+            CollisionData CD = geom->getKdTree()->searchCollision(shared_from_this(), tmp_dt, sphereDS, i, vec0, vec1);
+            collision_flag = CD.collision_status;
+
+            if (collision_flag)
+            {
+                // handle collision for maximum dt_i
+                triCollisionHandling(i, CD);
+                // store collision triangle
+                CD.triangle->setCollisionStatus(true);
+                // update dt (use maximum dti as new dt for next collision detection)
+                tmp_dt = CD.dt_i;
+            }
+        }
+    }
+}
+
+void SphereCollision::triCollisionDetection(const double &dt, const size_t p, TrianglePtr triangle, CollisionData &CD)
 {
     CD.triangle = triangle;
     CD.id = p;
@@ -133,7 +160,7 @@ void SphereCollision::collisionDetection(const double &dt, const size_t p, Trian
     vertIntersectionTest(dt, p, P2, CD);
 }
 
-void SphereCollision::collisionHandling(const size_t p, const CollisionData &CD)
+void SphereCollision::triCollisionHandling(const size_t p, const CollisionData &CD)
 {
     // move to intersection position
     Vector center_intersect = sphereDS->pos(p) - CD.dt_i * sphereDS->vel(p);
@@ -149,6 +176,102 @@ void SphereCollision::collisionHandling(const size_t p, const CollisionData &CD)
     sphereDS->set_pos(p, pos_r);
 }
 
+//! ---------------------------------------- collision between sphere and sphere -----------------------------------
+
+void SphereCollision::sphereCollision(const double &dt)
+{
+    reset_detect_flags();
+    size_t spbere_nb = sphereDS->nb();
+    // loop over spheres
+    for (size_t i = 0; i < spbere_nb; ++i)
+    {
+        SphereCollisionData sphereCD;
+        for (size_t j = 0; j < spbere_nb; ++j)  // TODO: advanced-use grid data structure and loop over neighbor spheres
+        {
+            if (!detection_flags[i][j])
+            {
+                sphereCollisionDetection(dt, i, j, sphereCD);
+                detection_flags[i][j] = true;
+                if (sphereCD.collision_status)
+                {
+                    sphereCollisionHandling(i, j, sphereCD);
+                }
+            }
+        }
+    }
+}
+
+void SphereCollision::sphereCollisionDetection(const double &dt, const size_t i, const size_t j, SphereCollisionData& sphereCD)
+{
+    sphereCD.id1 = i;
+    sphereCD.id2 = j;
+    sphereCD.collision_status = false;
+
+    Vector s1 = sphereDS->pos(i);
+    Vector s2 = sphereDS->pos(j);
+    float r1 = sphereDS->radius(i);
+    float r2 = sphereDS->radius(j);
+
+    if ((s1 - s2).magnitude() > (r1 + r2))  { return;}  // no collision
+
+    Vector v1 = sphereDS->vel(i);
+    Vector v2 = sphereDS->vel(j);
+
+    Vector tmp_s = s1 - s2;
+    Vector tmp_v = v2 - v1;
+    float tmp_r = r1 + r2;
+    double s_sq = tmp_s * tmp_s;
+    double v_sq = tmp_v * tmp_v;
+    float r_sq = tmp_r * tmp_r;
+    double dt_delta = s_sq * v_sq + v_sq * (r_sq - s_sq);
+    double dt0 = (-tmp_s * tmp_v + pow(dt_delta, 0.5)) / v_sq;
+    double dt1 = (-tmp_s * tmp_v - pow(dt_delta, 0.5)) / v_sq;
+    // time test
+    double dti = 0.0;
+    bool dt0_test = timeTest(dt0, dt);
+    bool dt1_test = timeTest(dt1, dt);
+    if (!dt0_test && !dt1_test) { return;}
+    dti = (fabs(dt0) * dt0_test > fabs(dt1) * dt1_test) ? dt0 : dt1;
+
+    sphereCD.collision_status = true;
+    sphereCD.dt_i = dti;
+}
+
+void SphereCollision::sphereCollisionHandling(const size_t i, const size_t j, SphereCollisionData &sphereCD)
+{
+    Vector s1 = sphereDS->pos(i);
+    Vector s2 = sphereDS->pos(j);
+    Vector v1 = sphereDS->vel(i);
+    Vector v2 = sphereDS->vel(j);
+    float m1 = sphereDS->mass(i);
+    float m2 = sphereDS->mass(j);
+    float total_mass = m1 + m2;
+    double dti = sphereCD.dt_i;
+
+    // move to point of contact
+    Vector new_s1 = s1 - v1 * dti;
+    Vector new_s2 = s2 - v2 * dti;
+    sphereDS->set_pos(i, new_s1);
+    sphereDS->set_pos(j, new_s2);
+    // calculate reflected velocity and position
+    s1 = sphereDS->pos(i);
+    s2 = sphereDS->pos(j);
+    Vector v_cm = (m1 * v1 + m2 * v2) / total_mass;
+    Vector v_rel = v2 - v1; // related velocity
+    Vector norm = (s1 - s2).unitvector();
+    Vector v_ref_rel = Cs * (v_rel) - (Cr + Cs) * norm * (norm * v_rel);
+    Vector v1_ref = v_cm - (m2 * v_ref_rel) / total_mass;
+    Vector v2_ref = v_cm - (m1 * v_ref_rel) / total_mass;
+    new_s1 = s1 + v1_ref * dti;
+    new_s2 = s2 + v2_ref * dti;
+    // set reflected velocity and position
+    sphereDS->set_pos(i, new_s1);
+    sphereDS->set_pos(j, new_s2);
+    sphereDS->set_vel(i, v1_ref);
+    sphereDS->set_vel(j, v2_ref);
+}
+
+//! --------------------------------------------- collision tests --------------------------------------------------
 
 void SphereCollision::triPlaneIntersectionTest(const double &dt, const size_t p, TrianglePtr triangle,
                                                CollisionData &CD)
@@ -283,6 +406,18 @@ bool SphereCollision::timeTest(const double &dti, const double &dt)
     if (fabs(dti) > fabs(dt))  { return false;}
     if (((dt - dti) / dt) < pow(10.0, -6.0)) { return false;}
     return true;
+}
+
+
+void SphereCollision::reset_detect_flags()
+{
+    for (size_t i = 0; i < detection_flags.size(); ++i)
+    {
+        for (size_t j = 0; j < detection_flags.size(); ++j)
+        {
+            detection_flags[i][j] = (i == j);
+        }
+    }
 }
 
 

@@ -43,6 +43,7 @@ namespace pba
         void setCs(const double& cs)    {Cs = cs;}
         void setGeom(GeometryPtr g)  {geom = g;}
 
+        virtual void init()   {}
         virtual void collisionWithinTriangles(const double& dt, const size_t i, std::vector<TrianglePtr> triangles, CollisionData& CD)    {};
         virtual void collision(const double& dt) {};
         virtual void collisionWithKdTree(const double& dt)   {};

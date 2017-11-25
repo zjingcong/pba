@@ -34,7 +34,7 @@ namespace pba
         SpheresThing(const std::string nam = "SpheresInWellThing") :
                 PbaThingyDingy(nam),
                 kdtree_level(6),
-                spheres_num(1),
+                spheres_num(10),
                 solver_id(LEAP_FROG),
                 g(0.48),
                 Cr(1.0),
@@ -75,6 +75,7 @@ namespace pba
             forces.push_back(gravity);
 
             // set collision
+            collision->init();
             collision->setGeom(geom);
             collision->setCr(Cr);
             collision->setCs(Cs);
@@ -89,11 +90,6 @@ namespace pba
             sphereDS->clear();
             add_spheres(spheres_num);
             print_atts();
-
-            Vector vel = sphereDS->vel(0);
-            Vector pos = sphereDS->pos(0);
-            std::cout << "sphere 0 init vel: "; vel.printValue(); std::cout << std::endl;
-            std::cout << "sphere 0 init pos: "; pos.printValue(); std::cout << std::endl;
         }
 
         void solve()
