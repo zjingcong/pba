@@ -35,5 +35,5 @@ To run this code:
     q            switch solver between Leap Frog Solver and Sixth Order Solver
     t/T          reduce/increase timestep
     space        pause simulation
-    Esc     quit
+    Esc          quit
   ```
