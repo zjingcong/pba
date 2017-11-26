@@ -61,6 +61,7 @@ namespace pba
             /// cmdline parser
             if (args.size() == 2)   // get init sphere num
             {
+                spheres_num = size_t(std::stoi(args[1]));
             }
 
             /// load geometry
@@ -159,7 +160,7 @@ namespace pba
             {
                 size_t id = nb + i;
                 sphereDS->set_id(id, int(id));
-                sphereDS->set_radius(id, 0.1 * (drand48() + 1.2));  // random radius
+                sphereDS->set_radius(id, 0.1 * (drand48() + 1.4));  // random radius
                 sphereDS->set_pos(id, Vector((drand48() - 0.5), drand48(), (drand48() - 0.5)));  // random position
                 sphereDS->set_vel(id, 0.8 * Vector((drand48() - 0.5), 0.0, (drand48() - 0.5)));  // random velocity
                 sphereDS->set_ci(id, Color(0.0, float(drand48() * 0.5 + 0.5), float(drand48() * 0.5 + 0.5), 1.0));    // random color

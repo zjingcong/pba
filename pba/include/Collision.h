@@ -37,7 +37,7 @@ namespace pba
             float_parms = {{"Cr", 1.0},
                            {"Cs", 1.0}};
         }
-        ~CollisionBase()    {}
+        virtual ~CollisionBase()    {}
 
         const float get_floatParms(const std::string &key) const {return float_parms.at(key);}
 
@@ -52,9 +52,6 @@ namespace pba
     protected:
         std::map<std::string, float> float_parms; // force floatParms
         GeometryPtr geom;
-
-        virtual void collisionDetection(const double& dt, const size_t p, TrianglePtr triangle, CollisionData& CD)  {};
-        virtual void collisionHandling(const size_t p, const CollisionData& CD)   {};
     };
 
     typedef std::shared_ptr<CollisionBase> CollisionPtr;
