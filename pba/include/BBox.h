@@ -18,13 +18,12 @@ namespace pba
         AABB(Vector& llc, Vector& urc);
         ~AABB() {}
 
-        void setLLC(const Vector& llc)  {LLC = llc; center = (LLC + URC) * 0.5; vec_length = URC - LLC;}
-        void setURC(const Vector& urc)  {URC = urc; center = (LLC + URC) * 0.5; vec_length = URC - LLC;}
+        void setLLC(const Vector& llc)  {LLC = llc; center = (LLC + URC) * 0.5;}
+        void setURC(const Vector& urc)  {URC = urc; center = (LLC + URC) * 0.5;}
 
         const Vector& getLLC() const  { return LLC;}
         const Vector& getURC() const  { return URC;}
         const Vector& getCenter() const { return center;}
-        const Vector& getVecLength() const { return vec_length;}
 
         //! AABB subdivision: 0 - X direction, 1 - Y direction, 2 - Z direction | id 0 - lowerleft, 1 - upperright
         AABB subDivide(const int i, const int id);
@@ -39,7 +38,6 @@ namespace pba
         Vector LLC; // lower left center
         Vector URC; // upper right center
         Vector center;
-        Vector vec_length;
 
         bool lessVector(const Vector& v1, const Vector& v2) const;
     };

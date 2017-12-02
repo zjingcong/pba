@@ -12,18 +12,10 @@ OFILES = base/PbaViewer.o \
          base/Geometry.o \
          base/Collision.o \
          base/BBox.o \
-         base/KdTree.o \
-         base/Boid.o \
-         base/RigidBodyState.o \
-         base/RBD.o \
-         base/SoftBodyState.o \
-         base/SBD.o
+         base/KdTree.o
 
 
-THINGS = things/TriangleCollision.h \
-         things/BoidFlocking.h \
-         things/RBDThing.h \
-         things/ClothThing.h
+THINGS = things/TriangleCollision.h
 
 
 ROOTDIR = .
@@ -81,7 +73,7 @@ stuff: $(OFILES) $(THINGS) swig/PbaThings.i
 	make genthings
 
 clean:
-	rm -rf *.o base/*.o base/*~ include/*~ python/*~ things/*~ core $(LIB)  *~ *.dSYM swig/*.cxx swig/*~ swig/*.so swig/*.o swig/pba.py* swig/PbaViewer.py swig/PbaThings.py swig/*.pyc ./*.pyc base/*.C.swp
+	rm -rf *.o base/*.o base/*~ include/*~ python/*~ things/*~ core $(LIB)  *~ *.dSYM swig/*.cxx swig/*~ swig/*.so swig/*.o swig/pba.py* swig/PbaViewer.py swig/PbaThings.py swig/*.pyc ./*.pyc 
 
 viewer:	swig/PbaViewer.i	$(OFILES)
 	$(SWIGEXEC) -c++ -python -shadow -I./include/ swig/PbaViewer.i

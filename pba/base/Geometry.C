@@ -14,12 +14,6 @@ void TriangleGeometry::add_triangle(TrianglePtr tri)
     triangles.push_back(tri);
 }
 
-void TriangleGeometry::add_triangle(const Vector &p0, const Vector &p1, const Vector &p2)
-{
-    TrianglePtr triangle = new Triangle(p0, p1, p2);
-    triangles.push_back(triangle);
-}
-
 void TriangleGeometry::cleanTrianglesCollisionStatus()
 {
     for (auto it = triangles.cbegin(); it != triangles.cend(); ++it)
@@ -50,10 +44,4 @@ void TriangleGeometry::build_trianglesTree(int depth)
     trianglesTree = new KdTree(depth);
     trianglesTree->build(bbox, triangles);
     cout << "Building Geometry KdTree complete." << endl;
-}
-
-
-pba::GeometryPtr pba::CreateGeometry(const std::string &nam)
-{
-    return GeometryPtr(new TriangleGeometry(nam));
 }

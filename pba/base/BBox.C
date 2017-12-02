@@ -22,7 +22,6 @@ AABB::AABB(Vector &llc, Vector &urc)
     LLC = llc;
     URC = urc;
     center = (LLC + URC) * 0.5;
-    vec_length = URC - LLC;
 }
 
 AABB AABB::subDivide(const int i, const int id)
@@ -36,24 +35,24 @@ AABB AABB::subDivide(const int i, const int id)
         // subdivide X
         case 0:
         {
-            if (id == 0) {llc = LLC; urc = Vector((URC.X() + LLC.X()) * 0.5, URC.Y(), URC.Z());}
-            else    {llc = Vector((URC.X() + LLC.X()) * 0.5, LLC.Y(), LLC.Z()); urc = URC;}
+            if (id == 0) {llc = LLC; urc = Vector(URC.X() * 0.5, URC.Y(), URC.Z());}
+            else    {llc = Vector(URC.X() * 0.5, LLC.Y(), LLC.Z()); urc = URC;}
             break;
         }
 
         // subdivide Y
         case 1:
         {
-            if (id == 0) {llc = LLC; urc = Vector(URC.X(), (URC.Y() + LLC.Y()) * 0.5, URC.Z());}
-            else    {llc = Vector(LLC.X(), (URC.Y() + LLC.Y()) * 0.5, LLC.Z()); urc = URC;}
+            if (id == 0) {llc = LLC; urc = Vector(URC.X(), URC.Y() * 0.5, URC.Z());}
+            else    {llc = Vector(LLC.X(), URC.Y() * 0.5, LLC.Z()); urc = URC;}
             break;
         }
 
         // subdivide Z
         case 2:
         {
-            if (id == 0) {llc = LLC; urc = Vector(URC.X(), URC.Y(), (URC.Z() + LLC.Z()) * 0.5);}
-            else    {llc = Vector(LLC.X(), LLC.Y(), (URC.Z() + LLC.Z()) * 0.5); urc = URC;}
+            if (id == 0) {llc = LLC; urc = Vector(URC.X(), URC.Y(), URC.Z() * 0.5);}
+            else    {llc = Vector(LLC.X(), LLC.Y(), URC.Z() * 0.5); urc = URC;}
             break;
         }
 
@@ -79,7 +78,7 @@ int AABB::insideTriangle(TrianglePtr triangle) const
     else    {return 0;}
 }
 
-//! AABB intersection: 0 - no intersection, 1 - intersect, 2 - inside, 3 - tangent
+//! AABB intersection: 0 - no intersection, 1 - intersect, 2 - inside
 int AABB::intersect(const Vector& origin, const Vector& target) const
 {
     if (insidePoint(origin) && insidePoint(target)) { return 2;}
@@ -130,10 +129,6 @@ int AABB::intersect(const Vector& origin, const Vector& target) const
     if ((tmin > tzmax) || (tzmin > tmax))   { return 0;}
     if (tzmin > tmin)   {tmin = tzmin;}
     if (tzmax < tmax)   {tmax = tzmax;}
-
-    if ((dir.X() == 0.0 && ((LLC.X() - origin.X()) == 0.0 || (URC.X() - origin.X()) == 0.0)) ||
-        (dir.Y() == 0.0 && ((LLC.Y() - origin.Y()) == 0.0 || (URC.Y() - origin.Y()) == 0.0)) ||
-        (dir.X() == 0.0 && ((LLC.Z() - origin.Z()) == 0.0 || (URC.Z() - origin.Z()) == 0.0)))   { return 3;}
 
     if ((tmin < t1) && (tmax > t0)) { return 1;}
     else    { return 0;}

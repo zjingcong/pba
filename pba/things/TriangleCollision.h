@@ -53,8 +53,8 @@ namespace pba {
             // construct attributes
             _init();
             // construct solvers
-            solver_list.push_back(CreateLeapFrogSolver());
-            solver_list.push_back(CreateSixOrderSolver());
+            solver_list.push_back(new LeapFrogSolver());
+            solver_list.push_back(new SixOrderSolver());
             solver = solver_list[LEAP_FROG];
             // construct dynamical state
             DS = CreateDynamicalState("collisionParticles");
@@ -62,13 +62,18 @@ namespace pba {
         }
 
         ~TriangleCollisionThing()
-        {}
+        {
+            delete solver_list[LEAP_FROG];
+            delete solver_list[SIX_ORDER];
+            delete force;
+            delete geom;
+        }
 
         void Init(const std::vector<std::string>& args)
         {
             /// load scene
             // load geometry
-            geom = CreateGeometry("CollisionGeo");
+            geom = new TriangleGeometry("collisionMesh");
             if (args.size() == 2)   // load .obj file
             {
                 std::string scene_file = args[1];
@@ -84,7 +89,7 @@ namespace pba {
             for (auto it = geom->get_triangles().begin(); it != geom->get_triangles().end(); ++it)
             {
                 TrianglePtr triangle = *it;
-                triangle->setColor(Color(float(drand48() * 0.4 + 0.6), 0.5, float(drand48() * 0.4 + 0.6), 1.0));   // set random colors
+                triangle->setColor(Color(float(drand48()), float(drand48()), float(drand48()), 1.0));   // set random colors
             }
             cout << "-------------------------------------------" << endl;
 
@@ -108,8 +113,6 @@ namespace pba {
 
         void solve()
         {
-            // clean collision status
-            geom->cleanTrianglesCollisionStatus();
             // emit particles
             if (addParticles)
             {
@@ -119,9 +122,12 @@ namespace pba {
                 std::cout << "particles number: " << num << std::endl;
             }
 
+            // update force parms
+            force->updateParms("g", g);
             // update dynamical state
-            if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, forces, geom, Cr, Cs);}
-            else    {solver->updateDSWithCollision(dt, DS, forces, geom, Cr, Cs);} // collision
+            // solver->updateDS(dt, DS, force); // no collision
+            if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, force, geom, Cr, Cs);}
+            else    {solver->updateDSWithCollision(dt, DS, force, geom, Cr, Cs);} // collision
         }
 
         void Display()
@@ -148,9 +154,9 @@ namespace pba {
             {
                 /// gravity control
                 case 'g':
-                { g /= 1.1; std::cout << "gravity constant: " << g << std::endl; gravity->update_parms("g", g); break; }
+                { g /= 1.1; std::cout << "gravity constant: " << g << std::endl; break; }
                 case 'G':
-                { g *= 1.1; std::cout << "gravity constant: " << g << std::endl; gravity->update_parms("g", g); break; }
+                { g *= 1.1; std::cout << "gravity constant: " << g << std::endl; break; }
 
                 /// timestep control
                 case 't':
@@ -245,9 +251,7 @@ namespace pba {
         SolverPtr solver;
 
         /// forces
-        ForcePtrContainer forces;
-        ForcePtr gravity;
-
+        ForcePtr force;
         /// dynamical state for all particles
         DynamicalState DS;
         /// mesh
@@ -288,7 +292,7 @@ namespace pba {
                 DS->set_id(id, int(id));
                 DS->set_pos(id, Vector(0.0, 0.0, 0.0));  // default position
                 DS->set_vel(id, Vector((drand48() - 0.5)* 0.5, 0.0, (drand48() - 0.5) * 0.5));  // default velocity
-                DS->set_ci(id, Color(0.0, float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), 1.0));    // random color
+                DS->set_ci(id, Color(float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), float(drand48() * 0.75 + 0.25), 1.0));    // random color
                 DS->set_mass(id, mass);    // default mass
             }
         }
@@ -296,9 +300,8 @@ namespace pba {
         //! add force to sim
         void addForce()
         {
-            gravity = CreateGravity(DS, g); // add gravity
-            cout << "- Add force " << gravity->Name() << endl;
-            forces.push_back(gravity);
+            force = new Gravity(g); // add gravity
+            cout << "- Add force " << force->Name() << endl;
         }
     };
 

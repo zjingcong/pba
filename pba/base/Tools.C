@@ -14,21 +14,20 @@ using namespace pba;
 using namespace std;
 
 
-void Draw::DrawTriangles(GeometryPtr geom, bool showCollision)
+void Draw::DrawTriangles(GeometryPtr geom)
 {
     glBegin(GL_TRIANGLES);
     for (auto it = geom->get_triangles().cbegin(); it != geom->get_triangles().cend(); ++it)
     {
         TrianglePtr tri = *it;
-        if (tri == nullptr) {continue;}
         if (tri->getVisibility())
         {
-            Color color = tri->getColor();
-            glColor3f( color.red(), color.green(), color.blue());
-            if (showCollision)
+            // set collision face color
+            if (tri->getCollisionStatus())   {glColor3f(0.9, 0.9, 0.9);}
+            else
             {
-                // set collision face color
-                if (tri->getCollisionStatus())   {glColor3f(0.9, 0.9, 0.9);}
+                Color color = tri->getColor();
+                glColor3f( color.red(), color.green(), color.blue());
             }
 
             Vector v0 = tri->getP0();
@@ -145,70 +144,6 @@ void LoadMesh::LoadObj(std::string obj_path, GeometryPtr geom)
 }
 
 
-void LoadMesh::LoadObj(std::string obj_path, std::vector<Vector> &vertices, AABB& bbox)
-{
-    cout << "Load model " << obj_path << "..." << endl;
-    // load model file
-    const char* file_path = obj_path.c_str();
-
-    int vertex_num = 0;
-
-    std::vector<float> xvec;
-    std::vector<float> yvec;
-    std::vector<float> zvec;
-
-    FILE * file = fopen(file_path, "r");
-    if( file == NULL ){
-        cout << "Impossible to open the file !" << endl;
-        return;
-    }
-
-    char lineHeader[128];
-    while (true)
-    {
-        // read the first word of the line
-        int res = fscanf(file, "%s", lineHeader);
-        if (res == EOF)
-            break; // EOF = End Of File. Quit the loop
-
-        // parse the vertices
-        if (strcmp(lineHeader, "v") == 0)
-        {
-            float x, y, z;
-            fscanf(file, "%f %f %f\n", &x, &y, &z);
-
-            xvec.push_back(x);
-            yvec.push_back(y);
-            zvec.push_back(z);
-            vertices.push_back(Vector(x, y, z));
-            vertex_num++;
-        }
-    }
-
-    // log the model info
-    cout << "vertex_num: " << vertex_num << endl;
-    // get the model bounding box
-    std::sort(xvec.begin(), xvec.end());
-    float x_min = xvec.front();
-    float x_max = xvec.back();
-    std::sort(yvec.begin(), yvec.end());
-    float y_min = yvec.front();
-    float y_max = yvec.back();
-    std::sort(zvec.begin(), zvec.end());
-    float z_min = zvec.front();
-    float z_max = zvec.back();
-    Vector llc = Vector(x_min, y_min, z_min);
-    Vector urc = Vector(x_max, y_max, z_max);
-    bbox.setLLC(llc);
-    bbox.setURC(urc);
-    cout << "Geometry Bounding Box: " << endl;
-    cout << "     LLC - (" << llc.X() << ", " << llc.Y() << ", " << llc.Z() << ")" << endl;
-    cout << "     URC - (" << urc.X() << ", " << urc.Y() << ", " << urc.Z() << ")" << endl;
-    Vector center = bbox.getCenter();
-    cout << "  Center - (" << center.X() << ", " << center.Y() << ", " << center.Z() << ")" << endl;
-}
-
-
 void LoadMesh::LoadBox(const float l, GeometryPtr geom)
 {
     cout << "Load default box with side length = " << l << "..." << endl;
@@ -253,41 +188,4 @@ void LoadMesh::LoadBox(const float l, GeometryPtr geom)
     cout << "     URC - (" << urc.X() << ", " << urc.Y() << ", " << urc.Z() << ")" << endl;
     Vector center = geom->getBBox().getCenter();
     cout << "  Center - (" << center.X() << ", " << center.Y() << ", " << center.Z() << ")" << endl;
-}
-
-
-void LoadMesh::LoadPlane(const Vector& center, const double &size, const int &division, GeometryPtr geom)
-{
-    cout << "Load plane size = " << size << ", division number = " << division << "..." << endl;
-    double grid_size = size / division;
-    double l_x = center.X() - size * 0.5;
-    double l_z = center.Z() - size * 0.5;
-    for (int m = 0; m < division; ++m)  // z
-    {
-        for (int n = 0; n < division; ++n)  // x
-        {
-            Vector p00 = Vector(l_x + m * grid_size, center.Y(), l_z + n * grid_size);
-            Vector p01 = Vector(l_x + (m + 1) * grid_size, center.Y(), l_z + (n + 1) * grid_size);
-            Vector p02 = Vector(l_x + m * grid_size, center.Y(), l_z + (n + 1) * grid_size);
-            geom->add_triangle(p00, p01, p02);
-
-            Vector p10 = p00;
-            Vector p11 = Vector(l_x + (m + 1) * grid_size, center.Y(), l_z + n * grid_size);
-            Vector p12 = p01;
-            geom->add_triangle(p10, p11, p12);
-        }
-    }
-    ///////////////////
-    // p00     p10-011
-    //  | \      \ |
-    // p02-p01   p12
-    //////////////////
-    Vector llc = Vector(l_x - 0.0001, center.Y() - 0.0001, l_z - 0.0001);
-    Vector urc = Vector(center.X() + size * 0.5 + 0.0001, center.Y() + 0.0002, center.Z() + size * 0.5 + 0.0001);
-    geom->setBBox(llc, urc);
-    cout << "Load plane success." << endl;
-    cout << "Triangles number: " << geom->get_triangles().size() << endl;
-    cout << "Geometry Bounding Box: " << endl;
-    cout << "     LLC - (" << llc.X() << ", " << llc.Y() << ", " << llc.Z() << ")" << endl;
-    cout << "     URC - (" << urc.X() << ", " << urc.Y() << ", " << urc.Z() << ")" << endl;
 }

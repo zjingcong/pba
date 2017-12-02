@@ -30,8 +30,6 @@ namespace pba
         ~TriangleGeometry() {}
 
         void add_triangle(TrianglePtr tri);
-        void add_triangle(const Vector& p0, const Vector& p1, const Vector& p2);
-
         void setBBox(AABB aabb) {bbox.setLLC(aabb.getLLC()); bbox.setURC(aabb.getURC());}
         void setBBox(Vector& llc, Vector& urc)  {bbox.setLLC(llc); bbox.setURC(urc);}
 
@@ -55,9 +53,7 @@ namespace pba
         TriangleGeometry()  {}
     };
 
-    /// set up geometry share ptr
-    typedef std::shared_ptr<TriangleGeometry> GeometryPtr;
-    GeometryPtr CreateGeometry(const std::string& nam = "GeometryNoName");
+    typedef TriangleGeometry* GeometryPtr;
 };
 
 # include "KdTree.h"

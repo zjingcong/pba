@@ -16,8 +16,8 @@ void KdTree::build(AABB bbox, std::vector<pba::TrianglePtr> tris, int l)
     right = NULL;
 
     // end conditions
-    if(tris.empty()) { cout << "    - Level " << level << " triangles: " << 0 << endl; return; }
-    if (l == depth) { triangles = tris; cout << "   - Level " << level << " triangles: " << triangles.size() << endl; return; }
+    if(tris.empty()) { return; }
+    if (l == depth) { triangles = tris; return; }
 
     // compute
     int direction = level % 3;
@@ -67,7 +67,6 @@ pba::CollisionData KdTree::searchCollision(double& dt, DynamicalState DS, size_t
     int intersect_result = aabb.intersect(origin, target);
     CollisionData collisionData;
     if (intersect_result == 0) { collisionData.collision_status = false;    return collisionData;}
-
     if ((left == NULL && right == NULL) || (level == depth))
     {
         TriangleCollision::collisionWithinTriangles(dt, DS, i, triangles, collisionData);
