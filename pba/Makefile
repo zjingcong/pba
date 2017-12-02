@@ -20,11 +20,11 @@ OFILES = base/PbaViewer.o \
          base/SoftBodyState.o \
          base/SBD.o \
          base/SphereState.o \
-         base/SphereDynamics.o \
          base/SphereCollision.o
 
 
-THINGS = things/SpheresThing.h
+THINGS = things/TestThing.h \
+         things/ParticlesThing.h
 
 
 ROOTDIR = .
@@ -57,6 +57,7 @@ else
   CXX = g++ -Wall -g -O2 -fPIC $(DEFINES) -fopenmp -std=c++11
   OIIOMACH = linux64
   OIIOLIB = -L${OIIO_LIB_LOCATION} -lOpenImageIO
+  VDBLIB = -L/group/dpa/local/openvdb/lib -lHalf -ltbb -lopenvdb -Wl,--rpath=/group/dpa/local/openvdb/lib
   SWIGLIB = 
   CHROMELIB = -ldl
   PYTHONINCLUDE = -I/usr/include/python2.7 -I/usr/lib/python2.7/config
@@ -66,7 +67,7 @@ else
  endif
 
 
-INCLUDES = -I ./include/ -I ./things -I /usr/local/include/ -I /opt/local/include/ -I/usr/include/ -I/opt/local/include/libomp $(PYTHONINCLUDE) -I /usr/local/openvdb/include/ 
+INCLUDES = -I ./include/ -I ./things -I /usr/local/include/ -I /opt/local/include/ -I/usr/include/ -I/opt/local/include/libomp $(PYTHONINCLUDE) -I /group/dpa/local/openvdb/include
 
 
 
@@ -86,11 +87,11 @@ clean:
 
 viewer:	swig/PbaViewer.i	$(OFILES)
 	$(SWIGEXEC) -c++ -python -shadow -I./include/ swig/PbaViewer.i
-	$(CXX) -c swig/PbaViewer_wrap.cxx  $(INCLUDES) -o swig/PbaViewer_wrap.o
-	$(SWIGLD) swig/PbaViewer_wrap.o $(SWIGLIB) -ldl -L./lib -lpba $(GLLDFLAGS)   -o swig/_PbaViewer.so
+	$(CXX) -c swig/PbaViewer_wrap.cxx  $(INCLUDES) $(VDBLIB) -o swig/PbaViewer_wrap.o
+	$(SWIGLD) swig/PbaViewer_wrap.o $(SWIGLIB) -ldl -L./lib -lpba $(GLLDFLAGS) $(VDBLIB)  -o swig/_PbaViewer.so
 
 
 genthings:	swig/PbaThings.i $(THINGS)
 	$(SWIGEXEC) -c++ -python -shadow -I./include/ -I./things swig/PbaThings.i
-	$(CXX) -c swig/PbaThings_wrap.cxx  $(INCLUDES) -o swig/PbaThings_wrap.o
-	$(SWIGLD)  -L./lib -lpba swig/PbaThings_wrap.o $(SWIGLIB) -lpba -ldl $(GLLDFLAGS)   -o swig/_PbaThings.so
+	$(CXX) -c swig/PbaThings_wrap.cxx  $(INCLUDES) $(VDBLIB) -o swig/PbaThings_wrap.o
+	$(SWIGLD)  -L./lib -lpba swig/PbaThings_wrap.o $(SWIGLIB) -lpba -ldl $(GLLDFLAGS) $(VDBLIB)   -o swig/_PbaThings.so

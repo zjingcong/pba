@@ -18,8 +18,8 @@ args = pbav.StringArray()
 for s in sys.argv:
 	args.push_back(s)
 
-spheres = things.Spheres()
-viewer.AddThing(spheres)
+test = things.Tests()
+viewer.AddThing(test)
 
 viewer.Init(args)
 viewer.MainLoop()
