@@ -1,6 +1,7 @@
 
 
 OFILES = base/PbaViewer.o \
+         base/PbaHou.o \
          base/DynamicalState.o \
          base/PbaThing.o \
          base/Matrix.o \
@@ -89,6 +90,12 @@ viewer:	swig/PbaViewer.i	$(OFILES)
 	$(SWIGEXEC) -c++ -python -shadow -I./include/ swig/PbaViewer.i
 	$(CXX) -c swig/PbaViewer_wrap.cxx  $(INCLUDES) $(VDBLIB) -o swig/PbaViewer_wrap.o
 	$(SWIGLD) swig/PbaViewer_wrap.o $(SWIGLIB) -ldl -L./lib -lpba $(GLLDFLAGS) $(VDBLIB)  -o swig/_PbaViewer.so
+
+
+hou:	swig/PbaHou.i	$(OFILES)
+	$(SWIGEXEC) -c++ -python -shadow -I./include/ swig/PbaHou.i
+	$(CXX) -c swig/PbaHou_wrap.cxx  $(INCLUDES) $(VDBLIB) -o swig/PbaHou_wrap.o
+	$(SWIGLD) swig/PbaHou_wrap.o $(SWIGLIB) -ldl -L./lib -lpba $(GLLDFLAGS) $(VDBLIB)  -o swig/_PbaHou.so
 
 
 genthings:	swig/PbaThings.i $(THINGS)

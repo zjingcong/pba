@@ -44,7 +44,7 @@ namespace pba{
 // These are the GLUT Callbacks that are implemented in PbaViewer and PbaThings.
 void cbDisplayFunc()
 {
-   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );	
+   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
    PbaViewer::Instance() -> Display();
    glutSwapBuffers();
    glutPostRedisplay();
@@ -63,7 +63,7 @@ void cbKeyboardFunc( unsigned char key, int x, int y )
 
 void cbMotionFunc( int x, int y )
 {
-   
+
    PbaViewer::Instance() -> Motion( x, y );
    glutPostRedisplay();
 }
@@ -82,9 +82,9 @@ void cbReshapeFunc( int w, int h )
 
 PbaViewer* PbaViewer::pPbaViewer = nullptr;
 	
-PbaViewer::PbaViewer() : 
+PbaViewer::PbaViewer():
    initialized    ( false ),
-   width          ( 1024 ), 
+   width          ( 1024 ),
    height         ( 1024 ),
    display_mode   ( GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH ),
    title          ( string("PBA Viewer") ),
@@ -227,7 +227,7 @@ void PbaViewer::Motion( int x, int y )
    float dy = y - mouse_y;
    float pos_x = current_raster_pos[0] + dx;
    float pos_y = current_raster_pos[1] - dy;
-   glRasterPos2f( pos_x, pos_y ); 
+   glRasterPos2f( pos_x, pos_y );
 
    // camera motion perp to view direction
    if(keystate == GLUT_ACTIVE_SHIFT )
@@ -283,7 +283,7 @@ void PbaViewer::Usage()
    cout << "SHIFT+mouse  move camera perpendicular to the view direction\n";
    cout << "r            reset sim parameters\n";
    cout << "h            home display parameters\n";
- 
+
    for( size_t i=0;i<things.size();i++)
    {
       things[i]->Usage();
@@ -317,7 +317,7 @@ void PbaViewer::Home()
    camera_right_x = 1.0;
    camera_right_y = 0.0;
    camera_right_z = 0.0;
- 
+
    for( size_t i=0;i<things.size();i++)
    {
       things[i]->Home();
@@ -333,8 +333,8 @@ void PbaViewer::ComputeEyeUpRight(int dx, int dy)
 // dy --> rotation about camera right axis
 
 
-   float vvx = camera_eye_x-camera_view_x; 
-   float vvy = camera_eye_y-camera_view_y; 
+   float vvx = camera_eye_x-camera_view_x;
+   float vvy = camera_eye_y-camera_view_y;
    float vvz = camera_eye_z-camera_view_z;
    float vvnorm = std::sqrt( vvx*vvx + vvy*vvy + vvz*vvz );
    vvx /= vvnorm;
@@ -380,9 +380,9 @@ void PbaViewer::ComputeEyeUpRight(int dx, int dy)
    crossx = camera_right_y*vvz - camera_right_z*vvy;
    crossy = camera_right_z*vvx - camera_right_x*vvz;
    crossz = camera_right_x*vvy - camera_right_y*vvx;
-   nvvx = vvx*cosx + camera_right_x*rightdotview*(1.0-cosx) + crossx*sinx; 
-   float nvvy = vvy*cosx + camera_right_y*rightdotview*(1.0-cosx) + crossy*sinx; 
-   nvvz = vvz*cosx + camera_right_z*rightdotview*(1.0-cosx) + crossz*sinx; 
+   nvvx = vvx*cosx + camera_right_x*rightdotview*(1.0-cosx) + crossx*sinx;
+   float nvvy = vvy*cosx + camera_right_y*rightdotview*(1.0-cosx) + crossy*sinx;
+   nvvz = vvz*cosx + camera_right_z*rightdotview*(1.0-cosx) + crossz*sinx;
    vvx = nvvx;
    vvy = nvvy;
    vvz = nvvz;
@@ -390,9 +390,9 @@ void PbaViewer::ComputeEyeUpRight(int dx, int dy)
    crossx = camera_right_y*camera_up_z - camera_right_z*camera_up_y;
    crossy = camera_right_z*camera_up_x - camera_right_x*camera_up_z;
    crossz = camera_right_x*camera_up_y - camera_right_y*camera_up_x;
-   camera_up_x = camera_up_x*cosx + crossx*sinx; 
-   camera_up_y = camera_up_y*cosx + crossy*sinx; 
-   camera_up_z = camera_up_z*cosx + crossz*sinx; 
+   camera_up_x = camera_up_x*cosx + crossx*sinx;
+   camera_up_y = camera_up_y*cosx + crossy*sinx;
+   camera_up_z = camera_up_z*cosx + crossz*sinx;
 
 
    camera_eye_x = vvx*vvnorm + camera_view_x;
@@ -402,8 +402,8 @@ void PbaViewer::ComputeEyeUpRight(int dx, int dy)
 
 void PbaViewer::ComputeEyeShift(float dz)
 {
-   float vvx = camera_eye_x-camera_view_x; 
-   float vvy = camera_eye_y-camera_view_y; 
+   float vvx = camera_eye_x-camera_view_x;
+   float vvy = camera_eye_y-camera_view_y;
    float vvz = camera_eye_z-camera_view_z;
    float vvnorm = std::sqrt( vvx*vvx + vvy*vvy + vvz*vvz );
    vvx /= vvnorm;
@@ -415,9 +415,9 @@ void PbaViewer::ComputeEyeShift(float dz)
    camera_eye_z += dz*vvz;
 }
 
-void PbaViewer::AddThing( pba::PbaThing& t ) 
-{ 
-   things.push_back(t); 
+void PbaViewer::AddThing( pba::PbaThing& t )
+{
+   things.push_back(t);
    std::cout << t->Name() << " added to viewer.\n";
 }
 

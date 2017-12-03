@@ -116,8 +116,9 @@ namespace pba {
             }
 
             // update dynamical state
-            if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, forces);}
-            else    {solver->updateDSWithCollision(dt, DS, forces);} // collision
+//            if (onKdTree)   {solver->updateDSWithCollisionWithKdTree(dt, DS, forces);}
+//            else    {solver->updateDSWithCollision(dt, DS, forces);} // collision
+            solver->updateDS(dt, DS, forces);
         }
 
         void Display()

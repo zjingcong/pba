@@ -50,15 +50,15 @@ class PbaViewer
     void Init( const std::vector<std::string>& args );
     //! Invokes the GLUT main loop.
     void MainLoop();
-    
+
     //! Set the window width
     void SetWidth( const int w ) { width = w; }
-    //! Set the window height 
+    //! Set the window height
     void SetHeight( const int h ) { height = h; }
 
     //! Get the window width
     const int& GetWidth() { return width;  }
-    //! Get the window height 
+    //! Get the window height
     const int& GetHeight() { return height; }
 
     //! Set the window title
@@ -71,17 +71,17 @@ class PbaViewer
     // Callback functions
     //! Cascading callback for initiating a display event
     void Display();
-    //! Cascading callback for a keyboard event 
+    //! Cascading callback for a keyboard event
     void Keyboard( unsigned char key, int x, int y );
-    //! Cascading callback for a mouse event 
+    //! Cascading callback for a mouse event
     void Mouse( int button, int state, int x, int y );
-    //! Cascading callback for a mouse motion event 
+    //! Cascading callback for a mouse motion event
     void Motion( int x, int y );
-    //! Cascading callback for a GLUT Special event 
+    //! Cascading callback for a GLUT Special event
     void Special( int key, int x, int y ){}
-    //! Cascading callback for an idle  event 
+    //! Cascading callback for an idle  event
     void Idle();
-    //! Cascading callback for a window reshape 
+    //! Cascading callback for a window reshape
     void Reshape( int w, int h );
     //! Cascading callback for reseting parameters
     void Reset();
@@ -91,7 +91,7 @@ class PbaViewer
     void AddThing( pba::PbaThing& t );
 
     //! Cascading callback for usage information
-    void Usage(); 
+    void Usage();
 
   private:
 
@@ -104,7 +104,7 @@ class PbaViewer
     int keystate, button;
     int mouse_state;
     float current_raster_pos[4];
-   
+
     float camera_fov;
     float camera_aspect;
     float camera_near;
@@ -117,7 +117,7 @@ class PbaViewer
     void ComputeEyeUpRight(int dx, int dy);
     void ComputeEyeShift(float dz);
 
-    // These are the objects that do the important processing. 
+    // These are the objects that do the important processing.
     std::vector<pba::PbaThing> things;
  
     static PbaViewer* pPbaViewer;

@@ -17,9 +17,9 @@ args = pbav.StringArray()
 
 for s in sys.argv:
 	args.push_back(s)
-
+#
 particles = things.Particles()
 viewer.AddThing(particles)
-
+#
 viewer.Init(args)
 viewer.MainLoop()
