@@ -10,6 +10,7 @@ fps = hou.fps()
 
 ################# init parms #################
 
+g = 8.0
 
 ################# init pba ###################
 args = pbah.StringArray()
@@ -18,9 +19,10 @@ houdini = pbah.CreatePbaHouParticles()
 houdini.init(args)
 dt = 1.0 / fps
 houdini.set_dt(dt)
-houdini.set_gravity(9.8)
+houdini.set_gravity(g)
 
 node.setCachedUserData('hou', houdini)
+node.setCachedUserData('geo', geo)
 
 houdini.reset()
 

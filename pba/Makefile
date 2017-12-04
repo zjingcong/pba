@@ -21,7 +21,8 @@ OFILES = base/PbaViewer.o \
          base/SoftBodyState.o \
          base/SBD.o \
          base/SphereState.o \
-         base/SphereCollision.o
+         base/SphereCollision.o \
+         base/AdvectByVolume.o
 
 
 THINGS = things/TestThing.h \

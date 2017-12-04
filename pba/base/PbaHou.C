@@ -11,13 +11,37 @@ namespace pba
     PbaHouParticles::~PbaHouParticles() {}
     void PbaHouParticles::init(const std::vector<std::string>& args)
     {
-        std::cout << "pba houdini init" << std::endl;
-
+        std::cout << "Pba Houdini Init" << std::endl;
     }
 
     void PbaHouParticles::solve()
     {
         solver->updateDS(dt, DS, forces);
+        current_frame++;
+    }
+
+    void PbaHouParticles::advect(std::string volume_path)
+    {
+        std::cout << "Load velocity field..." << std::endl;
+        Vec3fGrid::Ptr vel_grid = readVDBGrid<Vec3fTree>(volume_path, "vel");
+        AdvectByVolume::advect_by_volume(DS, vel_grid);
+
+        // test
+        AdvectByVolume::loop_grid(vel_grid);
+    }
+
+    void PbaHouParticles::test(double x, double y, double z, std::string volume_path)
+    {
+//        std::cout << "Load velocity field..." << std::endl;
+//        Vec3fGrid::Ptr vel_grid = readVDBGrid<Vec3fTree>(volume_path, "vel");
+//        Vector vel = AdvectByVolume::get_grid_value(Vector(x, y, z), vel_grid);
+//
+//        AdvectByVolume::loop_grid(vel_grid);
+//
+//        vel.printValue();
+//        std::cout << std::endl;
+        FloatGrid::Ptr float_grid = readVDBGrid<FloatTree>(volume_path, "tst");
+        AdvectByVolume::loop_floatgrid(float_grid);
     }
 
     void PbaHouParticles::add_DS(int num)
@@ -50,6 +74,11 @@ namespace pba
         gravity->update_parms("g", g);
     }
 
+    void PbaHouParticles::set_current_frame(int f)
+    {
+        current_frame = f;
+    }
+
     double* PbaHouParticles::get_pos(int p)
     {
         assert(p <= DS->nb() && p >= 0);
@@ -60,6 +89,18 @@ namespace pba
         pPos[2] = pos.Z();
 
         return pPos;
+    }
+
+    double* PbaHouParticles::get_vel(int p)
+    {
+        assert(p <= DS->nb() && p >= 0);
+        Vector vel = DS->vel(size_t(p));
+        double* pVel = new double[3];
+        pVel[0] = vel.X();
+        pVel[1] = vel.Y();
+        pVel[2] = vel.Z();
+
+        return pVel;
     }
 
     int PbaHouParticles::get_nb()
@@ -75,7 +116,8 @@ namespace pba
     PbaHouParticles* PbaHouParticles::pPbaHouParticles = nullptr;
 
     PbaHouParticles::PbaHouParticles():
-            dt(1.0/24.0)
+            dt(1.0/24.0),
+            current_frame(0)
     {
         DS = CreateDynamicalState("ParticlesDynamic");
         solver = CreateLeapFrogSolver();
