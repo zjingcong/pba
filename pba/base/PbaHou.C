@@ -12,42 +12,58 @@ namespace pba
     void PbaHouParticles::init(const std::vector<std::string>& args)
     {
         std::cout << "Pba Houdini Init" << std::endl;
+        DS->create_attr("life", float(100.0));
+        DS->create_attr("age", float(-1.0));
+        DS->create_attr("pscale", float(1.0));
+        DS->create_attr("dead", int(false));
     }
 
     void PbaHouParticles::solve()
     {
         solver->updateDS(dt, DS, forces);
         current_frame++;
+        // increase age
+        for (size_t i = 0; i < DS->nb(); ++i)
+        {
+            float age = DS->get_float_attr("age", i);
+            DS->set_attr("age", i, float(age + 1.0));
+        }
+        // set dead
+        for (size_t i = 0; i < DS->nb(); ++i)
+        {
+            float life = DS->get_float_attr("life", i);
+            float age = DS->get_float_attr("age", i);
+            bool dead_condition = (age > life);
+            DS->set_attr("dead", i, int(dead_condition));
+        }
     }
 
-    void PbaHouParticles::advect(std::string volume_path)
+    void PbaHouParticles::clean()
     {
-        std::cout << "Load velocity field..." << std::endl;
-        Vec3fGrid::Ptr vel_grid = readVDBGrid<Vec3fTree>(volume_path, "vel");
-        AdvectByVolume::advect_by_volume(DS, vel_grid);
-
-        // test
-        AdvectByVolume::loop_grid(vel_grid);
+        for (size_t i = 0, delete_num = 0; i < DS->nb(); ++i)
+        {
+            int dead = DS->get_int_attr("dead", i - delete_num);
+            if (dead)
+            {
+                DS->remove(i - delete_num);
+                delete_num++;
+            }
+        }
     }
 
-    void PbaHouParticles::test(double x, double y, double z, std::string volume_path)
-    {
-//        std::cout << "Load velocity field..." << std::endl;
-//        Vec3fGrid::Ptr vel_grid = readVDBGrid<Vec3fTree>(volume_path, "vel");
-//        Vector vel = AdvectByVolume::get_grid_value(Vector(x, y, z), vel_grid);
-//
-//        AdvectByVolume::loop_grid(vel_grid);
-//
-//        vel.printValue();
-//        std::cout << std::endl;
-        FloatGrid::Ptr float_grid = readVDBGrid<FloatTree>(volume_path, "tst");
-        AdvectByVolume::loop_floatgrid(float_grid);
-    }
-
-    void PbaHouParticles::add_DS(int num)
+    void PbaHouParticles::add_DS(int num, float life, float variance)
     {
         assert(num >= 0);
+        size_t nb = DS->nb();
         DS->add(size_t(num));
+        // auto assign id based on the generation
+        for (size_t i = 0; i < num; ++i)
+        {
+            size_t id = nb + i;
+            DS->set_id(id, int(id));
+            float l = float(life + 2 * variance * (drand48() - 0.5));
+            DS->set_attr("life", id, l);
+        }
     }
 
     void PbaHouParticles::set_pos(int p, double x, double y, double z)
@@ -81,7 +97,7 @@ namespace pba
 
     double* PbaHouParticles::get_pos(int p)
     {
-        assert(p <= DS->nb() && p >= 0);
+        assert(p <= int(DS->nb()) && p >= 0);
         Vector pos = DS->pos(size_t(p));
         double* pPos = new double[3];
         pPos[0] = pos.X();
@@ -93,7 +109,7 @@ namespace pba
 
     double* PbaHouParticles::get_vel(int p)
     {
-        assert(p <= DS->nb() && p >= 0);
+        assert(p <= int(DS->nb()) && p >= 0);
         Vector vel = DS->vel(size_t(p));
         double* pVel = new double[3];
         pVel[0] = vel.X();
@@ -103,9 +119,35 @@ namespace pba
         return pVel;
     }
 
+    int PbaHouParticles::get_id(int p)
+    {
+        assert(p <= int(DS->nb()) && p >= 0);
+        return DS->id(size_t(p));
+    }
+
     int PbaHouParticles::get_nb()
     {
         return int(DS->nb());
+    }
+
+    float PbaHouParticles::get_age(int p)
+    {
+        return DS->get_float_attr("age", size_t(p));
+    }
+
+    float PbaHouParticles::get_life(int p)
+    {
+        return DS->get_float_attr("life", size_t(p));
+    }
+
+    float PbaHouParticles::get_pscale(int p)
+    {
+        return DS->get_float_attr("pscale", size_t(p));
+    }
+
+    int PbaHouParticles::get_dead(int p)
+    {
+        return DS->get_int_attr("dead", size_t(p));
     }
 
     void PbaHouParticles::reset()

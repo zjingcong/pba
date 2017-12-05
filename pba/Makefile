@@ -22,7 +22,9 @@ OFILES = base/PbaViewer.o \
          base/SBD.o \
          base/SphereState.o \
          base/SphereCollision.o \
-         base/AdvectByVolume.o
+         base/AdvectByVolume.o \
+         base/PerlinNoise.o \
+         base/Noise.o
 
 
 THINGS = things/TestThing.h \

@@ -206,8 +206,7 @@ class PbaHouParticles(_object):
     __del__ = lambda self : None;
     def init(self, *args): return _PbaHou.PbaHouParticles_init(self, *args)
     def solve(self): return _PbaHou.PbaHouParticles_solve(self)
-    def advect(self, *args): return _PbaHou.PbaHouParticles_advect(self, *args)
-    def test(self, *args): return _PbaHou.PbaHouParticles_test(self, *args)
+    def clean(self): return _PbaHou.PbaHouParticles_clean(self)
     def add_DS(self, *args): return _PbaHou.PbaHouParticles_add_DS(self, *args)
     def set_pos(self, *args): return _PbaHou.PbaHouParticles_set_pos(self, *args)
     def set_vel(self, *args): return _PbaHou.PbaHouParticles_set_vel(self, *args)
@@ -216,7 +215,12 @@ class PbaHouParticles(_object):
     def set_current_frame(self, *args): return _PbaHou.PbaHouParticles_set_current_frame(self, *args)
     def get_pos(self, *args): return _PbaHou.PbaHouParticles_get_pos(self, *args)
     def get_vel(self, *args): return _PbaHou.PbaHouParticles_get_vel(self, *args)
+    def get_id(self, *args): return _PbaHou.PbaHouParticles_get_id(self, *args)
     def get_nb(self): return _PbaHou.PbaHouParticles_get_nb(self)
+    def get_age(self, *args): return _PbaHou.PbaHouParticles_get_age(self, *args)
+    def get_life(self, *args): return _PbaHou.PbaHouParticles_get_life(self, *args)
+    def get_pscale(self, *args): return _PbaHou.PbaHouParticles_get_pscale(self, *args)
+    def get_dead(self, *args): return _PbaHou.PbaHouParticles_get_dead(self, *args)
     def reset(self): return _PbaHou.PbaHouParticles_reset(self)
 PbaHouParticles_swigregister = _PbaHou.PbaHouParticles_swigregister
 PbaHouParticles_swigregister(PbaHouParticles)

@@ -1,5 +1,7 @@
 
 import sys
+import exceptions
+
 sys.path.append('/home/jingcoz/workspace/pba/final')
 
 import pba.swig.PbaHou as pbah
@@ -25,6 +27,8 @@ frame_id = int(hou.frame())
 start_frame = config_parms['start_sim']
 advect_start_frame = config_parms['start_advect']
 advect_scale = config_parms['advect_scale']
+life = config_parms['life']
+life_var = config_parms['life_var']
 
 '''==============================================================='''
 
@@ -32,7 +36,7 @@ advect_scale = config_parms['advect_scale']
 # init dynamical state
 def create_init_ds():
     init_num = len(geo.points())
-    houdini.add_DS(init_num)
+    houdini.add_DS(init_num, life, life_var)
     i = 0
     for point in geo.points():
         pos = point.position()
@@ -44,10 +48,12 @@ def create_init_ds():
 
 # generate particles from third input
 def create_particles(reseed_geo):
+    print " - current points num: ", len(geo.points())
     # get third input geom
     nb = houdini.get_nb()
     num = len(reseed_geo.points())
-    houdini.add_DS(num)
+    print " - reseed num: ", num
+    houdini.add_DS(num, life, life_var)
     for point in reseed_geo.points():
         pos = point.position()
         # create dynamic state
@@ -56,7 +62,6 @@ def create_particles(reseed_geo):
         # create point
         p = geo.createPoint()
         p.setPosition(pos)
-        p.setAttribValue("vel", (0.0, 0.0, 0.0))
         nb = nb + 1
 
 
@@ -64,13 +69,34 @@ def create_particles(reseed_geo):
 def update_points():
     points = geo.points()
     particles_num = houdini.get_nb()
-    for i in xrange(particles_num):
+    num = particles_num
+    if particles_num > len(points):
+        num = len(points)
+    for i in xrange(num):
         new_pos_tmp = houdini.get_pos(i)
         new_vel_tmp = houdini.get_vel(i)
         new_pos = pbah.doubleArray_frompointer(new_pos_tmp)
         new_vel = pbah.doubleArray_frompointer(new_vel_tmp)
+        life_value = houdini.get_life(i)
+        age_value = houdini.get_age(i)
+        pscale = houdini.get_pscale(i)
+        dead = houdini.get_dead(i)
+        # set attrib to houdini points, match the attrib type between houdini and pba
         points[i].setPosition((new_pos[0], new_pos[1], new_pos[2]))
         points[i].setAttribValue("vel", (new_vel[0], new_vel[1], new_vel[2]))
+        points[i].setAttribValue("life", life_value)
+        points[i].setAttribValue("age", age_value)
+        points[i].setAttribValue("pscale", pscale)
+        points[i].setAttribValue("dead", dead)
+
+
+# delete dead points
+def delete_dead():
+    points = geo.points()
+    dead_points = [p for p in points if p.attribValue("dead") == 1]
+    print " - current points num: ", len(points), "delete dead points: ", len(dead_points), "..."
+    geo.deletePoints(dead_points)
+    print " - delete success, rest points num: ", len(geo.points())
 
 
 # get vel
@@ -128,9 +154,16 @@ if hou.frame() == start_frame:
     print "create init ds"
     color_attrib = geo.addAttrib(hou.attribType.Point, "Cd", (1.0, 1.0, 1.0))
     vel_attrib = geo.addAttrib(hou.attribType.Point, "vel", (0.0, 10.0, 0.0))
+    # match the attrib type!!!
+    life_attrib = geo.addAttrib(hou.attribType.Point, "life", 1000.0)   # float
+    age_attrib = geo.addAttrib(hou.attribType.Point, "age", -1.0)   # float
+    dead_attrib = geo.addAttrib(hou.attribType.Point, "dead", 0)    # int
+    pscale_attrib = geo.addAttrib(hou.attribType.Point, "pscale", 1.0)  # float
     create_init_ds()
 
 '''==============================================================='''
+
+'''============================= SIM ============================='''
 
 print "-" * 10, "SIM FRAME", frame_id, "-" * 10
 # add particles
@@ -146,3 +179,10 @@ houdini.solve()
 # draw
 print "update houdini geom points..."
 update_points()
+# clean
+print "delete houdini dead points..."
+delete_dead()
+print "clean pba dynamical state..."
+houdini.clean()
+
+'''==============================================================='''

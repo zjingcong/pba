@@ -49,6 +49,9 @@ class DSAttribute
        }
     }
     void clear() { data.clear(); }
+    // remove element by index
+    void remove(const size_t p) {data.erase(data.begin() + p);}
+
     const std::string& attr_name() const { return name; }
     const T& default_value() const { return defVal; }
     typename std::vector<T>::const_iterator cbegin() const { return data.begin(); }
@@ -118,7 +121,10 @@ class DynamicalStateData
 
     void merge( const DynamicalStateData& g );
 
+    // clear all elements
     void clear();
+    // remove all elements by index
+    void remove(const size_t p);
 
     const std::string& Name() const { return name; }
 

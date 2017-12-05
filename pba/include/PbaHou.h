@@ -4,11 +4,9 @@
 
 # include <vector>
 # include <string>
-# include "VDBTools.h"
 # include "assert.h"
 # include "DynamicalState.h"
 # include "Solver.h"
-# include "AdvectByVolume.h"
 
 using namespace std;
 
@@ -29,10 +27,10 @@ class PbaHouParticles
     ~PbaHouParticles();
     void init(const std::vector<std::string>& args);
     void solve();
-    void advect(std::string volume_path);
-    void test(double x, double y, double z, std::string volume_path);
+    //! clean "dead" particles
+    void clean();
 
-    void add_DS(int num);
+    void add_DS(int num, float life, float variance);
     void set_pos(int p, double x, double y, double z);
     void set_vel(int p, double x, double y, double z);
     void set_dt(double delta_t);
@@ -41,7 +39,12 @@ class PbaHouParticles
 
     double* get_pos(int p);
     double* get_vel(int p);
+    int get_id(int p);
     int get_nb();
+    float get_age(int p);
+    float get_life(int p);
+    float get_pscale(int p);
+    int get_dead(int p);
 
     void reset();
 

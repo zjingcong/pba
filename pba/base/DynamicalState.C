@@ -403,6 +403,29 @@ void DynamicalStateData::clear()
 }
 
 
+void DynamicalStateData::remove(const size_t p)
+{
+   for( std::map<std::string,DSAttribute<int> >::iterator a = int_attributes.begin(); a != int_attributes.end(); a++ )
+   {
+      a->second.remove(p);
+   }
+   for( std::map<std::string,DSAttribute<float> >::iterator a = float_attributes.begin(); a != float_attributes.end(); a++ )
+   {
+      a->second.remove(p);
+   }
+   for( std::map<std::string,DSAttribute<Vector> >::iterator a = vector_attributes.begin(); a != vector_attributes.end(); a++ )
+   {
+      a->second.remove(p);
+   }
+   for( std::map<std::string,DSAttribute<Color> >::iterator a = color_attributes.begin(); a != color_attributes.end(); a++ )
+   {
+      a->second.remove(p);
+   }
+   nb_items -= 1;
+   re_find_main_attrs();
+}
+
+
 void DynamicalStateData::re_find_main_attrs()
 {
    positions = vector_attributes.find( "pos" );
