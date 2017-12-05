@@ -13,7 +13,7 @@ geo = node.geometry()   # incoming geometry
 '''============================ SETUP ============================'''
 
 # get input data
-houdini = inputs[1].cachedUserData('hou')
+pba = inputs[1].cachedUserData('pba')
 config_parms = inputs[1].cachedUserData('config_parms')
 reseed_geo = inputs[2].geometry()
 dens = inputs[3].cachedUserData('dens')
@@ -21,7 +21,7 @@ vel_x = inputs[3].cachedUserData('vel_x')
 vel_y = inputs[3].cachedUserData('vel_y')
 vel_z = inputs[3].cachedUserData('vel_z')
 # set node user data
-node.setCachedUserData('hou', houdini)
+node.setCachedUserData('hou', pba)
 
 frame_id = int(hou.frame())
 start_frame = config_parms['start_sim']
@@ -36,13 +36,13 @@ life_var = config_parms['life_var']
 # init dynamical state
 def create_init_ds():
     init_num = len(geo.points())
-    houdini.add_DS(init_num, life, life_var)
+    pba.add_DS(init_num, life, life_var)
     i = 0
     for point in geo.points():
         pos = point.position()
         # create dynamic state
-        houdini.set_pos(i, pos[0], pos[1], pos[2])
-        houdini.set_vel(i, 0, 0, 0)
+        pba.set_pos(i, pos[0], pos[1], pos[2])
+        pba.set_vel(i, 0, 0, 0)
         i = i + 1
 
 
@@ -50,15 +50,15 @@ def create_init_ds():
 def create_particles(reseed_geo):
     print " - current points num: ", len(geo.points())
     # get third input geom
-    nb = houdini.get_nb()
+    nb = pba.get_nb()
     num = len(reseed_geo.points())
     print " - reseed num: ", num
-    houdini.add_DS(num, life, life_var)
+    pba.add_DS(num, life, life_var)
     for point in reseed_geo.points():
         pos = point.position()
         # create dynamic state
-        houdini.set_pos(nb, pos[0], pos[1], pos[2])
-        houdini.set_vel(nb, 0, 0, 0)
+        pba.set_pos(nb, pos[0], pos[1], pos[2])
+        pba.set_vel(nb, 0, 0, 0)
         # create point
         p = geo.createPoint()
         p.setPosition(pos)
@@ -68,19 +68,19 @@ def create_particles(reseed_geo):
 # update houdini points after solving pba dynamical state
 def update_points():
     points = geo.points()
-    particles_num = houdini.get_nb()
+    particles_num = pba.get_nb()
     num = particles_num
     if particles_num > len(points):
         num = len(points)
     for i in xrange(num):
-        new_pos_tmp = houdini.get_pos(i)
-        new_vel_tmp = houdini.get_vel(i)
+        new_pos_tmp = pba.get_pos(i)
+        new_vel_tmp = pba.get_vel(i)
         new_pos = pbah.doubleArray_frompointer(new_pos_tmp)
         new_vel = pbah.doubleArray_frompointer(new_vel_tmp)
-        life_value = houdini.get_life(i)
-        age_value = houdini.get_age(i)
-        pscale = houdini.get_pscale(i)
-        dead = houdini.get_dead(i)
+        life_value = pba.get_life(i)
+        age_value = pba.get_age(i)
+        pscale = pba.get_pscale(i)
+        dead = pba.get_dead(i)
         # set attrib to houdini points, match the attrib type between houdini and pba
         points[i].setPosition((new_pos[0], new_pos[1], new_pos[2]))
         points[i].setAttribValue("vel", (new_vel[0], new_vel[1], new_vel[2]))
@@ -126,9 +126,9 @@ def clamp(value, min, max):
 
 # advect points by vel field
 def advect_by_volume(v_x, v_y, v_z, scale):
-    particles_num = houdini.get_nb()
+    particles_num = pba.get_nb()
     for i in xrange(particles_num):
-        pos_tmp = houdini.get_pos(i)
+        pos_tmp = pba.get_pos(i)
         pos = pbah.doubleArray_frompointer(pos_tmp)
         position = (pos[0], pos[1], pos[2])
         vel_from_volume = get_vel_from_volume(v_x, v_y, v_z, position)
@@ -137,14 +137,14 @@ def advect_by_volume(v_x, v_y, v_z, scale):
         factor = 1.0
         # factor = scale * clamp(dens_from_volume, 0.0, 1.0)
         vel = tuple(map(lambda x: x * factor, vel_from_volume))
-        houdini.set_vel(i, vel[0], vel[1], vel[2])
+        pba.set_vel(i, vel[0], vel[1], vel[2])
 
 
 '''============================ RESET ============================'''
 
 if hou.frame() <= start_frame:
-    houdini.reset()
-    print "reset pba dynamical state: ", houdini.get_nb()
+    pba.reset()
+    print "reset pba dynamical state: ", pba.get_nb()
 
 '''==============================================================='''
 
@@ -175,7 +175,7 @@ if frame_id > advect_start_frame:
     advect_by_volume(vel_x, vel_y, vel_z, advect_scale)
 # solve
 print "solve using leap frog..."
-houdini.solve()
+pba.solve()
 # draw
 print "update houdini geom points..."
 update_points()
@@ -183,6 +183,6 @@ update_points()
 print "delete houdini dead points..."
 delete_dead()
 print "clean pba dynamical state..."
-houdini.clean()
+pba.clean()
 
 '''==============================================================='''

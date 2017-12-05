@@ -28,16 +28,16 @@ config_parms = dict(start_sim=start_sim_frame,
 print "Init Pba Houdini..."
 args = pbah.StringArray()
 
-houdini = pbah.CreatePbaHouParticles()
-houdini.init(args)
+pba = pbah.CreatePbaHouParticles()
+pba.init(args)
 dt = 1.0 / fps
-houdini.set_dt(dt)
-houdini.set_gravity(g)
-houdini.reset()
+pba.set_dt(dt)
+pba.set_gravity(g)
+pba.reset()
 
 ################# set usr datas ###################
 print "Set all user datas..."
-node.setCachedUserData('hou', houdini)
+node.setCachedUserData('pba', pba)
 node.setCachedUserData('geo', geo)
 node.setCachedUserData('config_parms', config_parms)
 
