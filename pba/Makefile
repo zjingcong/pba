@@ -27,10 +27,6 @@ OFILES = base/PbaViewer.o \
          base/Noise.o
 
 
-THINGS = things/TestThing.h \
-         things/ParticlesThing.h
-
-
 ROOTDIR = .
 LIB = $(ROOTDIR)/lib/libpba.a 
 
@@ -75,33 +71,16 @@ INCLUDES = -I ./include/ -I ./things -I /usr/local/include/ -I /opt/local/includ
 
 
 
-
 .C.o:
 	$(CXX) -c $(INCLUDES) $< -o $@
 
 base: $(OFILES)
 	ar rv $(LIB) $?
 
-stuff: $(OFILES) $(THINGS) swig/PbaThings.i
-	make base
-	make genthings
-
 clean:
 	rm -rf *.o base/*.o base/*~ include/*~ python/*~ things/*~ core $(LIB)  *~ *.dSYM swig/*.cxx swig/*~ swig/*.so swig/*.o swig/pba.py* swig/PbaViewer.py swig/PbaThings.py swig/*.pyc ./*.pyc base/*.C.swp
-
-viewer:	swig/PbaViewer.i	$(OFILES)
-	$(SWIGEXEC) -c++ -python -shadow -I./include/ swig/PbaViewer.i
-	$(CXX) -c swig/PbaViewer_wrap.cxx  $(INCLUDES) $(VDBLIB) -o swig/PbaViewer_wrap.o
-	$(SWIGLD) swig/PbaViewer_wrap.o $(SWIGLIB) -ldl -L./lib -lpba $(GLLDFLAGS) $(VDBLIB)  -o swig/_PbaViewer.so
-
 
 hou:	swig/PbaHou.i	$(OFILES)
 	$(SWIGEXEC) -c++ -python -shadow -I./include/ swig/PbaHou.i
 	$(CXX) -c swig/PbaHou_wrap.cxx  $(INCLUDES) $(VDBLIB) -o swig/PbaHou_wrap.o
 	$(SWIGLD) swig/PbaHou_wrap.o $(SWIGLIB) -ldl -L./lib -lpba $(GLLDFLAGS) $(VDBLIB)  -o swig/_PbaHou.so
-
-
-genthings:	swig/PbaThings.i $(THINGS)
-	$(SWIGEXEC) -c++ -python -shadow -I./include/ -I./things swig/PbaThings.i
-	$(CXX) -c swig/PbaThings_wrap.cxx  $(INCLUDES) $(VDBLIB) -o swig/PbaThings_wrap.o
-	$(SWIGLD)  -L./lib -lpba swig/PbaThings_wrap.o $(SWIGLIB) -lpba -ldl $(GLLDFLAGS) $(VDBLIB)   -o swig/_PbaThings.so

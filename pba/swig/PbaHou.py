@@ -211,7 +211,6 @@ class PbaHouParticles(_object):
     def update_status(self, *args): return _PbaHou.PbaHouParticles_update_status(self, *args)
     def create_noise(self, *args): return _PbaHou.PbaHouParticles_create_noise(self, *args)
     def advect_by_noise(self, *args): return _PbaHou.PbaHouParticles_advect_by_noise(self, *args)
-    def add_by_noise(self, *args): return _PbaHou.PbaHouParticles_add_by_noise(self, *args)
     def set_pos(self, *args): return _PbaHou.PbaHouParticles_set_pos(self, *args)
     def set_vel(self, *args): return _PbaHou.PbaHouParticles_set_vel(self, *args)
     def set_dt(self, *args): return _PbaHou.PbaHouParticles_set_dt(self, *args)

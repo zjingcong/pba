@@ -23,7 +23,7 @@ octaves = 0.5
 offset = 0.005
 houdini.create_noise(gamma, freq, fjump, octaves, offset)
 
-houdini.add_DS(1, 1000, 10)
+houdini.add_DS(1, 1000, 10, 1)
 houdini.set_pos(0, 10.0, 10, 100)
 vel_tmp =  houdini.get_vel(0)
 vel = pbah.doubleArray_frompointer(vel_tmp)
