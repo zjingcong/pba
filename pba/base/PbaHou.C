@@ -116,17 +116,6 @@ namespace pba
         }
     }
 
-    void PbaHouParticles::add_by_noise(double scale)
-    {
-        for (size_t i = 0; i < DS->nb(); ++i)
-        {
-            Vector pos = DS->pos(i);
-            Vector noise_vec = noise_field(pos);
-            Vector vel = DS->vel(i);
-            DS->set_vel(i, scale * noise_vec + vel);
-        }
-    }
-
     void PbaHouParticles::set_pos(int p, double x, double y, double z)
     {
         assert(p <= int(DS->nb()) && p >= 0);
@@ -149,6 +138,11 @@ namespace pba
     void PbaHouParticles::set_gravity(float g)
     {
         gravity->update_parms("g", g);
+    }
+
+    void PbaHouParticles::set_noise_force_scale(float scale)
+    {
+        noise_force->update_parms("scale", scale);
     }
 
     void PbaHouParticles::set_current_frame(int f)
@@ -265,10 +259,12 @@ namespace pba
             variance(0.0)
     {
         DS = CreateDynamicalState("ParticlesDynamic");
+        perlin_noise = new FractalSum<PerlinNoiseGustavson>;
         solver = CreateLeapFrogSolver();
         gravity = CreateGravity(DS, 0.98); // add gravity
+        noise_force = CreateNoiseForce(DS, perlin_noise, 1.0, 0.005);
         forces.push_back(gravity);
-        perlin_noise = new FractalSum<PerlinNoiseGustavson>;
+        forces.push_back(noise_force);
     }
 
     PbaHouParticles* CreatePbaHouParticles()  { return PbaHouParticles::Instance();}

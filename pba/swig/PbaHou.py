@@ -216,6 +216,7 @@ class PbaHouParticles(_object):
     def set_vel(self, *args): return _PbaHou.PbaHouParticles_set_vel(self, *args)
     def set_dt(self, *args): return _PbaHou.PbaHouParticles_set_dt(self, *args)
     def set_gravity(self, *args): return _PbaHou.PbaHouParticles_set_gravity(self, *args)
+    def set_noise_force_scale(self, *args): return _PbaHou.PbaHouParticles_set_noise_force_scale(self, *args)
     def set_current_frame(self, *args): return _PbaHou.PbaHouParticles_set_current_frame(self, *args)
     def get_pos(self, *args): return _PbaHou.PbaHouParticles_get_pos(self, *args)
     def get_vel(self, *args): return _PbaHou.PbaHouParticles_get_vel(self, *args)

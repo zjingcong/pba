@@ -49,6 +49,28 @@ const Vector MagneticForce::getForce(const size_t& p)
 }
 
 
+const Vector NoiseForce::getForce(const size_t &p)
+{
+    Noise_t noise_parms = noise->getNoiseParameters();
+    double scale = pow( 1.0 + noise_parms.roughness, noise_parms.octaves - 1.0);
+    float noise_offset = floatParms.at("offset");
+    Vector pos = DS->pos(p);
+
+    Vector delta_x = noise_offset * Vector(1.0, 1.0, 1.0);
+    Vector delta_y = noise_offset * Vector(1.0, 0.0, -1.0);
+    Vector delta_z = noise_offset * Vector(0.0, 1.0, 0.0);
+
+    double n0 = (2 * noise->eval(pos)) / scale;
+    double nx = (2 * noise->eval(pos + delta_x)) / scale;
+    double ny = (2 * noise->eval(pos + delta_y)) / scale;
+    double nz = (2 * noise->eval(pos + delta_z)) / scale;
+
+    force = Vector(nx - n0, ny - n0, nz - n0) * floatParms.at("scale");
+
+    return force;
+}
+
+
 //! --------------------------- Create Force Share Ptrs ------------------------------------
 
 pba::ForcePtr pba::CreateGravity(DynamicalState ds, const float &gconstant)
@@ -69,4 +91,9 @@ pba::ForcePtr pba::CreateSpring(DynamicalState ds, const Vector &x0, const float
 pba::ForcePtr pba::CreateMagneticForce(DynamicalState ds, const Vector &xm, const float &b)
 {
     return ForcePtr(new MagneticForce(ds, xm, b));
+}
+
+pba::ForcePtr pba::CreateNoiseForce(DynamicalState ds, Noise *n, const float &scale, const float &offset)
+{
+    return ForcePtr(new NoiseForce(ds, n, scale, offset));
 }

@@ -8,6 +8,8 @@
 # include <string>
 # include "Vector.h"
 # include "DynamicalState.h"
+# include "Noise.h"
+# include "PerlinNoise.h"
 
 namespace pba
 {
@@ -113,11 +115,30 @@ namespace pba
     };
 
 
+    class NoiseForce: public ForceBase
+    {
+    public:
+        NoiseForce(DynamicalState& ds, Noise* n, const float& scale, const float& offset): DS(ds), noise(n)
+        {
+            name = "noise_force";
+            floatParms = {{"scale", scale}, {"offset", offset}};
+        }
+        ~NoiseForce()   {}
+
+        const Vector getForce(const size_t& p);
+
+    private:
+        DynamicalState DS;
+        Noise* noise;
+    };
+
+
     /// set up forces shared ptrs
     ForcePtr CreateGravity(DynamicalState ds, const float& gconstant);
     ForcePtr CreateBoidInnerForce(DynamicalState ds, BoidPtr& b);
     ForcePtr CreateSpring(DynamicalState ds, const Vector& x0, const float& kconstant);
     ForcePtr CreateMagneticForce(DynamicalState ds, const Vector& xm, const float& b);
+    ForcePtr CreateNoiseForce(DynamicalState ds, Noise* n, const float& scale, const float& offset);
 }
 
 # include "Boid.h"

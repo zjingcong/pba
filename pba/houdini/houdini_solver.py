@@ -26,9 +26,11 @@ node.setCachedUserData('hou', pba)
 frame_id = int(hou.frame())
 start_frame = config_parms['start_sim']
 advect_start_frame = config_parms['start_advect']
+noise_start_frame = config_parms['start_noise']
 advect_scale = config_parms['advect_scale']
 life = config_parms['life']
 life_var = config_parms['life_var']
+ppscale = config_parms['pscale']
 
 '''==============================================================='''
 
@@ -36,7 +38,7 @@ life_var = config_parms['life_var']
 # init dynamical state
 def create_init_ds():
     init_num = len(geo.points())
-    pba.add_DS(init_num, life, life_var)
+    pba.add_DS(init_num, life, life_var, ppscale)
     i = 0
     for point in geo.points():
         pos = point.position()
@@ -53,7 +55,7 @@ def create_particles(reseed_geo):
     nb = pba.get_nb()
     num = len(reseed_geo.points())
     print " - reseed num: ", num
-    pba.add_DS(num, life, life_var)
+    pba.add_DS(num, life, life_var, ppscale)
     for point in reseed_geo.points():
         pos = point.position()
         # create dynamic state
@@ -75,19 +77,24 @@ def update_points():
     for i in xrange(num):
         new_pos_tmp = pba.get_pos(i)
         new_vel_tmp = pba.get_vel(i)
+        new_cd_tmp = pba.get_cd(i)
         new_pos = pbah.doubleArray_frompointer(new_pos_tmp)
         new_vel = pbah.doubleArray_frompointer(new_vel_tmp)
+        new_cd = pbah.doubleArray_frompointer(new_cd_tmp)
         life_value = pba.get_life(i)
         age_value = pba.get_age(i)
         pscale = pba.get_pscale(i)
         dead = pba.get_dead(i)
+        id = pba.get_id(i)
         # set attrib to houdini points, match the attrib type between houdini and pba
         points[i].setPosition((new_pos[0], new_pos[1], new_pos[2]))
         points[i].setAttribValue("vel", (new_vel[0], new_vel[1], new_vel[2]))
+        points[i].setAttribValue("Cd", (new_cd[0], new_cd[1], new_cd[2]))
         points[i].setAttribValue("life", life_value)
         points[i].setAttribValue("age", age_value)
         points[i].setAttribValue("pscale", pscale)
         points[i].setAttribValue("dead", dead)
+        points[i].setAttribValue("id", id)
 
 
 # delete dead points
@@ -152,13 +159,17 @@ if hou.frame() <= start_frame:
 
 if hou.frame() == start_frame:
     print "create init ds"
-    color_attrib = geo.addAttrib(hou.attribType.Point, "Cd", (1.0, 1.0, 1.0))
-    vel_attrib = geo.addAttrib(hou.attribType.Point, "vel", (0.0, 10.0, 0.0))
     # match the attrib type!!!
+    # float3 attribs
+    vel_attrib = geo.addAttrib(hou.attribType.Point, "vel", (0.0, 10.0, 0.0))
+    color_attrib = geo.addAttrib(hou.attribType.Point, "Cd", (0.0, 0.0, 1.0))
+    # float attribs
     life_attrib = geo.addAttrib(hou.attribType.Point, "life", 1000.0)   # float
     age_attrib = geo.addAttrib(hou.attribType.Point, "age", -1.0)   # float
-    dead_attrib = geo.addAttrib(hou.attribType.Point, "dead", 0)    # int
     pscale_attrib = geo.addAttrib(hou.attribType.Point, "pscale", 1.0)  # float
+    # int attribs
+    dead_attrib = geo.addAttrib(hou.attribType.Point, "dead", 0)    # int
+    id_attrib = geo.addAttrib(hou.attribType.Point, "id", 0)    # int
     create_init_ds()
 
 '''==============================================================='''
@@ -170,12 +181,19 @@ print "-" * 10, "SIM FRAME", frame_id, "-" * 10
 print "reseed src..."
 create_particles(reseed_geo)
 # advect
-if frame_id > advect_start_frame:
+if frame_id >= noise_start_frame and frame_id < advect_start_frame:
+    # advect by noise field
+    print "advect by noise field..."
+    pba.advect_by_noise(frame_id - noise_start_frame + 5)
+if frame_id >= advect_start_frame:
+    # advect by vdb file
     print "advect by volume..."
     advect_by_volume(vel_x, vel_y, vel_z, advect_scale)
+
 # solve
 print "solve using leap frog..."
 pba.solve()
+pba.update_status(8.5)
 # draw
 print "update houdini geom points..."
 update_points()

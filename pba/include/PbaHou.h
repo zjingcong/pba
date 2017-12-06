@@ -41,14 +41,13 @@ class PbaHouParticles
     void create_noise(float gamma, float freq, float f_jump, float octaves, float offset);
     //! advect particles by 3d-noise field
     void advect_by_noise(double scale);
-    //! add particles vel by 3d-noise field
-    void add_by_noise(double scale);
 
     //! set values
     void set_pos(int p, double x, double y, double z);
     void set_vel(int p, double x, double y, double z);
     void set_dt(double delta_t);
     void set_gravity(float g);
+    void set_noise_force_scale(float scale);
     void set_current_frame(int f);
 
     //! get values
@@ -73,6 +72,7 @@ class PbaHouParticles
     float variance;
     ForcePtrContainer forces;
     ForcePtr gravity;
+    ForcePtr noise_force;
     double dt;
     int current_frame;
     Noise* perlin_noise;
